@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "staging": true
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex" }
+      ],
+      "has": [
+        {
+          "type": "host",
+          "value": ".*staging.*"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KutumbKosh — Your Family's Financial Vault</title>
+  <meta name="description" content="Something powerful is coming for Indian families. KutumbKosh — secure, simple, and built for your peace of mind." />
+  <meta property="og:title" content="KutumbKosh — Coming Soon" />
+  <meta property="og:description" content="Your family's most important financial details — secured, organized, and always accessible when it matters most." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kutumbkosh.com" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Subtle animated gradient background */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      top: -120px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      bottom: -80px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
+      animation: drift 10s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Shield icon */
+    .shield {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.18), 0 0 0 1px rgba(37,99,235,0.08);
+      animation: float 4s ease-in-out infinite;
+    }
+    .shield svg {
+      width: 36px;
+      height: 36px;
+      color: white;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .brand {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+    .brand span {
+      color: var(--blue);
+    }
+
+    .tagline {
+      font-size: 1.05rem;
+      color: var(--gray-500);
+      font-weight: 500;
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    /* Mystery teaser cards */
+    .teasers {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      width: 100%;
+      margin-bottom: 2.5rem;
+    }
+    @media (min-width: 540px) {
+      .teasers { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .teaser {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .teaser:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .teaser-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .teaser-text {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    /* The hook question */
+    .hook {
+      background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2.5rem;
+      width: 100%;
+    }
+    .hook p {
+      font-size: 0.95rem;
+      color: var(--blue-dark);
+      font-weight: 600;
+      line-height: 1.6;
+    }
+    .hook p.hook-sub {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--gray-500);
+      margin-top: 0.5rem;
+    }
+
+    /* CTA badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--gray-900);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.6rem 1.2rem;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      animation: pulse-badge 2.5s ease-in-out infinite;
+    }
+    .badge .dot {
+      width: 7px;
+      height: 7px;
+      background: #34d399;
+      border-radius: 50%;
+    }
+    @keyframes pulse-badge {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(17,24,39,0.15); }
+      50% { box-shadow: 0 0 0 8px rgba(17,24,39,0); }
+    }
+
+    /* Contact */
+    .contact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .contact-label {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .contact a {
+      font-size: 0.95rem;
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .contact a:hover {
+      color: var(--blue-dark);
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--gray-400);
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 540px) {
+      .brand { font-size: 1.75rem; }
+      .tagline { font-size: 0.95rem; }
+      .hook { padding: 1.2rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <div class="shield">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+    </div>
+
+    <h1 class="brand">Kutumb<span>Kosh</span></h1>
+    <p class="tagline">Your family's financial vault — secured, organized,<br/>and accessible when it matters most.</p>
+
+    <div class="badge"><span class="dot"></span> Launching Soon</div>
+
+    <div class="teasers">
+      <div class="teaser">
+        <div class="teaser-icon">🔐</div>
+        <div class="teaser-text">Every policy, account &amp; investment — one secure place</div>
+      </div>
+      <div class="teaser">
+        <div class="teaser-icon">👨‍👩‍👧‍👦</div>
+        <div class="teaser-text">Your family will know exactly what to do — and when</div>
+      </div>
+      <div class="teaser">
+        <div class="teaser-icon">🇮🇳</div>
+        <div class="teaser-text">Built for Indian families, compliant with DPDPA 2023</div>
+      </div>
+    </div>
+
+    <div class="hook">
+      <p>If something happened to you tomorrow — would your family know where everything is?</p>
+      <p class="hook-sub">Most families don't. We're here to change that.</p>
+    </div>
+
+    <div class="contact">
+      <span class="contact-label">Reach us at</span>
+      <a href="mailto:care@kutumbkosh.com">care@kutumbkosh.com</a>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 KutumbKosh. All rights reserved.</footer>
+</body>
+</html>
