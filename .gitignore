@@ -8,7 +8,7 @@
 /coverage
 
 # next.js
-/.next/
+/.next/local
 /out/
 
 # production
@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docs
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+
+
+.next

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { validateEmail } from "@/lib/validations";
 import { isRateLimited } from "@/lib/security";
@@ -11,12 +11,15 @@ import {
   ArrowRight,
   Mail,
   Loader2,
-  CheckCircle2,
   Lock,
   TrendingUp,
   Users,
   Bell,
   Landmark,
+  Inbox,
+  RefreshCw,
+  ArrowLeft,
+  Fingerprint,
 } from "lucide-react";
 import HeroIllustration from "@/components/illustrations/HeroIllustration";
 
@@ -27,15 +30,45 @@ export default function LandingPage() {
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   // Capture referral code from URL params (e.g., ?ref=CA-MEHTA-XY12)
   useEffect(() => {
     captureReferral();
   }, []);
 
+  // Countdown timer for resend
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  // Check for auth error in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "auth") {
+      setError("Your login link has expired or is invalid. Please request a new one.");
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
+
   const handleEmailChange = (val: string) => {
     setEmail(val);
     if (touched) setEmailError(validateEmail(val));
+  };
+
+  const sendMagicLink = async (targetEmail: string) => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({
+      email: targetEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) throw error;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -45,7 +78,6 @@ export default function LandingPage() {
     setEmailError(err);
     if (err) return;
 
-    // Rate limit: max 5 login attempts per minute
     if (isRateLimited(`login_${email}`, 5, 60_000)) {
       setError("Too many login attempts. Please wait a minute and try again.");
       return;
@@ -55,22 +87,47 @@ export default function LandingPage() {
     setError("");
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
+      await sendMagicLink(email);
       setSent(true);
+      setCountdown(30);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleResend = async () => {
+    if (countdown > 0 || resending) return;
+    setResending(true);
+    setResent(false);
+    try {
+      await sendMagicLink(email);
+      setResent(true);
+      setCountdown(30);
+      setTimeout(() => setResent(false), 3000);
+    } catch {
+      setError("Could not resend. Please try again.");
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // Detect email provider for "Open inbox" button
+  const getEmailProvider = (email: string) => {
+    const domain = email.split("@")[1]?.toLowerCase();
+    if (!domain) return null;
+    if (domain === "gmail.com") return { name: "Gmail", url: "https://mail.google.com" };
+    if (domain === "outlook.com" || domain === "hotmail.com" || domain === "live.com")
+      return { name: "Outlook", url: "https://outlook.live.com" };
+    if (domain === "yahoo.com" || domain === "ymail.com")
+      return { name: "Yahoo Mail", url: "https://mail.yahoo.com" };
+    if (domain === "icloud.com" || domain === "me.com")
+      return { name: "iCloud Mail", url: "https://www.icloud.com/mail" };
+    return null;
+  };
+
+  const emailProvider = getEmailProvider(email);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -84,13 +141,14 @@ export default function LandingPage() {
             <span className="text-lg font-bold text-gray-900">KutumbKosh</span>
           </div>
           <div className="hidden sm:flex items-center gap-5 text-xs text-gray-400 font-medium">
-            <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Encrypted</span>
-            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> DPDPA</span>
+            <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> 256-bit Encrypted</span>
+            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> DPDPA 2023</span>
+            <span className="flex items-center gap-1"><Fingerprint className="w-3 h-3" /> No passwords stored</span>
           </div>
         </div>
       </header>
 
-      {/* Main — tight to header */}
+      {/* Main */}
       <main className="flex-1 px-6 pt-6 lg:pt-8 pb-8">
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
@@ -98,7 +156,7 @@ export default function LandingPage() {
             {/* Left: Headline + Illustration + Features */}
             <div className="order-2 lg:order-1">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 rounded-full text-blue-700 text-xs font-semibold mb-4">
-                <Shield className="w-3 h-3" /> For Indian families
+                <Shield className="w-3 h-3" /> Built for Indian families
               </div>
 
               <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight mb-3">
@@ -179,7 +237,7 @@ export default function LandingPage() {
                       Get started &mdash; it&apos;s free
                     </p>
                     <p className="text-xs text-gray-500 mb-4">
-                      No password needed. We&apos;ll send a secure magic link.
+                      We&apos;ll email you a secure login link. No password needed &mdash; ever.
                     </p>
                     <form onSubmit={handleLogin} className="space-y-3">
                       <div>
@@ -200,35 +258,123 @@ export default function LandingPage() {
                       </div>
 
                       {error && (
-                        <div className="p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{error}</div>
+                        <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600">{error}</div>
                       )}
 
                       <button type="submit" disabled={loading || !email} className="btn-primary w-full">
                         {loading ? (
-                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending secure link...</>
                         ) : (
                           <>Continue with email <ArrowRight className="w-4 h-4 ml-2" /></>
                         )}
                       </button>
                     </form>
-                    <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-400">
+
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <div className="flex items-start gap-2 p-2.5 bg-blue-50/60 rounded-lg">
+                        <Fingerprint className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs text-gray-600 leading-relaxed">
+                            <span className="font-semibold text-gray-700">Why no password?</span>{" "}
+                            Passwords can be stolen. We use one-time secure links sent to your email &mdash; it&apos;s safer and simpler.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-400">
                       <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> End-to-end encrypted</span>
                       <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> DPDPA compliant</span>
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-2">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <CheckCircle2 className="w-6 h-6 text-green-600" />
-                    </div>
-                    <p className="text-sm font-semibold text-gray-900 mb-1">Check your email</p>
-                    <p className="text-xs text-gray-500 mb-1">
-                      Login link sent to <span className="font-medium text-gray-900">{email}</span>
-                    </p>
-                    <p className="text-xs text-gray-400 mb-4">Expires in 1 hour</p>
-                    <button onClick={() => { setSent(false); setEmail(""); }} className="text-xs text-blue-600 font-medium hover:underline">
-                      Use a different email
+                  <div className="py-2">
+                    {/* Back button */}
+                    <button
+                      onClick={() => { setSent(false); setEmail(""); setError(""); setResent(false); setCountdown(0); }}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-4"
+                    >
+                      <ArrowLeft className="w-3 h-3" /> Back
                     </button>
+
+                    <div className="text-center">
+                      {/* Animated envelope icon */}
+                      <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-100">
+                        <Inbox className="w-8 h-8 text-blue-600" />
+                      </div>
+
+                      <h2 className="text-base font-bold text-gray-900 mb-1">Check your inbox</h2>
+                      <p className="text-sm text-gray-500 mb-1">
+                        We sent a login link to
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 mb-4">{email}</p>
+
+                      {/* Open email provider button */}
+                      {emailProvider && (
+                        <a
+                          href={emailProvider.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary w-full mb-3"
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Open {emailProvider.name}
+                        </a>
+                      )}
+
+                      {/* Instructions */}
+                      <div className="bg-gray-100 rounded-lg p-3.5 mb-4 text-left">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">What to look for:</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs text-gray-400 mt-0.5">1.</span>
+                            <p className="text-xs text-gray-600">Look for an email from <span className="font-medium">noreply@kutumbkosh.com</span></p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs text-gray-400 mt-0.5">2.</span>
+                            <p className="text-xs text-gray-600">Subject: <span className="font-medium">&ldquo;Your KutumbKosh Login Link&rdquo;</span></p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs text-gray-400 mt-0.5">3.</span>
+                            <p className="text-xs text-gray-600">Click the blue <span className="font-medium">&ldquo;Sign in to KutumbKosh&rdquo;</span> button</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2.5 pt-2 border-t border-gray-200">
+                          Can&apos;t find it? Check your spam or promotions folder.
+                        </p>
+                      </div>
+
+                      {/* Resend */}
+                      <div className="flex items-center justify-center gap-1.5">
+                        {resent ? (
+                          <p className="text-xs text-green-600 font-medium">Link sent again!</p>
+                        ) : countdown > 0 ? (
+                          <p className="text-xs text-gray-400">Resend in {countdown}s</p>
+                        ) : (
+                          <button
+                            onClick={handleResend}
+                            disabled={resending}
+                            className="flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline disabled:opacity-50"
+                          >
+                            {resending ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <RefreshCw className="w-3 h-3" />
+                            )}
+                            Resend login link
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Security footer */}
+                    <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-center gap-3 text-xs text-gray-400">
+                      <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Secure link</span>
+                      <span>&middot;</span>
+                      <span>Expires in 1 hour</span>
+                      <span>&middot;</span>
+                      <span>Single use</span>
+                    </div>
                   </div>
                 )}
               </div>

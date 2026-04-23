@@ -36,6 +36,12 @@ export async function GET(request: Request) {
     }
   }
 
-  // Return the user to the login page with an error
+  // Return the user to the login page with an error indicator
+  return NextResponse.redirect(`${origin}/?error=auth`);
+}
+
+// Handle POST requests for token hash-based auth (Supabase PKCE flow)
+export async function POST(request: Request) {
+  const { origin } = new URL(request.url);
   return NextResponse.redirect(`${origin}/?error=auth`);
 }
