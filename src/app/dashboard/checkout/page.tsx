@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -9,15 +9,41 @@ import {
   Crown,
   Shield,
   Check,
-  CreditCard,
-  Smartphone,
-  Building2,
   Loader2,
   CheckCircle2,
   Lock,
-  Zap,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
+
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill: { email: string };
+  theme: { color: string };
+  handler: (response: RazorpayResponse) => void;
+  modal?: { ondismiss?: () => void };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
 
 const PLANS = {
   PRO: {
@@ -26,7 +52,7 @@ const PLANS = {
   },
 };
 
-type PaymentMethod = "upi" | "card" | "netbanking";
+const isMockPayments = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -36,10 +62,11 @@ export default function CheckoutPage() {
   const rawCycle = searchParams.get("cycle") || "ANNUAL";
   const cycleKey = (rawCycle === "ANNUAL" || rawCycle === "MONTHLY" ? rawCycle : "ANNUAL") as "ANNUAL" | "MONTHLY";
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
   const [cycle, setCycle] = useState(cycleKey);
+  const [scriptLoaded, setScriptLoaded] = useState(isMockPayments);
 
   const currentPlan = PLANS.PRO[cycle] || PLANS.PRO.ANNUAL;
 
@@ -50,13 +77,37 @@ export default function CheckoutPage() {
     }
   }, [isPro, router]);
 
-  const handlePayment = async () => {
-    setProcessing(true);
+  // Load Razorpay script
+  useEffect(() => {
+    if (isMockPayments) return;
 
-    // Mock: simulate payment processing delay
+    // Already loaded from a previous render
+    if (typeof window.Razorpay === "function") {
+      setScriptLoaded(true);
+      return;
+    }
+
+    // Script tag already exists — wait for it
+    if (document.getElementById("razorpay-script")) {
+      setScriptLoaded(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setScriptLoaded(true);
+    script.onerror = () => setError("Failed to load payment gateway. Please refresh and try again.");
+    document.body.appendChild(script);
+  }, []);
+
+  const handleMockPayment = async () => {
+    setProcessing(true);
+    setError("");
+
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Create subscription in database
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -81,7 +132,6 @@ export default function CheckoutPage() {
       current_period_end: periodEnd.toISOString(),
     });
 
-    // Mark referral as converted (if this user was referred by a channel partner)
     await supabase
       .from("referrals")
       .update({ converted_at: now.toISOString() })
@@ -91,6 +141,99 @@ export default function CheckoutPage() {
     await refresh();
     setProcessing(false);
     setSuccess(true);
+  };
+
+  const handleRazorpayPayment = async () => {
+    setProcessing(true);
+    setError("");
+
+    try {
+      // Step 1: Create order on server
+      const orderRes = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: currentPlan.price, cycle }),
+      });
+
+      if (!orderRes.ok) {
+        const errData = await orderRes.json();
+        throw new Error(errData.error || "Failed to create order");
+      }
+
+      const { orderId, amount, currency, keyId } = await orderRes.json();
+
+      // Step 2: Get user email for prefill
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Step 3: Open Razorpay checkout modal
+      const options: RazorpayOptions = {
+        key: keyId,
+        amount,
+        currency,
+        name: "KutumbKosh",
+        description: `${currentPlan.label} Subscription`,
+        order_id: orderId,
+        prefill: {
+          email: user.email || "",
+        },
+        theme: {
+          color: "#2563EB",
+        },
+        handler: async (response: RazorpayResponse) => {
+          // Step 4: Verify payment on server
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                cycle,
+                amount: currentPlan.price,
+              }),
+            });
+
+            if (!verifyRes.ok) {
+              const errData = await verifyRes.json();
+              throw new Error(errData.error || "Payment verification failed");
+            }
+
+            await refresh();
+            setProcessing(false);
+            setSuccess(true);
+          } catch (err) {
+            setProcessing(false);
+            setError(err instanceof Error ? err.message : "Payment verification failed. Please contact support.");
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setProcessing(false);
+          },
+        },
+      };
+
+      if (typeof window.Razorpay !== "function") {
+        throw new Error("Payment gateway not ready. Please refresh the page and try again.");
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      setProcessing(false);
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
+  };
+
+  const handlePayment = () => {
+    if (isMockPayments) {
+      handleMockPayment();
+    } else {
+      handleRazorpayPayment();
+    }
   };
 
   if (success) {
@@ -116,9 +259,9 @@ export default function CheckoutPage() {
               <span className="text-sm font-semibold text-gray-900">&#8377;{currentPlan.price}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">Next billing</span>
+              <span className="text-xs text-gray-500">Billing</span>
               <span className="text-sm text-gray-600">
-                {cycle === "ANNUAL" ? "March 2027" : "April 2026"}
+                {cycle === "ANNUAL" ? "Yearly" : "Monthly"}
               </span>
             </div>
           </div>
@@ -149,6 +292,14 @@ export default function CheckoutPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-6 space-y-5">
+        {/* Mock payments badge */}
+        {isMockPayments && (
+          <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <p className="text-xs text-amber-700 font-medium">Test Mode — no real charges will be made</p>
+          </div>
+        )}
+
         {/* Order summary */}
         <div className="card p-5">
           <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -205,45 +356,6 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Payment method */}
-        <div className="card p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">Payment method</h2>
-          <div className="space-y-2">
-            {([
-              { id: "upi" as const, label: "UPI", desc: "Google Pay, PhonePe, Paytm", icon: Smartphone },
-              { id: "card" as const, label: "Credit / Debit Card", desc: "Visa, Mastercard, RuPay", icon: CreditCard },
-              { id: "netbanking" as const, label: "Net Banking", desc: "All major banks", icon: Building2 },
-            ]).map((method) => (
-              <button
-                key={method.id}
-                onClick={() => setPaymentMethod(method.id)}
-                className={`w-full flex items-center gap-3 p-3.5 rounded-lg border-2 transition-all text-left ${
-                  paymentMethod === method.id
-                    ? "border-blue-500 bg-blue-50/50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                  paymentMethod === method.id ? "bg-blue-100" : "bg-gray-100"
-                }`}>
-                  <method.icon className={`w-4.5 h-4.5 ${paymentMethod === method.id ? "text-blue-600" : "text-gray-500"}`} />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{method.label}</p>
-                  <p className="text-xs text-gray-500">{method.desc}</p>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  paymentMethod === method.id ? "border-blue-500" : "border-gray-300"
-                }`}>
-                  {paymentMethod === method.id && (
-                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* What you get */}
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
           <p className="text-xs font-semibold text-blue-800 mb-2">What you&apos;ll unlock:</p>
@@ -257,14 +369,24 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* Error message */}
+        {error && (
+          <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
         {/* Pay button */}
         <button
           onClick={handlePayment}
-          disabled={processing}
+          disabled={processing || !scriptLoaded}
           className="w-full py-3.5 rounded-xl bg-vault-accent text-white font-bold text-base hover:bg-blue-700 active:bg-blue-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
         >
           {processing ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Processing payment...</>
+            <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+          ) : !scriptLoaded ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Loading payment gateway...</>
           ) : (
             <>
               <Lock className="w-4 h-4" /> Pay &#8377;{currentPlan.price}
@@ -276,7 +398,6 @@ export default function CheckoutPage() {
         <div className="flex items-center justify-center gap-4 text-xs text-gray-400 pb-4">
           <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> 256-bit SSL</span>
           <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Razorpay secured</span>
-          <span>7-day money-back guarantee</span>
         </div>
       </main>
     </div>

@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { Asset, Nominee, AssetNomineeMapping } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
+import UpgradePrompt from "@/components/UpgradePrompt";
 import {
   ArrowLeft,
   Bell,
@@ -48,6 +50,8 @@ interface Reminder {
 
 export default function RemindersPage() {
   const router = useRouter();
+  const { canUseFeature } = useSubscription();
+  const hasAllReminders = canUseFeature("all_reminders");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [nominees, setNominees] = useState<Nominee[]>([]);
   const [mappings, setMappings] = useState<AssetNomineeMapping[]>([]);
@@ -58,11 +62,16 @@ export default function RemindersPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [assetsRes, nomineesRes, mappingsRes] = await Promise.all([
+    const [assetsRes, nomineesRes] = await Promise.all([
       supabase.from("assets").select("*").eq("user_id", user.id),
       supabase.from("nominees").select("*").eq("user_id", user.id),
-      supabase.from("asset_nominee_mappings").select("*"),
     ]);
+
+    // Fetch mappings only for this user's assets
+    const userAssetIds = (assetsRes.data || []).map(a => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setAssets(assetsRes.data || []);
     setNominees(nomineesRes.data || []);
@@ -111,8 +120,8 @@ export default function RemindersPage() {
     });
   });
 
-  // 3. Insurance expiry reminders
-  assets.filter(a => a.asset_type === "INSURANCE").forEach(asset => {
+  // 3. Insurance expiry reminders (Pro only)
+  if (hasAllReminders) assets.filter(a => a.asset_type === "INSURANCE").forEach(asset => {
     const meta = asset.metadata as Record<string, string>;
     if (meta?.expiry_date) {
       const expiry = new Date(meta.expiry_date);
@@ -135,8 +144,8 @@ export default function RemindersPage() {
     }
   });
 
-  // 4. FD maturity reminders
-  assets.filter(a => a.asset_type === "FIXED_DEPOSIT").forEach(asset => {
+  // 4. FD maturity reminders (Pro only)
+  if (hasAllReminders) assets.filter(a => a.asset_type === "FIXED_DEPOSIT").forEach(asset => {
     const meta = asset.metadata as Record<string, string>;
     if (meta?.maturity_date) {
       const maturity = new Date(meta.maturity_date);
@@ -159,8 +168,8 @@ export default function RemindersPage() {
     }
   });
 
-  // 5. General review nudge if no activity in 30+ days
-  if (assets.length > 0) {
+  // 5. General review nudge if no activity in 30+ days (Pro only)
+  if (hasAllReminders && assets.length > 0) {
     const lastUpdated = assets.reduce((latest, a) => {
       const d = new Date(a.updated_at);
       return d > latest ? d : latest;
@@ -272,6 +281,13 @@ export default function RemindersPage() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Upgrade prompt for free users */}
+        {!hasAllReminders && (
+          <div className="mt-5">
+            <UpgradePrompt feature="all_reminders" variant="banner" />
           </div>
         )}
 

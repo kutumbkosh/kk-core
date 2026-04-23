@@ -31,7 +31,7 @@ export function useSubscription(): SubscriptionState {
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .eq("status", "ACTIVE")
+      .in("status", ["ACTIVE", "CANCELLED"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -42,7 +42,16 @@ export function useSubscription(): SubscriptionState {
 
   useEffect(() => { loadSubscription(); }, [loadSubscription]);
 
-  const plan: PlanType = subscription?.plan || "FREE";
+  // A cancelled subscription still counts as Pro until the billing period ends
+  const isWithinBillingPeriod = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).getTime() > Date.now()
+    : false;
+
+  const isEffectivelyPro =
+    subscription?.plan === "PRO" &&
+    (subscription.status === "ACTIVE" || (subscription.status === "CANCELLED" && isWithinBillingPeriod));
+
+  const plan: PlanType = isEffectivelyPro ? "PRO" : "FREE";
   const limits = PLAN_LIMITS[plan];
 
   const canUseFeature = (feature: string) => limits.features.includes(feature);
@@ -57,7 +66,7 @@ export function useSubscription(): SubscriptionState {
     plan,
     subscription,
     loading,
-    isPro: plan === "PRO",
+    isPro: isEffectivelyPro,
     limits,
     canUseFeature,
     isAtAssetLimit,

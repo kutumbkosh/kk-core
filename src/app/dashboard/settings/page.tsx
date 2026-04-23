@@ -33,6 +33,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -109,6 +111,28 @@ export default function SettingsPage() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetch("/api/account/delete", { method: "DELETE" });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete account");
+      }
+
+      // Sign out locally and redirect to home
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+    } catch (err) {
+      setDeleting(false);
+      setDeleteError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
   };
 
   const handleLogout = async () => {
@@ -315,12 +339,29 @@ export default function SettingsPage() {
               <p className="text-sm text-gray-500 text-center mb-6">
                 This will permanently delete all your assets, nominees, trusted contacts, and emergency instructions. This action cannot be undone.
               </p>
+              {deleteError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 mb-4">
+                  {deleteError}
+                </div>
+              )}
               <div className="flex gap-3">
-                <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+                <button
+                  onClick={() => { setShowDeleteConfirm(false); setDeleteError(""); }}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
                   Cancel
                 </button>
-                <button className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors">
-                  Delete Everything
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 px-4 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Deleting...</>
+                  ) : (
+                    "Delete Everything"
+                  )}
                 </button>
               </div>
             </div>

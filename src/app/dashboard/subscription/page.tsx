@@ -85,8 +85,11 @@ export default function SubscriptionPage() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-gray-900">KutumbKosh {plan === "PRO" ? "Pro" : "Free"}</h2>
-                {isPro && (
+                {isPro && subscription?.status === "ACTIVE" && (
                   <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">ACTIVE</span>
+                )}
+                {isPro && subscription?.status === "CANCELLED" && (
+                  <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">CANCELLING</span>
                 )}
               </div>
               <p className="text-sm text-gray-500">
@@ -117,7 +120,7 @@ export default function SubscriptionPage() {
               <div className="p-3 bg-white rounded-lg border border-gray-100">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Clock className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-xs text-gray-500">Renews in</span>
+                  <span className="text-xs text-gray-500">{subscription?.status === "CANCELLED" ? "Expires in" : "Renews in"}</span>
                 </div>
                 <p className="text-sm font-medium text-gray-900">
                   {daysRemaining !== null ? `${daysRemaining} days` : "\u2014"}
@@ -191,16 +194,30 @@ export default function SubscriptionPage() {
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-300" />
               </button>
-              <button
-                onClick={() => setShowCancelConfirm(true)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 transition-colors text-left"
-              >
-                <AlertTriangle className="w-4 h-4 text-red-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-red-600">Cancel subscription</p>
-                  <p className="text-xs text-gray-500">You&apos;ll keep Pro until the end of your billing period</p>
+              {subscription?.status === "CANCELLED" ? (
+                <div className="w-full flex items-center gap-3 p-3 rounded-lg bg-amber-50 text-left">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-amber-700">Subscription cancelled</p>
+                    <p className="text-xs text-gray-500">
+                      You&apos;ll keep Pro features until {subscription.current_period_end
+                        ? new Date(subscription.current_period_end).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
+                        : "the end of your billing period"}
+                    </p>
+                  </div>
                 </div>
-              </button>
+              ) : (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 transition-colors text-left"
+                >
+                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-600">Cancel subscription</p>
+                    <p className="text-xs text-gray-500">You&apos;ll keep Pro until the end of your billing period</p>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
         )}
