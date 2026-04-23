@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to KutumbKosh</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;">
+
+          <!-- Logo & Brand -->
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background-color:#2563eb;border-radius:10px;width:36px;height:36px;text-align:center;vertical-align:middle;">
+                    <span style="color:#ffffff;font-size:18px;font-weight:bold;line-height:36px;">&#x1F6E1;</span>
+                  </td>
+                  <td style="padding-left:10px;">
+                    <span style="font-size:20px;font-weight:800;color:#111827;letter-spacing:-0.5px;">KutumbKosh</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Main Card -->
+          <tr>
+            <td>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
+
+                <!-- Blue accent bar -->
+                <tr>
+                  <td style="height:4px;background:linear-gradient(90deg,#2563eb,#1e40af);font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding:36px 32px;">
+
+                    <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111827;line-height:1.3;">
+                      Welcome to KutumbKosh
+                    </p>
+                    <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.6;">
+                      Thank you for joining. Click the button below to confirm your email and start setting up your family&rsquo;s financial vault.
+                    </p>
+
+                    <!-- What you'll do -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;background-color:#f9fafb;border-radius:10px;border:1px solid #f3f4f6;">
+                      <tr>
+                        <td style="padding:16px 20px;">
+                          <p style="margin:0 0 10px;font-size:12px;font-weight:700;color:#374151;">After signing in, you&rsquo;ll:</p>
+                          <p style="margin:0 0 6px;font-size:13px;color:#4b5563;line-height:1.5;">&#x2705; Set up your profile (2 minutes)</p>
+                          <p style="margin:0 0 6px;font-size:13px;color:#4b5563;line-height:1.5;">&#x2705; Add an emergency contact</p>
+                          <p style="margin:0;font-size:13px;color:#4b5563;line-height:1.5;">&#x2705; Start organizing your financial assets</p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- CTA Button -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding-bottom:28px;">
+                          <a href="{{ .ConfirmationURL }}"
+                             target="_blank"
+                             style="display:inline-block;background-color:#2563eb;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 40px;border-radius:10px;letter-spacing:0.2px;">
+                            Confirm &amp; Get Started
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Divider -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="border-top:1px solid #f3f4f6;padding-top:20px;">
+                          <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">
+                            Or copy this link
+                          </p>
+                          <p style="margin:0;font-size:12px;color:#2563eb;word-break:break-all;line-height:1.6;background-color:#f9fafb;padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;">
+                            {{ .ConfirmationURL }}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Security Info -->
+          <tr>
+            <td style="padding:24px 0 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f9ff;border-radius:10px;border:1px solid #dbeafe;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#1e40af;">
+                      &#x1F512; Your data is safe
+                    </p>
+                    <p style="margin:0;font-size:12px;color:#4b5563;line-height:1.6;">
+                      KutumbKosh uses 256-bit encryption and complies with India&rsquo;s DPDPA 2023. Your financial information is never shared with third parties.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:28px 0 0;text-align:center;">
+              <p style="margin:0 0 6px;font-size:12px;color:#9ca3af;">
+                KutumbKosh &mdash; Your Family&rsquo;s Financial Vault
+              </p>
+              <p style="margin:0 0 4px;font-size:11px;color:#d1d5db;">
+                Secure &middot; Private &middot; DPDPA 2023 Compliant
+              </p>
+              <p style="margin:0;font-size:11px;color:#d1d5db;">
+                <a href="https://kutumbkosh.com" style="color:#9ca3af;text-decoration:none;">kutumbkosh.com</a>
+                &nbsp;&middot;&nbsp;
+                <a href="mailto:care@kutumbkosh.com" style="color:#9ca3af;text-decoration:none;">care@kutumbkosh.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
