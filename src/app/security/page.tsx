@@ -77,9 +77,9 @@ const securityFeatures = [
   },
   {
     icon: ShieldCheck,
-    title: "DPDPA Compliant",
+    title: "Designed with Privacy in Mind",
     description:
-      "KutumbKosh is designed from the ground up to comply with India's Digital Personal Data Protection Act (DPDPA) 2023. We collect only what's necessary, and you can delete your data at any time.",
+      "KutumbKosh is designed with India's Digital Personal Data Protection Act (DPDPA) 2023 in mind. We collect only what's necessary, you can delete your data at any time, and formal compliance verification is in progress.",
     color: "text-green-600",
     bg: "bg-green-50",
   },
@@ -227,6 +227,30 @@ export default function SecurityPage() {
           </div>
         </div>
 
+        {/* Internal Access Controls */}
+        <div className="mb-14">
+          <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">
+            Internal access controls
+          </h2>
+          <p className="text-sm text-gray-500 text-center mb-6">
+            How we protect your data from within.
+          </p>
+          <div className="max-w-xl mx-auto p-5 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
+            {[
+              "No team member has routine access to your vault contents",
+              "Access to production user data requires explicit founder approval",
+              "Every admin database operation is logged with timestamp and reason",
+              "The service role key (which bypasses row-level security) is restricted to a single, audited function: account deletion",
+              "All admin access events are retained in an audit log for review",
+            ].map((point) => (
+              <div key={point} className="flex items-start gap-3">
+                <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-gray-700">{point}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Responsible Disclosure */}
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-xl mb-10">
           <div className="flex items-start gap-3">
@@ -258,7 +282,7 @@ export default function SecurityPage() {
           </h2>
           <div className="flex items-center justify-center gap-6 flex-wrap">
             {[
-              { label: "DPDPA 2023", icon: FileCheck },
+              { label: "Indian Privacy Standards", icon: FileCheck },
               { label: "SOC 2 Infra", icon: Server },
               { label: "TLS 1.3", icon: Lock },
               { label: "AES-256", icon: Key },
@@ -277,12 +301,15 @@ export default function SecurityPage() {
         </div>
 
         {/* Footer links */}
-        <div className="border-t border-gray-100 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400">
+        <div className="border-t border-gray-100 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400 flex-wrap">
           <a href="/privacy" className="hover:text-gray-600 transition-colors">
             Privacy Policy
           </a>
           <a href="/terms" className="hover:text-gray-600 transition-colors">
             Terms of Service
+          </a>
+          <a href="/grievance" className="hover:text-gray-600 transition-colors">
+            Grievance Officer
           </a>
           <a
             href="mailto:security@kutumbkosh.in"

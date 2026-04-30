@@ -336,9 +336,15 @@ export default function SettingsPage() {
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               <h3 className="text-base font-bold text-gray-900 text-center mb-2">Delete your account?</h3>
-              <p className="text-sm text-gray-500 text-center mb-6">
-                This will permanently delete all your assets, nominees, trusted contacts, and emergency instructions. This action cannot be undone.
-              </p>
+              <p className="text-sm text-gray-500 text-center mb-3">The following will be permanently deleted:</p>
+              <ul className="text-sm text-gray-500 text-left mb-4 space-y-1 bg-red-50 rounded-lg p-3 border border-red-100">
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Your profile and account</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />All assets and documents</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />All nominees and their links</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Trusted contacts and emergency instructions</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Subscription data</li>
+              </ul>
+              <p className="text-xs text-gray-400 text-center mb-6">This action cannot be undone. A confirmation email will be sent to your address.</p>
               {deleteError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 mb-4">
                   {deleteError}
