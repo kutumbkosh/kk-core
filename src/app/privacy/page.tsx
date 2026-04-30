@@ -113,15 +113,35 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">11. Contact us</h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              For privacy-related concerns or to exercise your data rights, contact us at <a href="mailto:privacy@kutumbkosh.in" className="text-blue-600 hover:underline">privacy@kutumbkosh.in</a>.
+            <h2 className="text-lg font-bold text-gray-900 mb-2">11. Grievance Officer</h2>
+            <p className="text-sm text-gray-600 leading-relaxed mb-3">
+              In accordance with Section 13 of the Digital Personal Data Protection Act, 2023, KutumbKosh has appointed a Grievance Officer to address any concerns you may have about how your personal data is handled.
+            </p>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-1.5">
+              <p className="text-sm text-gray-800 font-semibold">Grievance Officer</p>
+              <p className="text-sm text-gray-600">Shubham, Founder — KutumbKosh</p>
+              <p className="text-sm text-gray-600">
+                Email:{" "}
+                <a href="mailto:care@kutumbkosh.com" className="text-blue-600 hover:underline">
+                  care@kutumbkosh.com
+                </a>
+              </p>
+              <p className="text-sm text-gray-600">
+                Grievance form:{" "}
+                <a href="/grievance" className="text-blue-600 hover:underline">
+                  kutumbkosh.com/grievance
+                </a>
+              </p>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed mt-3">
+              We will acknowledge your grievance within 48 hours and resolve it within 30 days of receipt. If your concern is not resolved to your satisfaction, you may approach the Data Protection Board of India (DPBI) once it becomes operational.
             </p>
           </section>
         </div>
 
         {/* Footer links */}
         <div className="border-t border-gray-100 mt-10 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400">
+          <a href="/grievance" className="hover:text-gray-600 transition-colors">Grievance</a>
           <a href="/security" className="hover:text-gray-600 transition-colors">Trust & Security</a>
           <a href="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</a>
         </div>

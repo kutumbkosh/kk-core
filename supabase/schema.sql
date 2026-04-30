@@ -256,3 +256,28 @@ CREATE POLICY "Users can update own subscriptions"
   WITH CHECK (auth.uid() = user_id);
 
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON public.subscriptions(user_id);
+
+
+-- ============================================================
+-- 10. ADMIN ACCESS LOG
+-- Tracks every time an admin SQL function is called.
+-- Satisfies INTERNAL-ACCESS-POLICY.md Section 4 logging requirement
+-- and supports the DPDPA 2023 accountability obligation.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.admin_access_log (
+  id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  admin_email TEXT NOT NULL,
+  function_name TEXT NOT NULL,        -- e.g. 'admin_user_list'
+  called_at   TIMESTAMPTZ DEFAULT NOW(),
+  context     JSONB DEFAULT '{}'      -- optional: search query, filters used, etc.
+);
+
+-- Only the service role can insert into this table (triggered from admin functions).
+-- No RLS needed — this table is only read via the Supabase Dashboard by the Founder.
+ALTER TABLE public.admin_access_log ENABLE ROW LEVEL SECURITY;
+
+-- No user-facing policy — only accessible via service role / dashboard.
+-- Founder reads this directly in Supabase Dashboard to audit admin activity.
+
+CREATE INDEX IF NOT EXISTS idx_admin_access_log_email ON public.admin_access_log(admin_email);
+CREATE INDEX IF NOT EXISTS idx_admin_access_log_called_at ON public.admin_access_log(called_at DESC);

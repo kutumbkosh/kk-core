@@ -77,9 +77,9 @@ const securityFeatures = [
   },
   {
     icon: ShieldCheck,
-    title: "DPDPA Compliant",
+    title: "Designed with Privacy in Mind",
     description:
-      "KutumbKosh is designed from the ground up to comply with India's Digital Personal Data Protection Act (DPDPA) 2023. We collect only what's necessary, and you can delete your data at any time.",
+      "KutumbKosh is built with India's Digital Personal Data Protection Act (DPDPA) 2023 in mind. We collect only what's necessary, and you can delete your data at any time.",
     color: "text-green-600",
     bg: "bg-green-50",
   },
@@ -227,6 +227,35 @@ export default function SecurityPage() {
           </div>
         </div>
 
+        {/* Internal Access Controls */}
+        <div className="mb-14">
+          <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">
+            Internal access controls
+          </h2>
+          <p className="text-sm text-gray-500 text-center mb-6">
+            How we govern our own team&apos;s access to your data.
+          </p>
+          <div className="max-w-xl mx-auto p-5 rounded-xl border border-gray-200 bg-gray-50">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <EyeOff className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 mb-2">
+                  Zero-routine-access policy
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  KutumbKosh operates a zero-routine-access policy — no team member has
+                  standard access to user vault contents. All internal data access is
+                  governed by a formal Internal Access Policy, logged, and auditable.
+                  The Supabase service role key is restricted to a single server-side
+                  operation (account deletion) and is never accessible client-side.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Responsible Disclosure */}
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-xl mb-10">
           <div className="flex items-start gap-3">
@@ -258,7 +287,7 @@ export default function SecurityPage() {
           </h2>
           <div className="flex items-center justify-center gap-6 flex-wrap">
             {[
-              { label: "DPDPA 2023", icon: FileCheck },
+              { label: "Indian Privacy Standards", icon: FileCheck },
               { label: "SOC 2 Infra", icon: Server },
               { label: "TLS 1.3", icon: Lock },
               { label: "AES-256", icon: Key },
@@ -277,12 +306,15 @@ export default function SecurityPage() {
         </div>
 
         {/* Footer links */}
-        <div className="border-t border-gray-100 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400">
+        <div className="border-t border-gray-100 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400 flex-wrap">
           <a href="/privacy" className="hover:text-gray-600 transition-colors">
             Privacy Policy
           </a>
           <a href="/terms" className="hover:text-gray-600 transition-colors">
             Terms of Service
+          </a>
+          <a href="/grievance" className="hover:text-gray-600 transition-colors">
+            Grievance Officer
           </a>
           <a
             href="mailto:security@kutumbkosh.in"
