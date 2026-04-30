@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">1. Who we are</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by its founding team based in India. This Privacy Policy explains how we collect, use, store, and protect your personal data in compliance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
+              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by its founding team based in India. This Privacy Policy explains how we collect, use, store, and protect your personal data in accordance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
             </p>
           </section>
 
@@ -80,7 +80,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">6. Your rights under DPDPA</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Under the Digital Personal Data Protection Act, 2023, you have the right to access all personal data we hold about you, correct inaccurate data at any time through your Settings page, delete your account and all associated data permanently, withdraw consent for data processing (which may require account deletion), and receive information about how your data is being processed. To exercise any of these rights, contact us at privacy@kutumbkosh.in or use the account deletion feature in Settings.
+              Under the Digital Personal Data Protection Act, 2023, you have the right to access all personal data we hold about you, correct inaccurate data at any time through your Settings page, delete your account and all associated data permanently, withdraw consent for data processing (which may require account deletion), and receive information about how your data is being processed. To exercise any of these rights, contact us at care@kutumbkosh.com or use the account deletion feature in Settings.
             </p>
           </section>
 
@@ -129,3 +129,4 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
+  

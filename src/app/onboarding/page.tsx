@@ -205,8 +205,8 @@ export default function OnboardingProfile() {
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
               <Shield className="w-4 h-4 text-vault-accent flex-shrink-0" />
               <p className="text-xs text-gray-600">
-                All personal data is encrypted and stored securely. We comply
-                with India&apos;s DPDPA 2023.
+                All personal data is encrypted and stored securely. Designed
+                with India&apos;s DPDPA 2023 in mind.
               </p>
             </div>
 
@@ -231,5 +231,3 @@ export default function OnboardingProfile() {
         </div>
       </div>
     </div>
-  );
-}

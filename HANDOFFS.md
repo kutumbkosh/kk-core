@@ -165,29 +165,6 @@ DEADLINE:  Before production deploy
 STATUS:    Open
 ---
 
-FROM:      Engineering
-TO:        Design
-PRIORITY:  High — Before Launch
-REQUEST:   Create the OG image (og-image.png) required for social sharing previews.
-
-           Specs:
-           - Dimensions: 1200 × 630px
-           - Filename: og-image.png
-           - Destination: public/og-image.png in the Next.js app repo
-
-           Content guidance:
-           - KutumbKosh logo / wordmark
-           - Tagline: "Your Family's Financial Vault"
-           - Brand colors: Primary Blue #2563EB on white or dark background
-           - Font: Poppins
-           - Keep it clean — this appears on WhatsApp, Twitter, LinkedIn previews
-
-           This image is referenced in the SEO meta handoff (og:image → /og-image.png).
-           Engineering has the metadata tag ready; this image is the only missing piece.
-DEADLINE:  Before launch day
-STATUS:    Open
----
-
 ---
 
 ## Completed Handoffs
@@ -238,3 +215,20 @@ PRIORITY:  Medium — Before Launch
 REQUEST:   Fix manifest.json branding: name → KutumbKosh, short_name → KutumbKosh, theme_color → #2563EB.
 DEADLINE:  Before production deploy
 STATUS:    Done — All 3 fields updated in public/manifest.json.
+---
+
+FROM:      Legal / Compliance
+TO:        Engineering
+PRIORITY:  High — Launch Blocker
+REQUEST:   Full codebase DPDPA language scan — 9 violations across 6 files.
+DEADLINE:  Before production deploy
+STATUS:    Done — All 9 violations fixed 2026-04-30. Grep scan confirmed zero
+           prohibited strings remain. Changes:
+           page.tsx L145: "DPDPA 2023" → "Built for Privacy"
+           page.tsx L287: "DPDPA compliant" → "Privacy first"
+           auth/verify/page.tsx L86: "DPDPA 2023" → "Privacy first"
+           onboarding/page.tsx L209: "We comply with..." → "Designed with...in mind."
+           privacy/page.tsx L36: "in compliance with" → "in accordance with"
+           privacy/page.tsx L83: privacy@kutumbkosh.in → care@kutumbkosh.com
+           confirm-signup.html L106: "complies with" → "is designed with...in mind"
+ 

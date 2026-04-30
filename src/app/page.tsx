@@ -142,7 +142,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden sm:flex items-center gap-5 text-xs text-gray-400 font-medium">
             <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> 256-bit Encrypted</span>
-            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> DPDPA 2023</span>
+            <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Built for Privacy</span>
             <span className="flex items-center gap-1"><Fingerprint className="w-3 h-3" /> No passwords stored</span>
           </div>
         </div>
@@ -284,7 +284,7 @@ export default function LandingPage() {
 
                     <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-400">
                       <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> End-to-end encrypted</span>
-                      <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> DPDPA compliant</span>
+                      <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Privacy first</span>
                     </div>
                   </>
                 ) : (
@@ -395,5 +395,4 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  );
-}
+  
