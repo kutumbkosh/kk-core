@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KutumbKosh — Your Family's Financial Vault</title>
-  <meta name="description" content="Something powerful is coming for Indian families. KutumbKosh — secure, simple, and built for your peace of mind." />
+  <meta name="description" content="India's first secure digital vault for family financial records. Organize, protect, and pass on your financial legacy." />
   <meta property="og:title" content="KutumbKosh — Coming Soon" />
   <meta property="og:description" content="Your family's most important financial details — secured, organized, and always accessible when it matters most." />
   <meta property="og:type" content="website" />
@@ -12,289 +12,1128 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --blue: #2563eb;
-      --blue-dark: #1e40af;
-      --gray-50: #f9fafb;
-      --gray-100: #f3f4f6;
-      --gray-400: #9ca3af;
-      --gray-500: #6b7280;
-      --gray-600: #4b5563;
+      --blue: #2563EB;
+      --blue-dark: #1E40AF;
+      --blue-light: #DBEAFE;
+      --blue-50: #EFF6FF;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
       --gray-900: #111827;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--gray-50);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FFFFFF;
       color: var(--gray-900);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle animated gradient background */
-    .bg-glow {
+    /* ── Reveal Animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── Navbar ── */
+    .navbar {
       position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .bg-glow::before {
-      content: '';
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      top: -120px;
-      right: -100px;
-      background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
-      animation: drift 12s ease-in-out infinite alternate;
-    }
-    .bg-glow::after {
-      content: '';
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      bottom: -80px;
-      left: -80px;
-      background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
-      animation: drift 10s ease-in-out infinite alternate-reverse;
-    }
-    @keyframes drift {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(40px, 30px) scale(1.1); }
-    }
-
-    .container {
-      position: relative;
-      z-index: 1;
-      flex: 1;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 2rem;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 3rem 1.5rem;
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s;
     }
-
-    /* Shield icon */
-    .shield {
-      width: 72px;
-      height: 72px;
+    .navbar.scrolled {
+      padding: 0.8rem 2rem;
+      background: rgba(255,255,255,0.92);
+      border-bottom-color: var(--gray-200);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
+    .nav-shield {
+      width: 34px;
+      height: 34px;
       background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-      border-radius: 20px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 2rem;
-      box-shadow: 0 8px 32px rgba(37,99,235,0.18), 0 0 0 1px rgba(37,99,235,0.08);
-      animation: float 4s ease-in-out infinite;
     }
-    .shield svg {
-      width: 36px;
-      height: 36px;
-      color: white;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-
-    .brand {
-      font-size: 2.25rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+    .nav-shield svg { width: 18px; height: 18px; color: white; }
+    .nav-brand {
+      font-size: 1.15rem;
+      font-weight: 700;
       color: var(--gray-900);
-      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
     }
-    .brand span {
-      color: var(--blue);
-    }
-
-    .tagline {
-      font-size: 1.05rem;
-      color: var(--gray-500);
-      font-weight: 500;
-      margin-bottom: 2.5rem;
-      line-height: 1.6;
-    }
-
-    /* Mystery teaser cards */
-    .teasers {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      width: 100%;
-      margin-bottom: 2.5rem;
-    }
-    @media (min-width: 540px) {
-      .teasers { grid-template-columns: 1fr 1fr 1fr; }
-    }
-    .teaser {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 1.25rem 1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .teaser:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .teaser-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.6rem;
-    }
-    .teaser-text {
-      font-size: 0.85rem;
-      color: var(--gray-600);
-      font-weight: 500;
-      line-height: 1.5;
-    }
-
-    /* The hook question */
-    .hook {
-      background: linear-gradient(135deg, #eff6ff, #f0f9ff);
-      border: 1px solid #dbeafe;
-      border-radius: 14px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2.5rem;
-      width: 100%;
-    }
-    .hook p {
-      font-size: 0.95rem;
-      color: var(--blue-dark);
-      font-weight: 600;
-      line-height: 1.6;
-    }
-    .hook p.hook-sub {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--gray-500);
-      margin-top: 0.5rem;
-    }
-
-    /* CTA badge */
-    .badge {
+    .nav-brand span { color: var(--blue); }
+    .nav-cta {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      background: var(--gray-900);
+      padding: 0.55rem 1.3rem;
+      background: var(--blue);
       color: white;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      padding: 0.6rem 1.2rem;
-      border-radius: 100px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin-bottom: 2.5rem;
-      animation: pulse-badge 2.5s ease-in-out infinite;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
     }
-    .badge .dot {
-      width: 7px;
-      height: 7px;
-      background: #34d399;
-      border-radius: 50%;
-    }
-    @keyframes pulse-badge {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(17,24,39,0.15); }
-      50% { box-shadow: 0 0 0 8px rgba(17,24,39,0); }
+    .nav-cta:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,0.25); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7rem 1.5rem 4rem;
+      overflow: hidden;
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--blue-50) 100%);
     }
 
-    /* Contact */
-    .contact {
+    /* Soft gradient blobs */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      will-change: transform;
+    }
+    .blob-1 { width: 600px; height: 600px; background: rgba(37,99,235,0.10); top: -15%; right: -10%; animation: blobA 14s ease-in-out infinite alternate; }
+    .blob-2 { width: 450px; height: 450px; background: rgba(219,234,254,0.6); bottom: -10%; left: -8%; animation: blobB 12s ease-in-out infinite alternate; }
+    .blob-3 { width: 300px; height: 300px; background: rgba(37,99,235,0.06); top: 40%; left: 55%; animation: blobC 16s ease-in-out infinite alternate; }
+    @keyframes blobA { 0% { transform: translate(0,0); } 100% { transform: translate(-30px, 25px); } }
+    @keyframes blobB { 0% { transform: translate(0,0); } 100% { transform: translate(25px, -20px); } }
+    @keyframes blobC { 0% { transform: translate(0,0); } 100% { transform: translate(-15px, -30px); } }
+
+    /* Subtle grid */
+    .grid-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(var(--gray-200) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.35;
+      mask-image: radial-gradient(ellipse 65% 55% at 50% 40%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 40%, black 20%, transparent 70%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      text-align: center;
+    }
+
+    /* Badge */
+    .launch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: 1px solid var(--gray-200);
+      padding: 0.5rem 1.2rem;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .badge-dot {
+      width: 7px; height: 7px;
+      background: #34D399;
+      border-radius: 50%;
+      position: relative;
+    }
+    .badge-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: #34D399;
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      opacity: 0;
+    }
+    @keyframes ping {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    .hero-title {
+      font-size: clamp(2.6rem, 6vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      margin-bottom: 1.2rem;
+      color: var(--gray-900);
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1E40AF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      font-weight: 400;
+      color: var(--gray-500);
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+    }
+
+    /* Waitlist form */
+    .waitlist-form {
+      display: flex;
+      gap: 0.6rem;
+      max-width: 440px;
+      margin: 0 auto 1rem;
+    }
+    .waitlist-input {
+      flex: 1;
+      padding: 0.85rem 1.2rem;
+      background: white;
+      border: 1px solid var(--gray-300);
+      border-radius: 10px;
+      color: var(--gray-900);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.25s;
+    }
+    .waitlist-input::placeholder { color: var(--gray-400); }
+    .waitlist-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .waitlist-btn {
+      padding: 0.85rem 1.6rem;
+      background: var(--blue);
+      color: white;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s;
+    }
+    .waitlist-btn:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 8px 25px rgba(37,99,235,0.25); }
+    .waitlist-btn:active { transform: translateY(0); }
+    .waitlist-btn.success { background: var(--green); pointer-events: none; }
+    .waitlist-hint {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      margin-bottom: 3rem;
+    }
+
+    /* Social proof */
+    .social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      margin-bottom: 3.5rem;
+    }
+    .avatar-stack { display: flex; }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid white;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .avatar:first-child { margin-left: 0; }
+    .avatar-1 { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+    .avatar-2 { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+    .avatar-3 { background: linear-gradient(135deg, #10B981, #059669); }
+    .avatar-4 { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .avatar-count {
+      background: var(--gray-100);
+      border-color: white;
+      font-size: 0.6rem;
+      color: var(--gray-500);
+    }
+    .proof-text { font-size: 0.8rem; color: var(--gray-500); }
+    .proof-text strong { color: var(--gray-700); font-weight: 600; }
+
+    /* Product mockup */
+    .mockup-container {
+      position: relative;
+      max-width: 820px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .mockup-glow {
+      position: absolute;
+      inset: -15%;
+      background: radial-gradient(ellipse at center, rgba(37,99,235,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .mockup-frame {
+      position: relative;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 25px 80px rgba(0,0,0,0.08),
+        0 4px 20px rgba(0,0,0,0.04);
+      transform: rotateX(2deg);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mockup-frame:hover { transform: rotateX(0deg); }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1rem;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dots span:nth-child(1) { background: #FF5F57; }
+    .browser-dots span:nth-child(2) { background: #FEBC2E; }
+    .browser-dots span:nth-child(3) { background: #28C840; }
+    .browser-url {
+      flex: 1;
+      margin: 0 1rem;
+      padding: 0.35rem 0.8rem;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .browser-url svg { width: 11px; height: 11px; color: #34D399; flex-shrink: 0; }
+
+    /* Dashboard mockup */
+    .mock-dashboard {
+      padding: 1.5rem;
+      background: var(--gray-50);
+      min-height: 340px;
+    }
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .mock-greeting h3 { font-size: 1.1rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.15rem; }
+    .mock-greeting p { font-size: 0.72rem; color: var(--gray-400); }
+    .mock-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .mock-stat-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .mock-stat-label {
+      font-size: 0.65rem;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+    .mock-stat-value { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+    .mock-stat-value.blue { color: var(--blue); }
+    .mock-stat-value.green { color: #16A34A; }
+    .mock-stat-value.amber { color: #D97706; }
+    .mock-assets-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+    .mock-assets-header h4 { font-size: 0.82rem; font-weight: 600; color: var(--gray-700); }
+    .mock-add-btn { font-size: 0.68rem; color: var(--blue); font-weight: 600; }
+    .mock-asset-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.7rem 0.8rem;
+      background: white;
+      border: 1px solid var(--gray-100);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+    .mock-asset-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+    .mock-asset-icon.bank { background: var(--blue-50); }
+    .mock-asset-icon.mf { background: #ECFDF5; }
+    .mock-asset-icon.ins { background: #FFFBEB; }
+    .mock-asset-info { flex: 1; }
+    .mock-asset-name { font-size: 0.78rem; font-weight: 600; color: var(--gray-900); }
+    .mock-asset-type { font-size: 0.62rem; color: var(--gray-400); }
+    .mock-asset-badge { font-size: 0.58rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 100px; }
+    .mock-asset-badge.linked { background: #ECFDF5; color: #16A34A; }
+    .mock-asset-badge.pending { background: #FFFBEB; color: #D97706; }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.4rem;
-    }
-    .contact-label {
-      font-size: 0.75rem;
       color: var(--gray-400);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
     }
-    .contact a {
-      font-size: 0.95rem;
-      color: var(--blue);
-      font-weight: 600;
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-    .contact a:hover {
-      color: var(--blue-dark);
-      text-decoration: underline;
-    }
-
-    /* Footer */
-    footer {
+    .scroll-indicator span { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .scroll-mouse {
+      width: 22px; height: 34px;
+      border: 2px solid var(--gray-300);
+      border-radius: 12px;
       position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 0.75rem;
-      color: var(--gray-400);
+    }
+    .scroll-mouse::after {
+      content: '';
+      width: 3px; height: 7px;
+      background: var(--gray-400);
+      border-radius: 2px;
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: scrollDot 2s ease-in-out infinite;
+    }
+    @keyframes scrollDot {
+      0%, 100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      50% { opacity: 0.3; transform: translateX(-50%) translateY(10px); }
     }
 
-    /* Mobile tweaks */
-    @media (max-width: 540px) {
-      .brand { font-size: 1.75rem; }
-      .tagline { font-size: 0.95rem; }
-      .hook { padding: 1.2rem 1.25rem; }
+    /* ── Features Section ── */
+    .features-section {
+      position: relative;
+      padding: 7rem 1.5rem;
+      background: white;
+    }
+    .features-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+    }
+    .section-inner { max-width: 1000px; margin: 0 auto; }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .section-badge::before {
+      content: '';
+      width: 18px; height: 2px;
+      background: var(--blue);
+      border-radius: 1px;
+    }
+    .section-heading {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--gray-900);
+      margin-bottom: 0.6rem;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--gray-500);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 3.5rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+    .feature-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .feature-card:hover {
+      background: white;
+      border-color: var(--blue-light);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(37,99,235,0.08), 0 4px 15px rgba(0,0,0,0.04);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon-wrap {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+    }
+    .feature-icon-wrap svg { width: 24px; height: 24px; }
+    .fi-blue { background: var(--blue-50); }
+    .fi-blue svg { color: var(--blue); }
+    .fi-green { background: #ECFDF5; }
+    .fi-green svg { color: #16A34A; }
+    .fi-purple { background: #F5F3FF; }
+    .fi-purple svg { color: #7C3AED; }
+    .fi-amber { background: #FFFBEB; }
+    .fi-amber svg { color: #D97706; }
+    .fi-rose { background: #FFF1F2; }
+    .fi-rose svg { color: #E11D48; }
+    .fi-teal { background: #F0FDFA; }
+    .fi-teal svg { color: #0D9488; }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      line-height: 1.65;
+    }
+
+    /* ── How It Works ── */
+    .how-section {
+      padding: 7rem 1.5rem;
+      background: var(--gray-50);
+      position: relative;
+    }
+    .how-section::before, .how-section::after {
+      content: '';
+      position: absolute;
+      left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+    }
+    .how-section::before { top: 0; }
+    .how-section::after { bottom: 0; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: calc(16.66% + 20px);
+      right: calc(16.66% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue-light), var(--blue), var(--blue-light));
+    }
+    .step { text-align: center; position: relative; }
+    .step-num {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 2;
+      background: white;
+      border: 2px solid var(--blue-light);
+      color: var(--blue);
+      transition: all 0.3s;
+    }
+    .step:hover .step-num {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+      box-shadow: 0 0 25px rgba(37,99,235,0.2);
+    }
+    .step h3 { font-size: 1.05rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.5rem; }
+    .step p { font-size: 0.85rem; color: var(--gray-500); line-height: 1.6; max-width: 260px; margin: 0 auto; }
+
+    /* ── Trust ── */
+    .trust-section {
+      padding: 6rem 1.5rem;
+      background: white;
+      position: relative;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .trust-card {
+      text-align: center;
+      padding: 2rem 1.2rem;
+      background: var(--blue-50);
+      border: 1px solid var(--blue-light);
+      border-radius: 14px;
+      transition: all 0.3s;
+    }
+    .trust-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(37,99,235,0.08);
+    }
+    .trust-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .trust-icon svg { width: 20px; height: 20px; color: var(--blue); }
+    .trust-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.3rem; }
+    .trust-card p { font-size: 0.78rem; color: var(--gray-500); line-height: 1.55; }
+
+    /* ── CTA Banner ── */
+    .cta-section {
+      padding: 6rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--gray-50) 0%, var(--blue-50) 50%, var(--gray-50) 100%);
+    }
+    .cta-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .cta-inner h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--gray-900);
+      margin-bottom: 0.8rem;
+    }
+    .cta-inner p {
+      font-size: 1rem;
+      color: var(--gray-500);
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+    }
+    .footer-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .footer-logo .nav-shield { width: 28px; height: 28px; border-radius: 7px; }
+    .footer-logo .nav-shield svg { width: 14px; height: 14px; }
+    .footer-brand { font-size: 1rem; font-weight: 700; color: var(--gray-900); }
+    .footer-brand span { color: var(--blue); }
+    .footer-tagline { font-size: 0.78rem; color: var(--gray-400); margin-bottom: 1.2rem; }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .footer-links a {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--blue); }
+    .copyright { font-size: 0.7rem; color: var(--gray-400); }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 0.8rem 1rem; }
+      .nav-brand { font-size: 1rem; }
+      .hero { padding: 6rem 1.2rem 3rem; min-height: auto; padding-bottom: 5rem; }
+      .hero-subtitle { font-size: 0.95rem; }
+      .waitlist-form { flex-direction: column; }
+      .waitlist-btn { width: 100%; }
+      .social-proof { flex-direction: column; gap: 0.5rem; }
+      .mockup-frame { transform: none; }
+      .mock-stats-row { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; gap: 2.5rem; }
+      .steps::before { display: none; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .features-section, .how-section, .trust-section, .cta-section { padding: 4rem 1.2rem; }
+      .mock-dashboard { min-height: auto; }
+      .scroll-indicator { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 2.2rem; }
+      .section-heading { font-size: 1.6rem; }
+      .mock-asset-row { padding: 0.5rem; }
     }
   </style>
 </head>
 <body>
-  <div class="bg-glow"></div>
 
-  <div class="container">
-    <div class="shield">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        <path d="M9 12l2 2 4-4"/>
-      </svg>
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="nav-logo">
+      <div class="nav-shield">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <span class="nav-brand">Kutumb<span>Kosh</span></span>
+    </a>
+    <a href="#waitlist-bottom" class="nav-cta">Join Waitlist</a>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="grid-dots"></div>
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
     </div>
 
-    <h1 class="brand">Kutumb<span>Kosh</span></h1>
-    <p class="tagline">Your family's financial vault — secured, organized,<br/>and accessible when it matters most.</p>
-
-    <div class="badge"><span class="dot"></span> Launching Soon</div>
-
-    <div class="teasers">
-      <div class="teaser">
-        <div class="teaser-icon">🔐</div>
-        <div class="teaser-text">Every policy, account &amp; investment — one secure place</div>
+    <div class="hero-content">
+      <div class="launch-badge reveal">
+        <span class="badge-dot"></span>
+        Launching Soon
       </div>
-      <div class="teaser">
-        <div class="teaser-icon">👨‍👩‍👧‍👦</div>
-        <div class="teaser-text">Your family will know exactly what to do — and when</div>
+
+      <h1 class="hero-title reveal reveal-delay-1">
+        Your family's finances,<br/><span class="highlight">finally organized.</span>
+      </h1>
+
+      <p class="hero-subtitle reveal reveal-delay-2">
+        India's first secure digital vault for family financial records.
+        One place for every bank account, policy, investment, and nominee.
+      </p>
+
+      <div class="waitlist-form reveal reveal-delay-3" id="waitlistForm1">
+        <input type="email" class="waitlist-input" placeholder="you@email.com" required id="emailInput1" />
+        <button type="button" class="waitlist-btn" onclick="handleWaitlistClick(this)">Join Waitlist</button>
       </div>
-      <div class="teaser">
-        <div class="teaser-icon">🇮🇳</div>
-        <div class="teaser-text">Built for Indian families, designed with DPDPA 2023 in mind</div>
+      <p class="waitlist-hint reveal reveal-delay-3">Free to start. No credit card needed.</p>
+
+      <div class="social-proof reveal reveal-delay-4">
+        <div class="avatar-stack">
+          <div class="avatar avatar-1">RK</div>
+          <div class="avatar avatar-2">SP</div>
+          <div class="avatar avatar-3">AM</div>
+          <div class="avatar avatar-4">NK</div>
+          <div class="avatar avatar-count">+</div>
+        </div>
+        <span class="proof-text"><strong>200+ families</strong> on the waitlist</span>
+      </div>
+
+      <!-- Product mockup -->
+      <div class="mockup-container reveal reveal-delay-4">
+        <div class="mockup-glow"></div>
+        <div class="mockup-frame">
+          <div class="browser-bar">
+            <div class="browser-dots"><span></span><span></span><span></span></div>
+            <div class="browser-url">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              kutumbkosh.com/dashboard
+            </div>
+          </div>
+          <div class="mock-dashboard">
+            <div class="mock-header">
+              <div class="mock-greeting">
+                <h3>Good morning, Priya</h3>
+                <p>Your vault summary for April 2026</p>
+              </div>
+            </div>
+            <div class="mock-stats-row">
+              <div class="mock-stat-card">
+                <div class="mock-stat-label">Total Assets</div>
+                <div class="mock-stat-value blue">12</div>
+              </div>
+              <div class="mock-stat-card">
+                <div class="mock-stat-label">Nominees Linked</div>
+                <div class="mock-stat-value green">9 / 12</div>
+              </div>
+              <div class="mock-stat-card">
+                <div class="mock-stat-label">Reminders</div>
+                <div class="mock-stat-value amber">2</div>
+              </div>
+            </div>
+            <div class="mock-assets-header">
+              <h4>Recent Assets</h4>
+              <span class="mock-add-btn">+ Add Asset</span>
+            </div>
+            <div class="mock-asset-row">
+              <div class="mock-asset-icon bank">🏦</div>
+              <div class="mock-asset-info">
+                <div class="mock-asset-name">HDFC Bank Savings</div>
+                <div class="mock-asset-type">Bank Account</div>
+              </div>
+              <span class="mock-asset-badge linked">Nominee linked</span>
+            </div>
+            <div class="mock-asset-row">
+              <div class="mock-asset-icon mf">📈</div>
+              <div class="mock-asset-info">
+                <div class="mock-asset-name">Axis Bluechip Fund</div>
+                <div class="mock-asset-type">Mutual Fund</div>
+              </div>
+              <span class="mock-asset-badge linked">Nominee linked</span>
+            </div>
+            <div class="mock-asset-row">
+              <div class="mock-asset-icon ins">🛡️</div>
+              <div class="mock-asset-info">
+                <div class="mock-asset-name">LIC Term Plan</div>
+                <div class="mock-asset-type">Insurance</div>
+              </div>
+              <span class="mock-asset-badge pending">Nominee pending</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="hook">
-      <p>If something happened to you tomorrow — would your family know where everything is?</p>
-      <p class="hook-sub">Most families don't. We're here to change that.</p>
+    <div class="scroll-indicator">
+      <div class="scroll-mouse"></div>
+      <span>Scroll</span>
     </div>
+  </section>
 
-    <div class="contact">
-      <span class="contact-label">Reach us at</span>
+  <!-- ═══ FEATURES ═══ -->
+  <section class="features-section">
+    <div class="section-inner">
+      <div class="section-badge reveal">Why KutumbKosh</div>
+      <h2 class="section-heading reveal">Built for how Indian<br/>families actually work</h2>
+      <p class="section-desc reveal">Financial records shouldn't be scattered across lockers, files, and memories. We bring it all into one secure place.</p>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon-wrap fi-blue">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>One Vault, Everything Inside</h3>
+          <p>Bank accounts, FDs, mutual funds, insurance, PPF, property — all organized in one secure, encrypted place.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon-wrap fi-green">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+          <h3>Nominee Linking</h3>
+          <p>Assign nominees to each asset. Your family will know exactly who gets what — no confusion, no delays.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon-wrap fi-purple">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3>Emergency Access</h3>
+          <p>Trusted contacts can access your vault dossier in an emergency — you decide who sees what.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon-wrap fi-amber">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <h3>Smart Reminders</h3>
+          <p>Get alerts for insurance renewals, FD maturities, missing nominees, and periodic vault reviews.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon-wrap fi-rose">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3>Vault Dossier PDF</h3>
+          <p>Generate a beautiful, comprehensive PDF of your entire vault — ready to print, share, or store offline.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon-wrap fi-teal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>DPDPA Compliant</h3>
+          <p>Built for India, compliant with DPDPA 2023. 256-bit encryption. Zero data sharing with third parties.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="how-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-badge reveal" style="justify-content:center;">How it works</div>
+      <h2 class="section-heading reveal" style="margin-left:auto;margin-right:auto;">Set up your vault in<br/>under 10 minutes</h2>
+      <p class="section-desc reveal" style="margin-left:auto;margin-right:auto;">No paperwork. No KYC. Just log in and start adding.</p>
+
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">1</div>
+          <h3>Add Your Assets</h3>
+          <p>Bank accounts, insurance, mutual funds, PPF, property — add what matters to your family.</p>
+        </div>
+        <div class="step reveal reveal-delay-1">
+          <div class="step-num">2</div>
+          <h3>Link Nominees</h3>
+          <p>Assign your spouse, children, or parents as nominees to each asset. Everyone knows their share.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-num">3</div>
+          <h3>Stay Protected</h3>
+          <p>Smart reminders keep your vault current. Generate a dossier PDF your family can access anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ TRUST ═══ -->
+  <section class="trust-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-badge reveal" style="justify-content:center;">Trust & Security</div>
+      <h2 class="section-heading reveal" style="margin-left:auto;margin-right:auto;">Your data stays yours</h2>
+      <p class="section-desc reveal" style="margin-left:auto;margin-right:auto;">We never share your financial information with anyone. Your vault is encrypted, private, and fully under your control.</p>
+
+      <div class="trust-grid">
+        <div class="trust-card reveal">
+          <div class="trust-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h4>256-bit Encryption</h4>
+          <p>Bank-grade security for every piece of data you store in your vault.</p>
+        </div>
+        <div class="trust-card reveal reveal-delay-1">
+          <div class="trust-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>DPDPA 2023</h4>
+          <p>Fully compliant with India's Digital Personal Data Protection Act.</p>
+        </div>
+        <div class="trust-card reveal reveal-delay-2">
+          <div class="trust-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h4>Zero Data Sharing</h4>
+          <p>We never sell, share, or monetize your data. Period.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BOTTOM CTA ═══ -->
+  <section class="cta-section" id="waitlist-bottom">
+    <div class="cta-inner">
+      <h2 class="reveal">Ready to secure your<br/>family's financial legacy?</h2>
+      <p class="reveal">Join the waitlist and be the first to know when KutumbKosh launches. It's free to start.</p>
+      <div class="waitlist-form reveal" id="waitlistForm2" style="margin-bottom:1rem;">
+        <input type="email" class="waitlist-input" placeholder="you@email.com" required id="emailInput2" />
+        <button type="button" class="waitlist-btn" onclick="handleWaitlistClick(this)">Join Waitlist</button>
+      </div>
+      <p class="waitlist-hint reveal">No spam, ever. Just a launch-day notification.</p>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="footer-logo">
+      <div class="nav-shield">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <span class="footer-brand">Kutumb<span>Kosh</span></span>
+    </div>
+    <div class="footer-tagline">Your Family's Financial Vault</div>
+    <div class="footer-links">
       <a href="mailto:care@kutumbkosh.com">care@kutumbkosh.com</a>
+      <a href="https://kutumbkosh.com">kutumbkosh.com</a>
     </div>
-  </div>
+    <div class="copyright">&copy; 2026 KutumbKosh. All rights reserved.</div>
+  </footer>
 
-  <footer>&copy; 2026 KutumbKosh. All rights reserved.</footer>
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ── Waitlist via Web3Forms ──
+    // Steps to set up:
+    // 1. Go to https://web3forms.com
+    // 2. Enter care@kutumbkosh.com (or your preferred email)
+    // 3. You'll get an access key — paste it below
+    // 4. Every waitlist signup will be emailed to you instantly
+    const WEB3FORMS_KEY = "2a4107ce-0df2-4575-9585-a9005ed748b2";
+
+    // Waitlist button click handler
+    function handleWaitlistClick(btn) {
+      var wrapper = btn.parentElement;
+      var input = wrapper.querySelector('.waitlist-input');
+      var email = input.value.trim();
+
+      // Basic email validation
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        input.style.borderColor = '#DC2626';
+        input.placeholder = 'Please enter a valid email';
+        setTimeout(function() { input.style.borderColor = ''; }, 2000);
+        return;
+      }
+
+      btn.textContent = 'Joining...';
+      btn.disabled = true;
+      input.disabled = true;
+
+      // If no key yet, just show success (dev mode)
+      if (!WEB3FORMS_KEY) {
+        setTimeout(function() {
+          btn.textContent = "You're in!";
+          btn.classList.add('success');
+          input.value = '';
+          input.placeholder = "We'll notify you at launch!";
+        }, 800);
+        return;
+      }
+
+      var formData = new FormData();
+      formData.append('access_key', WEB3FORMS_KEY);
+      formData.append('subject', 'New KutumbKosh Waitlist Signup');
+      formData.append('email', email);
+      formData.append('from_name', 'KutumbKosh Waitlist');
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          btn.textContent = "You're in!";
+          btn.classList.add('success');
+          input.value = '';
+          input.placeholder = "We'll notify you at launch!";
+        } else {
+          btn.textContent = 'Try again';
+          btn.disabled = false;
+          input.disabled = false;
+        }
+      })
+      .catch(function() {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+        input.disabled = false;
+      });
+    }
+  </script>
+
 </body>
 </html>

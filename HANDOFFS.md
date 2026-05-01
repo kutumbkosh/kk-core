@@ -46,6 +46,110 @@ STATUS:    Open — Ready for Shubham action
 
 ---
 
+FROM:      Marketing
+TO:        Engineering
+PRIORITY:  High — Before Launch
+REQUEST:   og-image.png has been created by Marketing and is already at
+           public/og-image.png in the repo (1200×630px PNG, 50 KB).
+
+           Specs: #1E40AF background, Poppins font, KutumbKosh wordmark +
+           shield logo, tagline, feature pills, "Organize. Protect. Pass on."
+           headline, kutumbkosh.com domain badge.
+
+           Action required:
+           1. git add public/og-image.png and commit.
+           2. Deploy to production.
+           3. Verify the image is reachable at https://kutumbkosh.com/og-image.png.
+           4. Validate OG tag resolution via https://www.opengraph.xyz or a
+              WhatsApp link preview before marking launch complete.
+
+           This closes the open note in the "SEO meta tags" Done handoff above.
+DEADLINE:  Before launch day
+STATUS:    BLOCKED — Engineering verified 2026-05-01: public/og-image.png does NOT
+           exist on disk. Marketing's claim that the file is "already in the repo"
+           is incorrect. layout.tsx references /og-image.png in two places (OG + Twitter)
+           and both will 404 on production until the file is placed.
+           Action required from Marketing: create the PNG and place it at
+           public/og-image.png, then re-open this handoff for Engineering to commit.
+---
+
+FROM:      Marketing
+TO:        Engineering
+PRIORITY:  High — Before Launch (coming-soon page is LIVE right now)
+REQUEST:   The SEO meta tag handoff was only applied to app/layout.tsx. The
+           coming-soon page (coming-soon/index.html) — the LIVE public URL on
+           Cloudflare Pages — was not updated. Gaps that break WhatsApp/social sharing:
+
+           - og:title → "KutumbKosh — Coming Soon" (wrong)
+           - meta description → vague copy ("Something powerful is coming...")
+           - og:description → different from approved copy
+           - og:image → MISSING entirely (no tag)
+           - Twitter Card tags → ALL MISSING
+           - canonical → MISSING
+
+           Required changes in <head>:
+
+           <title>KutumbKosh — Your Family's Financial Vault</title>
+           <meta name="description" content="Organize, protect, and pass on your
+             family's financial legacy. Track bank accounts, insurance, FDs, PPF,
+             and all nominees — in one secure vault." />
+           <meta property="og:title" content="KutumbKosh — Your Family's Financial Vault" />
+           <meta property="og:description" content="Organize, protect, and pass on your
+             family's financial legacy. Track bank accounts, insurance, FDs, PPF,
+             and all nominees — in one secure vault." />
+           <meta property="og:image" content="https://kutumbkosh.com/og-image.png" />
+           <meta property="og:image:width" content="1200" />
+           <meta property="og:image:height" content="630" />
+           <meta property="og:type" content="website" />
+           <meta property="og:url" content="https://kutumbkosh.com" />
+           <meta property="og:locale" content="en_IN" />
+           <meta name="twitter:card" content="summary_large_image" />
+           <meta name="twitter:title" content="KutumbKosh — Your Family's Financial Vault" />
+           <meta name="twitter:description" content="Organize, protect, and pass on your
+             family's financial legacy. Track bank accounts, insurance, FDs, PPF,
+             and all nominees — in one secure vault." />
+           <meta name="twitter:image" content="https://kutumbkosh.com/og-image.png" />
+           <link rel="canonical" href="https://kutumbkosh.com" />
+
+           og:image and twitter:image point to kutumbkosh.com/og-image.png
+           (the Next.js app's public/og-image.png — no separate copy needed).
+
+           After updating, re-upload coming-soon/index.html to Cloudflare Pages
+           and validate the WhatsApp preview at https://www.opengraph.xyz.
+DEADLINE:  Before launch day
+STATUS:    Open
+---
+
+FROM:      Marketing
+TO:        Shubham (Founder — direct action required)
+PRIORITY:  High — Before Launch
+REQUEST:   Pre-launch marketing activities requiring direct founder action:
+
+           1. WAITLIST FORM — The coming-soon page has no email capture form,
+              only a contact email. LAUNCH-TODO.md referenced Web3Forms but it
+              was never implemented. Decision needed: add a Web3Forms form before
+              launch, or keep email-only? If adding, share your Web3Forms access
+              key with Engineering.
+
+           2. SOCIAL MEDIA PROFILES — Instagram, LinkedIn, and Twitter/X profiles
+              have not been created per LAUNCH-TODO.md. Set up @KutumbKosh (or
+              best available handle) on all three before launch day.
+
+           3. LAUNCH-DAY POSTS — Draft 3–5 posts (Instagram, LinkedIn, WhatsApp
+              broadcast) using brand kit templates at
+              docs/marketing/KutumbKosh-Brand-Kit-v2.pdf. Schedule in advance so
+              launch day is not rushed.
+
+           4. WAITLIST NOTIFICATION — If any subscribers signed up via the
+              coming-soon page, draft a launch email and schedule it to go out
+              on the same day as the production deploy.
+
+           5. care@kutumbkosh.com — Confirm the inbox is live and monitored.
+              It is the only contact point for users, grievance requests,
+              and press.
+DEADLINE:  Before launch day
+STATUS:    Open
+---
 
 FROM:      Marketing
 TO:        Engineering

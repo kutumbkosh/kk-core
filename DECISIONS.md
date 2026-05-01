@@ -78,4 +78,18 @@ Each entry has:
 
 ---
 
+### 2026-05-01 | Security
+**Decision:** Re-verification audit completed. Go/No-Go verdict: GO — cleared for production deploy (with two Shubham action items below).
+**Rationale:** All three Engineering blockers confirmed fixed in code: (1) admin-views.sql uses shubham.git@gmail.com in is_admin(), log_admin_access() function added, PERFORM audit calls in admin_overview_metrics() and admin_user_list(); (2) schema.sql has admin_access_log table + RLS + indexes; (3) vercel.json host pattern is .*\.vercel\.app with "noindex, nofollow". Also confirmed: referrals RLS UPDATE policy added, robots.txt correct, sitemap.ts present, layout.tsx has full SEO meta + OG + Twitter + canonical. One open item: public/og-image.png does not exist yet — Marketing must create and deploy before launch to enable WhatsApp/social sharing previews.
+**Impact:** Shubham — two pre-production actions required: (1) run Production SQL migrations (admin_access_log table + admin-views.sql) in Supabase Production SQL editor; (2) set up Google Search Console. Marketing — og-image.png (1200×630px) must be created before launch.
+
+---
+
+### 2026-05-01 | Marketing
+**Decision:** Pre-launch marketing audit completed. coming-soon/index.html SEO/OG tags were not updated by the prior Engineering handoff — only app/layout.tsx was updated. Two new handoffs raised by Marketing: Engineering to fix coming-soon page OG/Twitter/meta; Shubham to action waitlist, social profiles, launch posts, and email verification.
+**Rationale:** The coming-soon page is the live public URL. Missing og:image and Twitter Card tags means WhatsApp shares (primary word-of-mouth channel) show no preview image. og:title "Coming Soon" will appear on every WhatsApp share, weakening brand recognition pre-launch.
+**Impact:** Engineering (fix coming-soon/index.html before launch day); Shubham (five marketing action items before launch day — see HANDOFFS.md).
+
+---
+
 _Add new decisions above this line, following the format._
