@@ -15,10 +15,26 @@ BEGIN
     SELECT 1 FROM auth.users
     WHERE id = auth.uid()
     AND email IN (
-      'admin@kutumbkosh.com'
+      'shubham.git@gmail.com'
       -- Add more admin emails as needed, e.g.:
       -- ,'another-admin@kutumbkosh.com'
     )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- ============================================================
+-- 1b. ADMIN AUDIT LOGGING HELPER
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.log_admin_access(fn_name TEXT, ctx JSONB DEFAULT '{}')
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO public.admin_access_log (admin_email, function_name, context)
+  VALUES (
+    (SELECT email FROM auth.users WHERE id = auth.uid()),
+    fn_name,
+    ctx
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -35,6 +51,8 @@ BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
+
+  PERFORM public.log_admin_access('admin_overview_metrics');
 
   SELECT json_build_object(
     'total_users', (SELECT COUNT(*) FROM public.profiles),
@@ -173,6 +191,9 @@ BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
+
+  PERFORM public.log_admin_access('admin_user_list',
+    jsonb_build_object('search', search_query, 'plan', plan_filter, 'page', page_num));
 
   offset_val := (page_num - 1) * page_size;
 

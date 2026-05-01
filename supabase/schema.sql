@@ -256,3 +256,18 @@ CREATE POLICY "Users can update own subscriptions"
   WITH CHECK (auth.uid() = user_id);
 
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON public.subscriptions(user_id);
+
+
+-- ============================================================
+-- 10. ADMIN ACCESS LOG (audit trail for all admin DB operations)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.admin_access_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  admin_email TEXT NOT NULL,
+  function_name TEXT NOT NULL,
+  called_at TIMESTAMPTZ DEFAULT NOW(),
+  context JSONB DEFAULT '{}'
+);
+ALTER TABLE public.admin_access_log ENABLE ROW LEVEL SECURITY;
+CREATE INDEX IF NOT EXISTS idx_admin_access_log_email ON public.admin_access_log(admin_email);
+CREATE INDEX IF NOT EXISTS idx_admin_access_log_called_at ON public.admin_access_log(called_at DESC);

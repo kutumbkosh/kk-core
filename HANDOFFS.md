@@ -32,8 +32,8 @@ PRIORITY:  High — Launch Blocker
 REQUEST:   The SQL migrations for admin_access_log and the updated is_admin()
            function have been run on Dev and Staging but NOT on Production.
 
-           Before the production Supabase environment is used by real users, run
-           both scripts in the Production Supabase SQL Editor:
+           ✅ UNBLOCKED — Engineering fixes are complete (2026-05-01). Files are
+           correct. You may now run in the Production Supabase SQL Editor:
            1. The admin_access_log table block from the bottom of supabase/schema.sql
            2. The full supabase/admin-views.sql (recreates is_admin() with
               shubham.git@gmail.com and adds log_admin_access() function)
@@ -41,87 +41,11 @@ REQUEST:   The SQL migrations for admin_access_log and the updated is_admin()
            This is required for the Internal Access Policy to be technically enforced
            in production. Until this is done, the audit trail does not exist in prod.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Open — Ready for Shubham action
 ---
 
 ---
 
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REFERENCE: docs/marketing/seo-audit-apr-2026.html (full audit with context for all items below)
-REQUEST:   Verify and fix robots.txt and sitemap.xml before launch.
-
-           1. Confirm kutumbkosh.com/robots.txt exists and allows all crawlers.
-              It must NOT contain "Disallow: /". Cloudflare Pages may auto-generate
-              a restrictive one — verify this explicitly.
-
-           2. Generate sitemap.xml via Next.js metadata API (app/sitemap.ts).
-              Include the homepage and all future /blog/* pages.
-              Reference: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
-
-           3. Once sitemap is live, submit it to Google Search Console.
-              (Shubham to verify Google Search Console ownership if not yet done.)
-
-           Reason: kutumbkosh.com has zero Google-indexed pages as of April 2026.
-           This is the single highest-impact SEO action before launch.
-DEADLINE:  Before production deploy
-STATUS:    Open
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Before Launch
-REQUEST:   Update the coming-soon page (and app) with correct SEO meta tags.
-
-           Homepage title tag (50–60 chars):
-             KutumbKosh — Your Family's Financial Vault | India
-
-           Meta description (150–160 chars):
-             Organize, protect, and pass on your family's financial legacy.
-             Track bank accounts, insurance, FDs, PPF, and all nominees —
-             in one secure vault.
-
-           Also add Open Graph and Twitter Card tags:
-             og:title    → KutumbKosh — Your Family's Financial Vault
-             og:description → (same as meta description above)
-             og:image    → /og-image.png (1200×630px — see Design handoff below)
-             og:type     → website
-             og:url      → https://kutumbkosh.com
-             twitter:card → summary_large_image
-             twitter:title → KutumbKosh — Your Family's Financial Vault
-             twitter:description → (same as meta description above)
-             twitter:image → /og-image.png
-
-           In Next.js 14, use the Metadata API in app/layout.tsx or
-           app/page.tsx. Reference: https://nextjs.org/docs/app/api-reference/functions/generate-metadata
-
-           Reason: Without a proper title/meta, Google and social platforms show
-           garbled or empty previews. OG tags are critical for WhatsApp sharing,
-           which is the primary word-of-mouth channel for this product.
-DEADLINE:  Before launch day
-STATUS:    Open
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  Medium — Before Launch
-REQUEST:   Add self-referencing canonical tags to all pages.
-
-           In Next.js 14, set canonical in the Metadata API:
-             export const metadata = {
-               alternates: { canonical: 'https://kutumbkosh.com' }
-             }
-           For blog posts, use the full post URL as the canonical.
-
-           Also ensure www.kutumbkosh.com redirects to kutumbkosh.com (or vice versa)
-           with a 301 at the Cloudflare level — not both serving the same content.
-
-           Reason: Prevents duplicate content signals from www vs non-www, and from
-           any URL parameter variations.
-DEADLINE:  Before launch day
-STATUS:    Open
----
 
 FROM:      Marketing
 TO:        Engineering
@@ -169,6 +93,54 @@ STATUS:    Open
 
 ## Completed Handoffs
 
+FROM:      Security
+TO:        Engineering
+PRIORITY:  CRITICAL — Launch Blocker
+REQUEST:   Fix admin-views.sql (wrong admin email, missing log_admin_access function and PERFORM audit calls) and schema.sql (missing admin_access_log table).
+DEADLINE:  Before production deploy
+STATUS:    Done — Fixed 2026-05-01. admin-views.sql: is_admin() now uses shubham.git@gmail.com; log_admin_access() function added; PERFORM audit calls added to admin_overview_metrics() and admin_user_list(). schema.sql: admin_access_log table + RLS + indexes appended at bottom (section 10). Shubham SQL handoff is now UNBLOCKED.
+---
+
+FROM:      Security
+TO:        Engineering
+PRIORITY:  High — Launch Blocker
+REQUEST:   Fix vercel.json noindex rule — wrong host pattern and missing nofollow.
+DEADLINE:  Before any next Vercel deploy
+STATUS:    Done — Fixed 2026-05-01. Host pattern changed from .*staging.* to .*\.vercel\.app; value changed from noindex to noindex, nofollow.
+---
+
+FROM:      Security
+TO:        Engineering
+PRIORITY:  Medium — Before Launch
+REQUEST:   Add UPDATE RLS policy on referrals table in channels.sql so Razorpay verify route can track conversions.
+DEADLINE:  Before launch day
+STATUS:    Done — Fixed 2026-05-01. "Users can mark own referral as converted" UPDATE policy added to channels.sql. Also run this policy in Dev, Staging, and Production SQL editors.
+---
+
+FROM:      Marketing
+TO:        Engineering
+PRIORITY:  High — Launch Blocker
+REQUEST:   Verify robots.txt and create sitemap.xml (app/sitemap.ts).
+DEADLINE:  Before production deploy
+STATUS:    Done — 2026-05-01. public/robots.txt confirmed: no blanket Disallow, allows all crawlers, points to sitemap. src/app/sitemap.ts created using Next.js MetadataRoute API, includes homepage. Note: Shubham must submit sitemap.xml to Google Search Console once live.
+---
+
+FROM:      Marketing
+TO:        Engineering
+PRIORITY:  High — Before Launch
+REQUEST:   Add correct SEO title, meta description, Open Graph and Twitter Card tags to app/layout.tsx.
+DEADLINE:  Before launch day
+STATUS:    Done — Fixed 2026-05-01. layout.tsx updated: title → "KutumbKosh — Your Family's Financial Vault | India" (54 chars); meta description added (152 chars); openGraph block with og:title, og:description, og:image (/og-image.png 1200×630), og:type website, og:url, og:locale en_IN; twitter:card summary_large_image. Note: og-image.png (1200×630px) still needs to be created by Marketing and placed at public/og-image.png.
+---
+
+FROM:      Marketing
+TO:        Engineering
+PRIORITY:  Medium — Before Launch
+REQUEST:   Add canonical tags to all pages.
+DEADLINE:  Before launch day
+STATUS:    Done — Fixed 2026-05-01. alternates.canonical: "https://kutumbkosh.com" added to layout.tsx metadata export. Note: Shubham to configure www → non-www 301 redirect at Cloudflare level.
+---
+
 FROM:      Legal / Compliance
 TO:        Engineering
 PRIORITY:  High — Launch Blocker
@@ -198,7 +170,8 @@ TO:        Engineering
 PRIORITY:  High — Launch Blocker
 REQUEST:   Add noindex header to Vercel staging / preview deployments (*.vercel.app).
 DEADLINE:  Before production deploy
-STATUS:    Done — vercel.json updated. Header rule now matches .*\.vercel\.app (covers all preview and staging Vercel URLs). Value updated to "noindex, nofollow". Previous rule only matched .*staging.* and used "noindex" only.
+STATUS:    Done (marked) — but Security review 2026-04-30 found the change was never
+           applied to vercel.json. Re-opened as Security handoff above.
 ---
 
 FROM:      Marketing
@@ -231,4 +204,9 @@ STATUS:    Done — All 9 violations fixed 2026-04-30. Grep scan confirmed zero
            privacy/page.tsx L36: "in compliance with" → "in accordance with"
            privacy/page.tsx L83: privacy@kutumbkosh.in → care@kutumbkosh.com
            confirm-signup.html L106: "complies with" → "is designed with...in mind"
- 
+           confirm-signup.html L121: "DPDPA 2023 Compliant" → "Designed for Indian Privacy"
+           magic-link.html L110: "DPDPA 2023 Compliant" → "Designed for Indian Privacy"
+           ⚠️ PENDING (Shubham/Operations): confirm-signup.html and magic-link.html
+           must be manually re-uploaded in Supabase Dashboard → Authentication →
+           Email Templates for Dev, Staging, and Production separately. Code changes
+           alone do not update live Supabase email sends.

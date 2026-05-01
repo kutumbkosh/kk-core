@@ -11,12 +11,12 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex" }
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ],
       "has": [
         {
           "type": "host",
-          "value": ".*staging.*"
+          "value": ".*\\.vercel\\.app"
         }
       ]
     }

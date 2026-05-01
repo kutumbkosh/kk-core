@@ -231,3 +231,5 @@ export default function OnboardingProfile() {
         </div>
       </div>
     </div>
+  );
+}
