@@ -65,12 +65,12 @@ REQUEST:   og-image.png has been created by Marketing and is already at
 
            This closes the open note in the "SEO meta tags" Done handoff above.
 DEADLINE:  Before launch day
-STATUS:    BLOCKED — Engineering verified 2026-05-01: public/og-image.png does NOT
-           exist on disk. Marketing's claim that the file is "already in the repo"
-           is incorrect. layout.tsx references /og-image.png in two places (OG + Twitter)
-           and both will 404 on production until the file is placed.
-           Action required from Marketing: create the PNG and place it at
-           public/og-image.png, then re-open this handoff for Engineering to commit.
+STATUS:    Done — 2026-05-01. public/og-image.png confirmed present in repo.
+           Engineering's earlier BLOCKED status was incorrect — caused by a faulty
+           glob pattern that missed the file. layout.tsx and coming-soon/index.html
+           both correctly reference /og-image.png and https://kutumbkosh.com/og-image.png.
+           Pending: Shubham to commit + deploy, then validate preview at opengraph.xyz
+           or WhatsApp before marking launch complete.
 ---
 
 FROM:      Marketing
@@ -117,6 +117,29 @@ REQUEST:   The SEO meta tag handoff was only applied to app/layout.tsx. The
            After updating, re-upload coming-soon/index.html to Cloudflare Pages
            and validate the WhatsApp preview at https://www.opengraph.xyz.
 DEADLINE:  Before launch day
+STATUS:    Done — Fixed 2026-05-01. All 6 issues resolved in coming-soon/index.html:
+           og:title → "KutumbKosh — Your Family's Financial Vault"; meta description
+           and og:description → approved copy; og:image + dimensions added pointing to
+           https://kutumbkosh.com/og-image.png; og:locale en_IN added; full Twitter Card
+           block added (card, title, description, image); canonical added.
+           Note: og-image.png must still be created by Marketing and deployed before
+           WhatsApp preview will show the image. File currently missing from repo.
+           Note: Shubham must re-upload coming-soon/index.html to Cloudflare Pages.
+---
+
+FROM:      Engineering
+TO:        Legal / Compliance
+PRIORITY:  High — For awareness
+REQUEST:   coming-soon/index.html was replaced by Shubham (2026-05-01), reverting
+           4 previously fixed DPDPA violations back to non-compliant text. Engineering
+           has re-applied all fixes. Violations re-fixed:
+           L965: "Designed with DPDPA 2023 in mind" (was reverted to "compliant with DPDPA 2023")
+           L964: "Designed with Privacy in Mind" (was reverted to "DPDPA Compliant")
+           L1017: "Indian Privacy Standards" (was reverted to "DPDPA 2023")
+           L1018: "Designed with India's DPDPA in mind" (was reverted to "Fully compliant")
+           Recommend Shubham note this file as a compliance-sensitive file going forward.
+DEADLINE:  Awareness only
+STATUS:    Open
 STATUS:    Open
 ---
 
