@@ -372,9 +372,22 @@ export default function DashboardPage() {
 
             {/* Trusted Contacts */}
             <div className="card p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Trusted Contacts</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Trusted Contacts</h3>
+                <button onClick={() => router.push("/dashboard/emergency")} className="text-xs text-vault-accent font-medium hover:underline">
+                  Manage
+                </button>
+              </div>
               {contacts.length === 0 ? (
-                <p className="text-xs text-gray-500">No trusted contacts set up.</p>
+                <div className="flex flex-col items-start gap-1.5">
+                  <p className="text-xs text-gray-500">No trusted contacts set up yet.</p>
+                  <button
+                    onClick={() => router.push("/dashboard/emergency")}
+                    className="text-xs text-vault-accent font-medium hover:underline"
+                  >
+                    + Add a trusted contact
+                  </button>
+                </div>
               ) : (
                 <div className="space-y-1.5">
                   {contacts.map((contact) => (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import EnvBadge from "@/components/EnvBadge";
+import CloudflareAnalytics from "@/components/CloudflareAnalytics";
 
 const OG_DESCRIPTION =
   "Organize, protect, and pass on your family's financial legacy. Track bank accounts, insurance, FDs, PPF, and all nominees — in one secure vault.";
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-gray-50">
         {children}
         <EnvBadge />
+        <CloudflareAnalytics />
       </body>
     </html>
   );

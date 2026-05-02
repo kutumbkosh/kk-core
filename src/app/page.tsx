@@ -33,11 +33,33 @@ export default function LandingPage() {
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const TESTIMONIALS = [
+    {
+      quote: "Every family should have a single source of truth for their financial assets. KutumbKosh does exactly this, and it does it with the right level of security.",
+      name: "CA Raghav Mehta",
+      title: "Chartered Accountant, 12+ yrs in family tax planning",
+    },
+    {
+      quote: "I recommend KutumbKosh to all my clients. Nominee gaps are the #1 issue I see in estate disputes — this tool makes those gaps impossible to miss.",
+      name: "Adv. Sneha Iyer",
+      title: "Estate & Succession Planning Lawyer, Mumbai",
+    },
+  ];
 
   // Capture referral code from URL params (e.g., ?ref=CA-MEHTA-XY12)
   useEffect(() => {
     captureReferral();
   }, []);
+
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % TESTIMONIALS.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [TESTIMONIALS.length]);
 
   // Countdown timer for resend
   useEffect(() => {
@@ -191,29 +213,40 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* Expert Endorsements */}
-              <div className="mt-8 space-y-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Recommended by experts</p>
-                {[
-                  {
-                    quote: "Every family should have a single source of truth for their financial assets. KutumbKosh does exactly this, and it does it with the right level of security.",
-                    name: "CA Raghav Mehta",
-                    title: "Chartered Accountant, 12+ yrs in family tax planning",
-                  },
-                  {
-                    quote: "I recommend KutumbKosh to all my clients. Nominee gaps are the #1 issue I see in estate disputes — this tool makes those gaps impossible to miss.",
-                    name: "Adv. Sneha Iyer",
-                    title: "Estate & Succession Planning Lawyer, Mumbai",
-                  },
-                ].map((t) => (
-                  <div key={t.name} className="p-3.5 bg-gray-50 rounded-xl border border-gray-100">
-                    <p className="text-xs text-gray-600 leading-relaxed italic mb-2">&ldquo;{t.quote}&rdquo;</p>
-                    <div>
-                      <p className="text-xs font-semibold text-gray-800">{t.name}</p>
-                      <p className="text-[10px] text-gray-400">{t.title}</p>
-                    </div>
+              {/* Expert Endorsements — auto-rotating slider */}
+              <div className="mt-8">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Recommended by experts</p>
+                <div className="relative overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+                  >
+                    {TESTIMONIALS.map((t) => (
+                      <div key={t.name} className="w-full flex-shrink-0 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+                        <p className="text-xs text-gray-600 leading-relaxed italic mb-2">&ldquo;{t.quote}&rdquo;</p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-800">{t.name}</p>
+                          <p className="text-[10px] text-gray-400">{t.title}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                {/* Dot navigation */}
+                <div className="flex items-center justify-center gap-1.5 mt-2.5">
+                  {TESTIMONIALS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveSlide(i)}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === activeSlide
+                          ? "w-4 h-1.5 bg-blue-500"
+                          : "w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -385,7 +418,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 sm:justify-between">
           <p className="text-xs text-gray-400">&copy; 2026 KutumbKosh. All rights reserved.</p>
           <div className="flex items-center gap-4 text-xs text-gray-400">
             <a href="/security" className="hover:text-gray-600 transition-colors">Security</a>

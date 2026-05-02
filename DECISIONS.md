@@ -92,4 +92,19 @@ Each entry has:
 
 ---
 
+### 2026-05-02 | Tech
+**Decision:** Sentry (error monitoring) stores data in US/EU. Under DPDPA 2023 S.16, cross-border transfer of personal data is subject to restrictions once transfer rules are notified by the Indian government. Until a self-hosted India-region alternative is in place, Sentry is approved for use **only** with mandatory pseudonymisation applied at source in `sentry.client.config.ts` and `sentry.server.config.ts`:
+- User context (`user.id`, `user.email`, `user.ip_address`) deleted from all events before transmission
+- UUIDs in request URLs replaced with `[id]` (e.g. `/assets/abc-uuid` → `/assets/[id]`)
+- Cookies and `Authorization`/`Cookie` headers stripped from request context
+- All fetch/XHR breadcrumbs dropped (may contain auth tokens)
+- Sentry Replay masks all text, inputs, and media — no vault content ever captured
+
+Sentry is restricted to **dev and staging only** until Operations formally clears it for production under DPDPA S.16.
+
+**Rationale:** DPDPA 2023 S.16 cross-border transfer rules not yet notified — no hard legal blocker today. However system-rules.md Rule 12 requires third-party tools to comply with DPDPA in spirit. Pseudonymisation ensures no user-identifiable data leaves India via Sentry. Full remediation (self-hosted in India) is the long-term goal and is tracked in HANDOFFS.md.
+**Impact:** Engineering (sentry configs updated with pseudonymisation — both client and server); Operations (open handoff: formal DPDPA S.16 assessment required before production enable); Shubham (do not set `NEXT_PUBLIC_SENTRY_DSN` in Vercel **production** env vars until Operations clears this — dev/staging env vars are fine).
+
+---
+
 _Add new decisions above this line, following the format._

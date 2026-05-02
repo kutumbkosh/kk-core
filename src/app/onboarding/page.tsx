@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getReferralCode, getReferralSource, clearReferral } from "@/lib/referral";
+import { validateFullName, validatePhone, validateDOB, validatePAN, type ValidationError } from "@/lib/validations";
+import FieldError from "@/components/FieldError";
 import {
   Shield,
   User,
@@ -21,9 +23,49 @@ export default function OnboardingProfile() {
     dob: "",
     pan_number: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, ValidationError>>({
+    full_name: null, phone: null, dob: null, pan_number: null,
+  });
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const validateField = (name: string, value: string): ValidationError => {
+    switch (name) {
+      case "full_name": return validateFullName(value);
+      case "phone": return validatePhone(value);
+      case "dob": return validateDOB(value);
+      case "pan_number": return validatePAN(value);
+      default: return null;
+    }
+  };
+
+  const handleBlur = (name: string) => {
+    setTouched(prev => ({ ...prev, [name]: true }));
+    setFieldErrors(prev => ({ ...prev, [name]: validateField(name, form[name as keyof typeof form]) }));
+  };
+
+  const handleChange = (name: string, value: string) => {
+    const updated = { ...form, [name]: value };
+    setForm(updated);
+    if (touched[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate all fields before submitting
+    const allTouched = { full_name: true, phone: true, dob: true, pan_number: true };
+    setTouched(allTouched);
+    const errors = {
+      full_name: validateField("full_name", form.full_name),
+      phone: validateField("phone", form.phone),
+      dob: validateField("dob", form.dob),
+      pan_number: validateField("pan_number", form.pan_number),
+    };
+    setFieldErrors(errors);
+    if (Object.values(errors).some(e => e !== null)) return;
+
     setLoading(true);
     setError("");
 
@@ -133,13 +175,12 @@ export default function OnboardingProfile() {
                 id="full_name"
                 type="text"
                 value={form.full_name}
-                onChange={(e) =>
-                  setForm({ ...form, full_name: e.target.value })
-                }
+                onChange={(e) => handleChange("full_name", e.target.value)}
+                onBlur={() => handleBlur("full_name")}
                 placeholder="e.g., Rajesh Kumar"
-                required
                 className="input-field"
               />
+              <FieldError error={fieldErrors.full_name} />
             </div>
 
             <div>
@@ -151,10 +192,12 @@ export default function OnboardingProfile() {
                 id="phone"
                 type="tel"
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                onBlur={() => handleBlur("phone")}
                 placeholder="+91 98765 43210"
                 className="input-field"
               />
+              <FieldError error={fieldErrors.phone} />
             </div>
 
             <div>
@@ -166,9 +209,11 @@ export default function OnboardingProfile() {
                 id="dob"
                 type="date"
                 value={form.dob}
-                onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                className="input-field"
+                onChange={(e) => handleChange("dob", e.target.value)}
+                onBlur={() => handleBlur("dob")}
+                className="input-field min-w-0 w-full"
               />
+              <FieldError error={fieldErrors.dob} />
             </div>
 
             <div>
@@ -180,17 +225,13 @@ export default function OnboardingProfile() {
                 id="pan"
                 type="text"
                 value={form.pan_number}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    pan_number: e.target.value.toUpperCase(),
-                  })
-                }
+                onChange={(e) => handleChange("pan_number", e.target.value.toUpperCase())}
+                onBlur={() => handleBlur("pan_number")}
                 placeholder="ABCDE1234F"
                 maxLength={10}
-                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                 className="input-field"
               />
+              <FieldError error={fieldErrors.pan_number} />
               <p className="text-xs text-gray-400 mt-1">
                 Helps identify your accounts. Stored encrypted.
               </p>
