@@ -24,6 +24,8 @@ import {
   Crown,
   Download,
   Bell,
+  Copy,
+  Check as CheckIcon,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -35,6 +37,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -171,6 +174,36 @@ export default function SettingsPage() {
           </h2>
 
           <div className="space-y-4">
+            {/* Kutumb ID (read-only, immutable) */}
+            {profile?.kutumb_id && (
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Your Kutumb ID</label>
+                <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg border border-blue-200">
+                  <Shield className="w-4 h-4 text-vault-accent flex-shrink-0" />
+                  <span className="text-sm font-mono font-semibold text-vault-dark flex-1 tracking-wide">
+                    {profile.kutumb_id}
+                  </span>
+                  <button
+                    type="button"
+                    title="Quote this ID when contacting support"
+                    onClick={() => {
+                      navigator.clipboard.writeText(profile.kutumb_id!);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="p-1.5 rounded hover:bg-blue-100 transition-colors flex items-center gap-1 text-xs text-vault-accent font-medium"
+                  >
+                    {copied ? (
+                      <><CheckIcon className="w-3.5 h-3.5 text-green-600" /><span className="text-green-600">Copied</span></>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" />Copy</>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Quote this ID when contacting support at care@kutumbkosh.com</p>
+              </div>
+            )}
+
             {/* Email (read-only) */}
             <div>
               <label className="text-xs font-medium text-gray-500 mb-1 block">Email</label>

@@ -17,6 +17,15 @@ export type AssetType =
 export type ValueBand = "<1L" | "1-5L" | "5-10L" | "10-50L" | "50L+";
 
 export type NomineeRelation =
+  | "spouse"
+  | "child"
+  | "parent"
+  | "sibling"
+  | "grandchild"
+  | "grandparent"
+  | "in_law"
+  | "other"
+  // Legacy uppercase values kept for backward compat with existing rows
   | "SPOUSE"
   | "CHILD"
   | "PARENT"
@@ -31,6 +40,12 @@ export interface UserProfile {
   email: string | null;
   phone: string | null;
   dob: string | null;
+  // New mandatory-fields columns
+  mobile_number: string | null;
+  mobile_verified: boolean;
+  date_of_birth: string | null;
+  profile_complete: boolean;
+  kutumb_id: string | null;
   pan_number: string | null;
   onboarding_completed: boolean;
   created_at: string;
@@ -59,6 +74,9 @@ export interface Nominee {
   relation: NomineeRelation;
   dob: string | null;
   contact_number: string | null;
+  email: string | null;
+  guardian_name: string | null;
+  guardian_mobile: string | null;
   pan_number: string | null;
   photo_url: string | null;
   created_at: string;
@@ -139,6 +157,14 @@ export const ASSET_TYPE_CONFIG: Record<
   MUTUAL_FUND: { label: "Mutual Fund", icon: "TrendingUp", color: "#8E44AD" },
   INSURANCE: { label: "Insurance", icon: "Shield", color: "#E67E22" },
   DEMAT: { label: "Demat & Stocks", icon: "BarChart3", color: "#2C3E50" },
+  EPF: { label: "EPF", icon: "Building2", color: "#16A085" },
+  PPF_NPS: { label: "PPF / NPS", icon: "Wallet", color: "#2980B9" },
+  LOAN: { label: "Loan", icon: "HandCoins", color: "#E74C3C" },
+  CREDIT_CARD: { label: "Credit Card", icon: "CreditCard", color: "#9B59B6" },
+  LOCKER: { label: "Locker", icon: "Lock", color: "#34495E" },
+  REAL_ESTATE: { label: "Real Estate", icon: "Home", color: "#27AE60" },
+};
+cks", icon: "BarChart3", color: "#2C3E50" },
   EPF: { label: "EPF", icon: "Building2", color: "#16A085" },
   PPF_NPS: { label: "PPF / NPS", icon: "Wallet", color: "#2980B9" },
   LOAN: { label: "Loan", icon: "HandCoins", color: "#E74C3C" },

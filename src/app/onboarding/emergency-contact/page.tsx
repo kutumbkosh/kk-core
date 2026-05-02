@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { validateContactName, validatePhone, validateEmail, validateRelation } from "@/lib/validations";
+import {
+  validateContactName,
+  validateMobileRequired,
+  validateEmail,
+  validateRelationshipDropdown,
+} from "@/lib/validations";
+import { RELATIONSHIP_OPTIONS } from "@/app/dashboard/nominees/add/page";
 import FieldError from "@/components/FieldError";
 import {
   UserPlus,
@@ -13,6 +19,8 @@ import {
   AlertTriangle,
   Plus,
   X,
+  Phone,
+  Mail,
 } from "lucide-react";
 
 interface ContactForm {
@@ -22,34 +30,26 @@ interface ContactForm {
   email: string;
 }
 
-const EMPTY_CONTACT: ContactForm = {
-  name: "",
-  relation: "",
-  phone: "",
-  email: "",
-};
+const EMPTY_CONTACT: ContactForm = { name: "", relation: "", phone: "", email: "" };
 
 export default function EmergencyContactPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [contacts, setContacts] = useState<ContactForm[]>([
-    { ...EMPTY_CONTACT },
-  ]);
+  const [contacts, setContacts] = useState<ContactForm[]>([{ ...EMPTY_CONTACT }]);
   const [contactErrors, setContactErrors] = useState<Record<string, string | null>[]>([{}]);
   const [contactTouched, setContactTouched] = useState<Record<string, boolean>[]>([{}]);
 
-  const validateContactField = (index: number, field: string, value: string) => {
+  const validateContactField = (index: number, field: string, value: string): string | null => {
     let err: string | null = null;
     switch (field) {
-      case "name": err = validateContactName(value); break;
-      case "relation": err = validateRelation(value); break;
-      case "phone": err = validatePhone(value); break;
-      case "email":
-        if (value.trim()) err = validateEmail(value);
-        break;
+      case "name":     err = validateContactName(value); break;
+      case "relation": err = validateRelationshipDropdown(value); break;
+      // Both phone and email are hard mandatory for trusted contacts
+      case "phone":    err = validateMobileRequired(value); break;
+      case "email":    err = validateEmail(value); break;
     }
-    setContactErrors(prev => {
+    setContactErrors((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: err };
       return updated;
@@ -58,7 +58,7 @@ export default function EmergencyContactPage() {
   };
 
   const handleContactBlur = (index: number, field: string, value: string) => {
-    setContactTouched(prev => {
+    setContactTouched((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: true };
       return updated;
@@ -69,22 +69,18 @@ export default function EmergencyContactPage() {
   const addContact = () => {
     if (contacts.length < 2) {
       setContacts([...contacts, { ...EMPTY_CONTACT }]);
-      setContactErrors(prev => [...prev, {}]);
-      setContactTouched(prev => [...prev, {}]);
+      setContactErrors((prev) => [...prev, {}]);
+      setContactTouched((prev) => [...prev, {}]);
     }
   };
 
   const removeContact = (index: number) => {
     setContacts(contacts.filter((_, i) => i !== index));
-    setContactErrors(prev => prev.filter((_, i) => i !== index));
-    setContactTouched(prev => prev.filter((_, i) => i !== index));
+    setContactErrors((prev) => prev.filter((_, i) => i !== index));
+    setContactTouched((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateContact = (
-    index: number,
-    field: keyof ContactForm,
-    value: string
-  ) => {
+  const updateContact = (index: number, field: keyof ContactForm, value: string) => {
     const updated = [...contacts];
     updated[index] = { ...updated[index], [field]: value };
     setContacts(updated);
@@ -94,21 +90,19 @@ export default function EmergencyContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all contacts that have any data
     let hasErrors = false;
     contacts.forEach((contact, index) => {
-      // Only validate contacts with at least a name entered
       if (contact.name.trim()) {
-        const newTouched = { name: true, relation: true, phone: true, email: true };
-        setContactTouched(prev => {
+        const allTouched = { name: true, relation: true, phone: true, email: true };
+        setContactTouched((prev) => {
           const updated = [...prev];
-          updated[index] = newTouched;
+          updated[index] = allTouched;
           return updated;
         });
-        const nameErr = validateContactField(index, "name", contact.name);
-        const relErr = validateContactField(index, "relation", contact.relation);
+        const nameErr  = validateContactField(index, "name", contact.name);
+        const relErr   = validateContactField(index, "relation", contact.relation);
         const phoneErr = validateContactField(index, "phone", contact.phone);
-        const emailErr = contact.email.trim() ? validateContactField(index, "email", contact.email) : null;
+        const emailErr = validateContactField(index, "email", contact.email);
         if (nameErr || relErr || phoneErr || emailErr) hasErrors = true;
       }
     });
@@ -123,46 +117,33 @@ export default function EmergencyContactPage() {
 
     try {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Save contacts that have at least a name
       const validContacts = contacts.filter((c) => c.name.trim());
-
       if (validContacts.length > 0) {
-        const { error: insertError } = await supabase
-          .from("trusted_contacts")
-          .insert(
-            validContacts.map((c) => ({
-              user_id: user.id,
-              contact_name: c.name.trim(),
-              relation: c.relation,
-              contact_phone: c.phone.trim() || null,
-              contact_email: c.email.trim() || null,
-              access_status: "PENDING",
-            }))
-          );
-
+        const { error: insertError } = await supabase.from("trusted_contacts").insert(
+          validContacts.map((c) => ({
+            user_id: user.id,
+            contact_name: c.name.trim(),
+            relation: c.relation,
+            contact_phone: c.phone.trim(),
+            contact_email: c.email.trim(),
+            access_status: "PENDING",
+          }))
+        );
         if (insertError) throw insertError;
       }
 
       // Mark onboarding as complete
-      await supabase
-        .from("profiles")
-        .update({
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
+      await supabase.from("profiles").update({
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      }).eq("id", user.id);
 
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -172,20 +153,12 @@ export default function EmergencyContactPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
-      await supabase
-        .from("profiles")
-        .update({
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
-
+      await supabase.from("profiles").update({
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      }).eq("id", user.id);
       router.push("/dashboard");
     } catch {
       router.push("/dashboard");
@@ -198,19 +171,13 @@ export default function EmergencyContactPage() {
         {/* Progress */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">
-              ✓
-            </div>
+            <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">✓</div>
             <span className="text-sm text-gray-400">Your Profile</span>
           </div>
           <div className="w-8 h-px bg-green-300" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-vault-dark text-white flex items-center justify-center text-sm font-bold">
-              2
-            </div>
-            <span className="text-sm font-medium text-vault-dark">
-              Emergency Contact
-            </span>
+            <div className="w-8 h-8 rounded-full bg-vault-dark text-white flex items-center justify-center text-sm font-bold">2</div>
+            <span className="text-sm font-medium text-vault-dark">Emergency Contact</span>
           </div>
         </div>
 
@@ -220,32 +187,22 @@ export default function EmergencyContactPage() {
               <UserPlus className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Add a trusted contact
-              </h1>
-              <p className="text-sm text-gray-500">
-                Someone who can access your vault in an emergency
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900">Add a trusted contact</h1>
+              <p className="text-sm text-gray-500">Someone who can access your vault in an emergency</p>
             </div>
           </div>
 
-          {/* Info callout */}
           <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-6">
             <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-800">
-              Your trusted contact won&apos;t get access right away. They can
-              only request access, and you&apos;ll need to approve it. They
-              will only see a summary of your accounts (no passwords or full
-              account numbers).
+              Your trusted contact won&apos;t get access right away. They can only request access, and you&apos;ll need to approve it.
+              They will only see a summary of your accounts — no passwords or full account numbers.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {contacts.map((contact, index) => (
-              <div
-                key={index}
-                className="p-4 border border-gray-200 rounded-xl space-y-4 relative"
-              >
+              <div key={index} className="p-4 border border-gray-200 rounded-xl space-y-4 relative">
                 {contacts.length > 1 && (
                   <button
                     type="button"
@@ -256,18 +213,15 @@ export default function EmergencyContactPage() {
                   </button>
                 )}
 
-                <h3 className="text-sm font-semibold text-gray-700">
-                  Contact {index + 1}
-                </h3>
+                <h3 className="text-sm font-semibold text-gray-700">Contact {index + 1}</h3>
 
+                {/* Name */}
                 <div>
                   <label className="label">Name <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={contact.name}
-                    onChange={(e) =>
-                      updateContact(index, "name", e.target.value)
-                    }
+                    onChange={(e) => updateContact(index, "name", e.target.value)}
                     onBlur={() => handleContactBlur(index, "name", contact.name)}
                     placeholder="e.g., Priya Kumar"
                     className={`input-field ${contactTouched[index]?.name && contactErrors[index]?.name ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
@@ -275,54 +229,60 @@ export default function EmergencyContactPage() {
                   <FieldError error={contactTouched[index]?.name ? contactErrors[index]?.name ?? null : null} />
                 </div>
 
+                {/* Relationship */}
                 <div>
-                  <label className="label">Relation <span className="text-red-500">*</span></label>
+                  <label className="label">Relationship <span className="text-red-500">*</span></label>
                   <select
                     value={contact.relation}
-                    onChange={(e) =>
-                      updateContact(index, "relation", e.target.value)
-                    }
+                    onChange={(e) => updateContact(index, "relation", e.target.value)}
                     onBlur={() => handleContactBlur(index, "relation", contact.relation)}
                     className={`input-field ${contactTouched[index]?.relation && contactErrors[index]?.relation ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
                   >
-                    <option value="">Select relation</option>
-                    <option value="SPOUSE">Spouse</option>
-                    <option value="CHILD">Child</option>
-                    <option value="PARENT">Parent</option>
-                    <option value="SIBLING">Sibling</option>
-                    <option value="OTHER">Other</option>
+                    <option value="">Select relationship</option>
+                    {RELATIONSHIP_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                   <FieldError error={contactTouched[index]?.relation ? contactErrors[index]?.relation ?? null : null} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Phone</label>
-                    <input
-                      type="tel"
-                      value={contact.phone}
-                      onChange={(e) =>
-                        updateContact(index, "phone", e.target.value)
-                      }
-                      onBlur={() => handleContactBlur(index, "phone", contact.phone)}
-                      placeholder="+91 98765 43210"
-                      className={`input-field ${contactTouched[index]?.phone && contactErrors[index]?.phone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
-                    />
-                    <FieldError error={contactTouched[index]?.phone ? contactErrors[index]?.phone ?? null : null} />
-                  </div>
-                  <div>
-                    <label className="label">Email</label>
-                    <input
-                      type="email"
-                      value={contact.email}
-                      onChange={(e) =>
-                        updateContact(index, "email", e.target.value)
-                      }
-                      onBlur={() => handleContactBlur(index, "email", contact.email)}
-                      placeholder="email@example.com"
-                      className={`input-field ${contactTouched[index]?.email && contactErrors[index]?.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
-                    />
-                    <FieldError error={contactTouched[index]?.email ? contactErrors[index]?.email ?? null : null} />
+                {/* Mobile + Email — both mandatory */}
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <p className="text-xs text-blue-800 mb-3">
+                    We collect both mobile and email so your trusted contact can always be reached in an emergency.
+                  </p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="label">Mobile Number <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          value={contact.phone}
+                          onChange={(e) => updateContact(index, "phone", e.target.value)}
+                          onBlur={() => handleContactBlur(index, "phone", contact.phone)}
+                          placeholder="98765 43210"
+                          className={`input-field pl-9 ${contactTouched[index]?.phone && contactErrors[index]?.phone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                        />
+                      </div>
+                      <FieldError error={contactTouched[index]?.phone ? contactErrors[index]?.phone ?? null : null} />
+                    </div>
+                    <div>
+                      <label className="label">Email Address <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="email"
+                          value={contact.email}
+                          onChange={(e) => updateContact(index, "email", e.target.value)}
+                          onBlur={() => handleContactBlur(index, "email", contact.email)}
+                          placeholder="priya@example.com"
+                          className={`input-field pl-9 ${contactTouched[index]?.email && contactErrors[index]?.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                        />
+                      </div>
+                      <FieldError error={contactTouched[index]?.email ? contactErrors[index]?.email ?? null : null} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -340,9 +300,7 @@ export default function EmergencyContactPage() {
             )}
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-                {error}
-              </div>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>
             )}
 
             <div className="flex gap-3">
@@ -355,21 +313,11 @@ export default function EmergencyContactPage() {
                 <SkipForward className="w-4 h-4 mr-1.5" />
                 Skip for now
               </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary flex-1"
-              >
+              <button type="submit" disabled={loading} className="btn-primary flex-1">
                 {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving…</>
                 ) : (
-                  <>
-                    Finish setup
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
+                  <>Finish setup <ArrowRight className="w-4 h-4 ml-2" /></>
                 )}
               </button>
             </div>

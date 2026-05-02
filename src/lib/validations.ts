@@ -19,7 +19,7 @@ export function validateFullName(name: string): ValidationError {
   return null;
 }
 
-// Phone (Indian format)
+// Phone (Indian format) — optional field
 export function validatePhone(phone: string): ValidationError {
   if (!phone.trim()) return null; // Optional field
   const cleaned = phone.replace(/[\s\-()]/g, "");
@@ -33,6 +33,30 @@ export function validatePhone(phone: string): ValidationError {
   return null;
 }
 
+// Mobile number — mandatory variant (Profile Setup, Trusted Contact)
+export function validateMobileRequired(mobile: string): ValidationError {
+  if (!mobile.trim()) return "Mobile number is required";
+  const cleaned = mobile.replace(/[\s\-()]/g, "");
+  const digits = cleaned.startsWith("+91") ? cleaned.slice(3) : cleaned;
+  if (!/^[6-9]\d{9}$/.test(digits)) return "Enter a valid 10-digit Indian mobile number";
+  return null;
+}
+
+// Mobile number — optional variant (Nominee form)
+export function validateMobileOptional(mobile: string): ValidationError {
+  if (!mobile.trim()) return null;
+  const cleaned = mobile.replace(/[\s\-()]/g, "");
+  const digits = cleaned.startsWith("+91") ? cleaned.slice(3) : cleaned;
+  if (!/^[6-9]\d{9}$/.test(digits)) return "Enter a valid 10-digit Indian mobile number";
+  return null;
+}
+
+// Normalise mobile to 10-digit string for storage
+export function normaliseMobile(mobile: string): string {
+  const cleaned = mobile.replace(/[\s\-()]/g, "");
+  return cleaned.startsWith("+91") ? cleaned.slice(3) : cleaned;
+}
+
 // PAN (Indian PAN card format)
 export function validatePAN(pan: string): ValidationError {
   if (!pan.trim()) return null; // Optional field
@@ -42,15 +66,52 @@ export function validatePAN(pan: string): ValidationError {
   return null;
 }
 
-// Date of birth
+// Date of birth — optional (legacy, used for nominees DOB)
 export function validateDOB(dob: string): ValidationError {
-  if (!dob) return null; // Optional field
+  if (!dob) return null;
   const date = new Date(dob);
   if (isNaN(date.getTime())) return "Invalid date";
   const today = new Date();
   if (date > today) return "Date of birth cannot be in the future";
   const age = today.getFullYear() - date.getFullYear();
   if (age > 120) return "Please enter a valid date of birth";
+  return null;
+}
+
+// Date of birth — mandatory with 18+ check (Profile Setup)
+export function validateDOBMandatory(dob: string): ValidationError {
+  if (!dob) return "Date of birth is required";
+  const date = new Date(dob);
+  if (isNaN(date.getTime())) return "Invalid date";
+  const today = new Date();
+  if (date > today) return "Date of birth cannot be in the future";
+  const age = today.getFullYear() - date.getFullYear();
+  const monthDiff = today.getMonth() - date.getMonth();
+  const exactAge =
+    monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
+      ? age - 1
+      : age;
+  if (exactAge < 18) return "You must be 18 or older to create a KutumbKosh vault.";
+  if (exactAge > 120) return "Please enter a valid date of birth";
+  return null;
+}
+
+// Calculate age from date string — returns null if invalid
+export function calculateAge(dob: string): number | null {
+  if (!dob) return null;
+  const date = new Date(dob);
+  if (isNaN(date.getTime())) return null;
+  const today = new Date();
+  const age = today.getFullYear() - date.getFullYear();
+  const monthDiff = today.getMonth() - date.getMonth();
+  return monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
+    ? age - 1
+    : age;
+}
+
+// Relationship dropdown — shared between Nominee and Trusted Contact
+export function validateRelationshipDropdown(value: string): ValidationError {
+  if (!value) return "Please select a relationship";
   return null;
 }
 

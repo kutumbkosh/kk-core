@@ -107,4 +107,29 @@ Sentry is restricted to **dev and staging only** until Operations formally clear
 
 ---
 
+### 2026-05-02 | Product
+**Decision:** "How KutumbKosh Works" infographic — 6-step linear flow (Option A), landing page first, in-app onboarding deferred to post-launch.
+**Step content locked:**
+1. Create your vault — "Set up your profile in minutes"
+2. Add every asset — "Bank accounts, insurance, FDs, property and more"
+3. Link your nominees — "Assign the right person to each asset"
+4. Add a trusted contact — "Someone you trust to act on your behalf"
+5. Export your vault dossier — "A complete record your family can refer to anytime"
+6. Your family is never left guessing — "If the unexpected happens, your trusted contact gets access — instantly"
+**Format:** Static illustrated steps (horizontal/vertical flow). Animated or scroll-triggered deferred to post-launch.
+**Rationale:** Landing page is live and has no product explainer — this directly impacts waitlist conversion. Linear 6-step flow is mobile-friendly and scannable. Emergency access scenario included as step 6 to communicate the product's key differentiator. Step 6 headline uses positive framing per brand voice rules (no fear-based language).
+**Impact:** Marketing (design the 6-step visual using brand colours and icon set — see HANDOFFS.md); Tech (implement HTML/CSS section in coming-soon/index.html and src/app/page.tsx — see HANDOFFS.md); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-02 | Sales & Marketing
+**Decision:** Pre-launch Sales & Marketing task audit completed. Pending items identified and prioritised. Three items actioned this session:
+1. "How KutumbKosh Works" 6-step infographic designed and delivered to docs/marketing/how-it-works-infographic.html. Copy is locked per DECISIONS.md 2026-05-02 (Product). Tech handoff written in HANDOFFS.md.
+2. coming-soon/index.html OG/Twitter/meta tags — verified correct (lines 6–19 confirmed). DECISIONS.md 2026-05-01 gap closed; duplicate STATUS line in HANDOFFS.md removed.
+3. Shubham 5-item marketing handoff — confirmed present and correctly written in HANDOFFS.md (Open). Department label corrected from "Marketing" to "Sales & Marketing" per system-rules.md.
+**Rationale:** Rule 2 (mandatory context load), Rule 7 (definition of done), Rule 10 (file updates before session end) all applied. No work done outside Sales & Marketing scope.
+**Impact:** Tech (implement infographic in coming-soon/index.html and src/app/page.tsx — see HANDOFFS.md); Shubham (5 marketing pre-launch actions remain open — see HANDOFFS.md).
+
+---
+
 _Add new decisions above this line, following the format._

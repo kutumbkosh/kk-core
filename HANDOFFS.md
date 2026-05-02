@@ -61,6 +61,39 @@ DEADLINE:  Before production deploy
 STATUS:    Open
 ---
 
+FROM:      Engineering
+TO:        Shubham (Founder — decision required before Engineering can proceed)
+PRIORITY:  High — Required before mobile verification can be enabled
+REQUEST:   Mobile OTP verification for Profile Setup is currently NOT active.
+           The DB column (mobile_verified) exists and is set to false for all
+           users. The profile saves correctly without OTP.
+
+           To activate OTP verification, Shubham must first:
+
+           1. CHOOSE AN SMS PROVIDER
+              Option A: Twilio (global, most Supabase-documented)
+                - Sign up at https://www.twilio.com
+                - Get Account SID, Auth Token, and a phone number
+              Option B: MSG91 (India-focused, lower cost for Indian numbers)
+                - Sign up at https://msg91.com
+                - Get API key and sender ID
+
+           2. CONFIGURE IN SUPABASE DASHBOARD
+              Go to: Project Settings → Auth → Phone
+              Enable Phone provider, select Twilio or MSG91, enter credentials.
+
+           3. CONFIRM GO-AHEAD TO ENGINEERING
+              Once provider is set up and tested, confirm here. Engineering will
+              then add the two-step OTP flow back to src/app/onboarding/page.tsx.
+              Estimated effort: 2–3 hours once provider is live.
+
+           CURRENT STATE: Profile Setup works end-to-end without OTP.
+           mobile_verified = false for all users until this is enabled.
+DEADLINE:  Before public launch (mobile verification is a trust signal for a
+           financial vault, but not a hard blocker for internal testing)
+STATUS:    BLOCKED — awaiting Shubham's SMS provider decision and setup
+---
+
 FROM:      Legal / Compliance
 TO:        Shubham (Founder — direct action required)
 PRIORITY:  High — Launch Blocker
@@ -175,10 +208,70 @@ REQUEST:   coming-soon/index.html was replaced by Shubham (2026-05-01), revertin
            Recommend Shubham note this file as a compliance-sensitive file going forward.
 DEADLINE:  Awareness only
 STATUS:    Open
-STATUS:    Open
 ---
 
-FROM:      Marketing
+FROM:      Sales & Marketing
+TO:        Tech
+PRIORITY:  High — Before Launch
+REQUEST:   "How KutumbKosh Works" infographic — implement in landing page and app.
+
+           Marketing has designed and delivered the 6-step visual. The design
+           file is at:
+             docs/marketing/how-it-works-infographic.html
+
+           The file is self-contained HTML/CSS with inline implementation notes.
+           Read the yellow dev-notes box at the top before embedding.
+
+           ACTION REQUIRED — implement in two places:
+
+           1. coming-soon/index.html (Cloudflare Pages — live URL)
+              Place the .hiw-section block after the hero/waitlist section,
+              before the features grid.
+              After updating, re-upload to Cloudflare Pages.
+
+           2. src/app/page.tsx (Next.js app — Vercel)
+              Extract the section as a <HowItWorks /> React component.
+              Use Tailwind classes instead of the inline CSS where possible.
+              Poppins font is already loaded — no new dependency.
+
+           LOCKED STEP CONTENT (do not alter copy — per DECISIONS.md 2026-05-02):
+             Step 1: Create your vault — "Set up your profile in minutes"
+             Step 2: Add every asset — "Bank accounts, insurance, FDs, property and more"
+             Step 3: Link your nominees — "Assign the right person to each asset"
+             Step 4: Add a trusted contact — "Someone you trust to act on your behalf"
+             Step 5: Export your vault dossier — "A complete record your family can refer to anytime"
+             Step 6: Your family is never left guessing — "If the unexpected happens,
+                     your trusted contact gets access — instantly"
+
+           BRAND CONSTRAINTS:
+             - Colours: #2563EB (primary), #1E40AF (dark), #DBEAFE (light), #16A34A (step 6 green)
+             - Font: Poppins only
+             - Step 6 uses positive framing — no fear-based language per DECISIONS.md
+             - Static only — no animation at launch
+
+           LAYOUT:
+             - Desktop: horizontal 6-column grid with connector line
+             - Mobile: vertical stack with left-side connector line
+             - Reference design in docs/marketing/how-it-works-infographic.html
+DEADLINE:  Before launch day
+STATUS:    Done — 2026-05-03. Tech implementation complete in both surfaces.
+
+           coming-soon/index.html: New .hiw-section added BEFORE the features
+           section (per handoff spec). CSS uses .hiw-* classes to avoid conflicts.
+           Marketing design faithfully implemented: 80px circle badges, step-number
+           overlay badge (top-right), connector line (top:40px, gradient). Step 6
+           uses green (#16A34A) border, background (#F0FDF4), and icon stroke.
+           Mobile: vertical stack with left-side connector line (left:39px).
+           Old 3-step section removed.
+
+           src/app/page.tsx: Implemented as <HowItWorks /> component at
+           src/components/HowItWorks.tsx. Marketing's custom SVG icons used
+           verbatim. Connector line and mobile layout handled via scoped <style>
+           tag in the component. Inserted between </main> and <footer>.
+           TypeScript clean (0 product errors).
+---
+
+FROM:      Sales & Marketing
 TO:        Shubham (Founder — direct action required)
 PRIORITY:  High — Before Launch
 REQUEST:   Pre-launch marketing activities requiring direct founder action:
@@ -583,160 +676,44 @@ REQUEST:   Mandatory field validation must be added across three forms. Each
            See spec doc for full validation rules, UI/UX notes, and DB
            migration guidance.
 DEADLINE:  Before public launch
-STATUS:    Open
+STATUS:    Done — 2026-05-02. All mandatory field validation implemented.
+
+           DB MIGRATION: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql
+           covers all three tables — profiles (mobile_number, mobile_verified,
+           date_of_birth, profile_complete), nominees (email, guardian_name,
+           guardian_mobile; relation CHECK extended to 8 lowercase values),
+           trusted_contacts (contact_phone + contact_email SET NOT NULL).
+
+           PROFILE SETUP (src/app/onboarding/page.tsx): Single-step form.
+           Mobile mandatory with 10-digit Indian validation. DOB mandatory with
+           exact 18+ check (month/day precise). Profile saved with
+           mobile_verified=false, profile_complete=true. OTP verification was
+           built but reverted (2026-05-02) — SMS provider decision was an open
+           blocker and should not have been built through. See open handoff below:
+           "Engineering → Product/Shubham: OTP mobile verification — BLOCKED".
+
+           NOMINEE FORM (src/app/dashboard/nominees/add/page.tsx): Full rewrite.
+           Relationship uses 8-option card grid (spouse/child/parent/sibling/
+           grandchild/grandparent/in_law/other). Contact section: mobile and email
+           individually optional, but at-least-one enforced on submit. Minor
+           guardian fields (name + mobile, both mandatory) shown dynamically when
+           DOB entered and calculateAge(dob) < 18.
+
+           TRUSTED CONTACT FORM (src/app/onboarding/emergency-contact/page.tsx):
+           Full rewrite. Both mobile AND email are hard mandatory (deliberate
+           Product decision). Relationship uses same 8-option dropdown.
+
+           VALIDATION LIBRARY (src/lib/validations.ts): Added validateMobileRequired,
+           validateMobileOptional, normaliseMobile, validateDOBMandatory,
+           calculateAge, validateRelationshipDropdown.
+
+           PENDING (Shubham): OTP flow requires Supabase Phone Auth with an SMS
+           provider (Twilio or MSG91) configured in the Supabase Dashboard. Until
+           a provider is set, the OTP step will return an error. Decision on SMS
+           provider is open — Engineering defaults to Supabase Phone Auth + Twilio
+           unless Shubham specifies otherwise.
 ---
 
 FROM:      Product
 TO:        Engineering
-PRIORITY:  High — Required before public launch
-REQUEST:   Assign a unique Kutumb ID (format: KK-XXXXXX) to every registered
-           user at signup. This has DB, generation, and display requirements.
-
-           Full spec: docs/PRODUCT-KUTUMB-ID-ENGINEERING-HANDOFF.docx
-
-           WHAT IT IS
-           A unique human-readable identifier for every vault holder.
-           Example: KK-A4B7C2. Not a vanity feature — it has direct
-           functional dependencies on support and emergency access flows.
-
-           FORMAT
-           Prefix "KK-" followed by 6 uppercase alphanumeric characters.
-           Charset: ABCDEFGHJKLMNPQRSTUVWXYZ23456789 (excludes 0, 1, O, I
-           to prevent visual ambiguity in print and handwriting).
-           Over 1 billion possible unique IDs.
-
-           DATABASE
-           Add kutumb_id column to profiles table: text, NOT NULL, UNIQUE,
-           indexed. Generate at signup. Immutable — users cannot change it.
-           RLS: readable by the row owner, service role, and admin role.
-           If existing users are present, backfill before applying NOT NULL.
-
-           GENERATION LOGIC
-           Generate random 6-char string from allowed charset + prepend
-           "KK-". Check uniqueness against profiles table. Retry on
-           collision (collision probability is negligible). Can be done at
-           app layer or via Postgres trigger — either is acceptable.
-
-           WHERE IT MUST BE DISPLAYED (all required at launch)
-           1. Profile page — show "Your Kutumb ID: KK-XXXXXX" with a
-              copy-to-clipboard button. Add tooltip: "Quote this when
-              contacting support."
-           2. Vault Dossier PDF export — print in header or footer as
-              "Vault ID: KK-XXXXXX"
-           3. Emergency Access UI — add input field "Enter the vault
-              holder's Kutumb ID" (UI only at launch; backend logic is
-              a future feature)
-
-           See spec doc for reference TypeScript implementation, migration
-           SQL, RLS policy guidance, and full implementation checklist.
-DEADLINE:  Before public launch
-STATUS:    Open
----
-
----
-
-## Completed Handoffs
-
-FROM:      Security
-TO:        Engineering
-PRIORITY:  CRITICAL — Launch Blocker
-REQUEST:   Fix admin-views.sql (wrong admin email, missing log_admin_access function and PERFORM audit calls) and schema.sql (missing admin_access_log table).
-DEADLINE:  Before production deploy
-STATUS:    Done — Fixed 2026-05-01. admin-views.sql: is_admin() now uses shubham.git@gmail.com; log_admin_access() function added; PERFORM audit calls added to admin_overview_metrics() and admin_user_list(). schema.sql: admin_access_log table + RLS + indexes appended at bottom (section 10). Shubham SQL handoff is now UNBLOCKED.
----
-
-FROM:      Security
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Fix vercel.json noindex rule — wrong host pattern and missing nofollow.
-DEADLINE:  Before any next Vercel deploy
-STATUS:    Done — Fixed 2026-05-01. Host pattern changed from .*staging.* to .*\.vercel\.app; value changed from noindex to noindex, nofollow.
----
-
-FROM:      Security
-TO:        Engineering
-PRIORITY:  Medium — Before Launch
-REQUEST:   Add UPDATE RLS policy on referrals table in channels.sql so Razorpay verify route can track conversions.
-DEADLINE:  Before launch day
-STATUS:    Done — Fixed 2026-05-01. "Users can mark own referral as converted" UPDATE policy added to channels.sql. Also run this policy in Dev, Staging, and Production SQL editors.
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Verify robots.txt and create sitemap.xml (app/sitemap.ts).
-DEADLINE:  Before production deploy
-STATUS:    Done — 2026-05-01. public/robots.txt confirmed: no blanket Disallow, allows all crawlers, points to sitemap. src/app/sitemap.ts created using Next.js MetadataRoute API, includes homepage. Note: Shubham must submit sitemap.xml to Google Search Console once live.
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Before Launch
-REQUEST:   Add correct SEO title, meta description, Open Graph and Twitter Card tags to app/layout.tsx.
-DEADLINE:  Before launch day
-STATUS:    Done — Fixed 2026-05-01. layout.tsx updated: title, meta description, openGraph, twitter:card all added. Note: og-image.png still needs to be created by Marketing.
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  Medium — Before Launch
-REQUEST:   Add canonical tags to all pages.
-DEADLINE:  Before launch day
-STATUS:    Done — Fixed 2026-05-01. alternates.canonical added to layout.tsx metadata export.
----
-
-FROM:      Legal / Compliance
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Fix DPDPA compliance claims in coming-soon/index.html.
-DEADLINE:  Before coming-soon page is uploaded to Cloudflare Pages
-STATUS:    Done — coming-soon/index.html updated. Implemented 2026-04-30.
----
-
-FROM:      Legal / Compliance
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Account deletion flow: send Resend confirmation email after deletion.
-DEADLINE:  Before production deploy
-STATUS:    Done — sendDeletionConfirmationEmail() added. Implemented 2026-04-30.
----
-
-FROM:      Legal / Compliance
-TO:        Engineering
-PRIORITY:  Medium — Before Launch
-REQUEST:   /security page: add Internal Access Controls section; add Grievance Officer footer link.
-DEADLINE:  Before production deploy
-STATUS:    Done — Implemented 2026-04-30.
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Add noindex header to Vercel staging / preview deployments.
-DEADLINE:  Before production deploy
-STATUS:    Done (re-fixed by Security 2026-05-01).
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  High — Before Launch
-REQUEST:   Add JSON-LD Organization schema to homepage.
-DEADLINE:  Before launch day
-STATUS:    Done — Organization schema added to src/app/layout.tsx. 2026-05-01.
----
-
-FROM:      Marketing
-TO:        Engineering
-PRIORITY:  Medium — Before Launch
-REQUEST:   Fix manifest.json branding.
-DEADLINE:  Before production deploy
-STATUS:    Done — All 3 fields updated in public/manifest.json.
----
-
-FROM:      Legal / Compliance
-TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   Full codebase DPDPA language scan — 9 violations across 6 files.
-DEADLINE:  Before production deploy
-STATUS:    Done — All 9 violations fixed 2026-04-30.
----
+PRIORITY:  High 

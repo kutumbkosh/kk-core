@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Asset, Nominee, AssetNomineeMapping, EmergencyDossier } from "@/types/database";
+import type { Asset, Nominee, AssetNomineeMapping, EmergencyDossier, UserProfile } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
 import UpgradePrompt from "@/components/UpgradePrompt";
@@ -49,6 +49,7 @@ export default function ExportPage() {
   const [nominees, setNominees] = useState<Nominee[]>([]);
   const [mappings, setMappings] = useState<AssetNomineeMapping[]>([]);
   const [dossier, setDossier] = useState<EmergencyDossier | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -57,17 +58,19 @@ export default function ExportPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [assetsRes, nomineesRes, mappingsRes, dossierRes] = await Promise.all([
+    const [assetsRes, nomineesRes, mappingsRes, dossierRes, profileRes] = await Promise.all([
       supabase.from("assets").select("*").eq("user_id", user.id).eq("is_draft", false).order("asset_type"),
       supabase.from("nominees").select("*").eq("user_id", user.id),
       supabase.from("asset_nominee_mappings").select("*"),
       supabase.from("emergency_dossiers").select("*").eq("user_id", user.id).single(),
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
     ]);
 
     setAssets(assetsRes.data || []);
     setNominees(nomineesRes.data || []);
     setMappings(mappingsRes.data || []);
     setDossier(dossierRes.data);
+    setProfile(profileRes.data);
     setLoading(false);
   }, [router]);
 
@@ -134,10 +137,16 @@ export default function ExportPage() {
             <div style={{ width: "44px", height: "44px", backgroundColor: "#2563EB", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <span style={{ fontSize: "20px", color: "white" }}>🛡️</span>
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#111827", margin: 0, lineHeight: 1.3 }}>KutumbKosh Vault Summary</h1>
               <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Generated on {dateStr} &bull; Confidential Document</p>
             </div>
+            {profile?.kutumb_id && (
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <p style={{ fontSize: "10px", color: "#9ca3af", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Vault ID</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#1e40af", margin: 0, fontFamily: "monospace", letterSpacing: "0.08em" }}>{profile.kutumb_id}</p>
+              </div>
+            )}
           </div>
 
           {/* ─── OVERVIEW STATS ─── */}

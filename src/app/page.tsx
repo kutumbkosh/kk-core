@@ -22,6 +22,8 @@ import {
   Fingerprint,
 } from "lucide-react";
 import HeroIllustration from "@/components/illustrations/HeroIllustration";
+import HowItWorks from "@/components/HowItWorks";
+
 
 export default function LandingPage() {
   const [email, setEmail] = useState("");
@@ -415,6 +417,9 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
+
+
+      <HowItWorks />
 
       {/* Footer */}
       <footer className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
