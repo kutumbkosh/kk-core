@@ -716,4 +716,153 @@ STATUS:    Done — 2026-05-02. All mandatory field validation implemented.
 
 FROM:      Product
 TO:        Engineering
-PRIORITY:  High 
+PRIORITY:  High — Required before public launch
+REQUEST:   Unique Kutumb ID feature for every user vault.
+
+           Full spec: docs/PRODUCT-KUTUMB-ID-ENGINEERING-HANDOFF.docx
+
+           Summary:
+
+           FORMAT: KK-XXXXXX (prefix "KK-" + 6 alphanumeric characters)
+           CHARSET: ABCDEFGHJKLMNPQRSTUVWXYZ23456789
+           (Excludes 0, 1, O, I to prevent misreading)
+           GENERATION: Server-side Postgres function with collision retry.
+
+           DATABASE CHANGES:
+           - Add kutumb_id column to profiles table (text NOT NULL UNIQUE)
+           - Backfill existing users with generated IDs
+           - Add generate_kutumb_id() Postgres function (retry on collision)
+           - Add RLS policy: users can read their own kutumb_id only
+
+           DISPLAY SURFACES:
+           1. Settings/Profile page — show Kutumb ID with copy-to-clipboard button
+           2. Vault Dossier PDF — print Kutumb ID in the PDF header
+           3. Emergency Access UI — input field for "Enter Kutumb ID" to look
+              up a vault (backend access logic is a future feature — UI only
+              for now)
+
+           CLIENT-SIDE UTILITY:
+           - Add src/lib/kutumb-id.ts with formatKutumbId() helper
+
+           See spec doc for full DB migration SQL, TypeScript reference
+           implementation, and RLS policy.
+DEADLINE:  Before public launch
+STATUS:    Done — 2026-05-02. generate_kutumb_id() Postgres function added
+           (charset excludes 0/1/O/I, retry on collision). kutumb_id column
+           added to profiles (NOT NULL UNIQUE, backfilled for existing users
+           via migration). Displayed in Settings with copy-to-clipboard.
+           Printed in Vault Dossier PDF header. Emergency Access UI has
+           Kutumb ID input field (backend logic deferred to post-launch).
+           src/lib/kutumb-id.ts added for client-side use.
+           DB migration: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql
+---
+
+FROM:      Product
+TO:        Engineering
+PRIORITY:  High — Required before public launch
+REQUEST:   Three UX issues found on the Emergency Access dashboard page
+           (src/app/dashboard/emergency/page.tsx). All three must be fixed.
+
+           --- ISSUE 1: NO DELETE OPTION FOR TRUSTED CONTACTS ---
+
+           Current state: handleContactStatusChange() only handles ACTIVE and
+           REVOKED transitions. There is no way for a user to permanently remove
+           a trusted contact from their vault.
+
+           Required change:
+           a) Add deleted_at (timestamptz, nullable) column to trusted_contacts
+              table in Supabase. No new migration file needed — add to existing
+              or create a small patch migration.
+           b) Add a RLS-compliant UPDATE policy allowing users to set deleted_at
+              on their own trusted_contacts rows.
+           c) Filter all queries on this page (and anywhere trusted_contacts is
+              queried) with: .is("deleted_at", null) so deleted contacts are
+              excluded from all reads.
+           d) Add a "Remove" button (use Trash2 icon from lucide-react) to each
+              contact card. On click, show an inline confirmation ("Are you sure?
+              This will remove [Name] as a trusted contact.") before executing.
+              On confirm, set deleted_at = now() — do NOT hard delete the row.
+
+           Reason for soft delete: preserves audit trail, consistent with
+           zero-routine-access policy, allows future recovery if needed.
+
+           --- ISSUE 2: WARNING BADGE FOR CONTACTS WITH MISSING CONTACT INFO ---
+
+           Current state: Line ~217 in emergency/page.tsx shows a silent
+           fallback: contact.contact_email || contact.contact_phone || "No contact info"
+           Users don't realise there's a data gap that affects emergency reachability.
+
+           Required change:
+           If a contact card has BOTH contact_email and contact_phone as null/empty,
+           show an amber warning badge on that card:
+             <span class="...amber badge...">⚠ Missing contact info</span>
+           Style: amber background (bg-amber-100), amber border (border-amber-300),
+           amber text (text-amber-800), small (text-xs), rounded pill, displayed
+           below the relation line.
+
+           Note: Per Product decision, both phone AND email are hard mandatory in
+           the onboarding form (emergency-contact/page.tsx). However, records added
+           before this enforcement may have gaps. The badge is a dashboard-level
+           safeguard for those legacy records — do not remove the form-level
+           mandatory validation.
+
+           --- ISSUE 3: FIX TOGGLE UX — REPLACE HOVER-ONLY ICON BUTTONS ---
+
+           Current state: The re-activate button uses RefreshCw icon (looks like
+           page reload, not re-activation) with opacity-0 group-hover:opacity-100
+           (invisible on mobile, confusing on desktop). Approve/Revoke buttons
+           are also hidden behind hover state.
+
+           Required change — replace all three action buttons with always-visible
+           labeled pill buttons:
+
+           PENDING contact:
+             [✓ Approve]  — CheckCircle2 icon, green style
+             (No revoke needed for PENDING — Approve or ignore)
+
+           ACTIVE contact:
+             [Shield Off  Revoke Access]  — ShieldOff icon, red/outline style
+
+           REVOKED contact:
+             [Shield Check  Restore Access]  — ShieldCheck icon, blue/outline style
+
+           Remove all opacity-0 / group-hover:opacity-100 patterns from this page.
+           Buttons must be visible at all times, including on mobile.
+
+           Use consistent pill button style:
+           - Approve: bg-green-50 text-green-700 border border-green-200
+           - Revoke Access: bg-red-50 text-red-700 border border-red-200
+           - Restore Access: bg-blue-50 text-blue-700 border border-blue-200
+           All: text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5
+
+DEADLINE:  Before public launch
+STATUS:    Open
+---
+
+FROM:      Engineering
+TO:        Shubham (Founder — direct action required)
+PRIORITY:  High — Before staging QA
+REQUEST:   New DB migration must be run in Supabase SQL Editor (staging, then production).
+
+           FILE: supabase/migrations/20260504_relation_other.sql
+
+           WHAT IT DOES:
+           Adds a relation_other TEXT column to both nominees and trusted_contacts.
+           This stores free-text when a user selects "Other" as the relationship
+           (e.g. "Cousin", "Uncle", "Business Partner"). The column is nullable —
+           existing records are unaffected.
+
+           HOW TO RUN:
+           1. Go to Supabase Dashboard → SQL Editor
+           2. Open the migration file above, copy all contents
+           3. Paste into the SQL Editor and click Run
+           4. Run on staging first; after verifying, repeat on production
+
+           WHY NOW:
+           Fixes to the nominee and trusted contact forms (2026-05-04) now pass
+           relation_other to the DB insert. Without this column, inserts where
+           relation = "other" will throw a DB error.
+
+DEADLINE:  Before staging QA of the form bug fixes
+STATUS:    Open — Ready for Shubham action
+---

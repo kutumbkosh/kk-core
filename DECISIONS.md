@@ -132,4 +132,14 @@ Sentry is restricted to **dev and staging only** until Operations formally clear
 
 ---
 
+### 2026-05-04 | Product
+**Decision:** Three UX issues identified and approved for fix on the Emergency Access dashboard page (src/app/dashboard/emergency/page.tsx):
+1. **Soft delete for trusted contacts** — Add `deleted_at` timestamptz column to `trusted_contacts` table. All queries must filter `.is("deleted_at", null)`. UI must offer a "Remove" button with inline confirmation. Hard delete is not permitted (preserves audit trail, consistent with zero-routine-access policy).
+2. **Warning badge for incomplete contact records** — If a trusted contact record has both `contact_phone` and `contact_email` null/empty, show an amber "⚠ Missing contact info" badge on that card in the dashboard. This is a safeguard for records created before mandatory field enforcement; it does not replace form-level mandatory validation in onboarding.
+3. **Always-visible labeled action buttons** — Replace `RefreshCw` icon + `opacity-0 group-hover:opacity-100` pattern with always-visible pill buttons: "Approve" (CheckCircle2, green) for PENDING, "Revoke Access" (ShieldOff, red) for ACTIVE, "Restore Access" (ShieldCheck, blue) for REVOKED. Hover-only patterns are broken on mobile and must be removed entirely.
+**Rationale:** Delete is standard expected behaviour for any list UI; its absence is a usability gap. Silent "No contact info" fallback masked a data quality risk affecting emergency reachability. Hover-only buttons are inaccessible on touch devices.
+**Impact:** Engineering (three changes to emergency/page.tsx + DB migration for deleted_at — see HANDOFFS.md).
+
+---
+
 _Add new decisions above this line, following the format._

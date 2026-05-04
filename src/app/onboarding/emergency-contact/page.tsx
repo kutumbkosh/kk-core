@@ -26,11 +26,18 @@ import {
 interface ContactForm {
   name: string;
   relation: string;
+  otherRelation: string;
   phone: string;
   email: string;
 }
 
-const EMPTY_CONTACT: ContactForm = { name: "", relation: "", phone: "", email: "" };
+const EMPTY_CONTACT: ContactForm = {
+  name: "",
+  relation: "",
+  otherRelation: "",
+  phone: "",
+  email: "",
+};
 
 export default function EmergencyContactPage() {
   const router = useRouter();
@@ -43,11 +50,14 @@ export default function EmergencyContactPage() {
   const validateContactField = (index: number, field: string, value: string): string | null => {
     let err: string | null = null;
     switch (field) {
-      case "name":     err = validateContactName(value); break;
-      case "relation": err = validateRelationshipDropdown(value); break;
+      case "name":         err = validateContactName(value); break;
+      case "relation":     err = validateRelationshipDropdown(value); break;
+      case "otherRelation":
+        if (!value.trim()) err = "Please specify the relationship";
+        break;
       // Both phone and email are hard mandatory for trusted contacts
-      case "phone":    err = validateMobileRequired(value); break;
-      case "email":    err = validateEmail(value); break;
+      case "phone":        err = validateMobileRequired(value); break;
+      case "email":        err = validateEmail(value); break;
     }
     setContactErrors((prev) => {
       const updated = [...prev];
@@ -85,68 +95,8 @@ export default function EmergencyContactPage() {
     updated[index] = { ...updated[index], [field]: value };
     setContacts(updated);
     if (contactTouched[index]?.[field]) validateContactField(index, field, value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    let hasErrors = false;
-    contacts.forEach((contact, index) => {
-      if (contact.name.trim()) {
-        const allTouched = { name: true, relation: true, phone: true, email: true };
-        setContactTouched((prev) => {
-          const updated = [...prev];
-          updated[index] = allTouched;
-          return updated;
-        });
-        const nameErr  = validateContactField(index, "name", contact.name);
-        const relErr   = validateContactField(index, "relation", contact.relation);
-        const phoneErr = validateContactField(index, "phone", contact.phone);
-        const emailErr = validateContactField(index, "email", contact.email);
-        if (nameErr || relErr || phoneErr || emailErr) hasErrors = true;
-      }
-    });
-
-    if (hasErrors) {
-      setError("Please fix the errors above before continuing.");
-      return;
-    }
-
-    setLoading(true);
+    // Clear form-level error whenever the user edits any field
     setError("");
-
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const validContacts = contacts.filter((c) => c.name.trim());
-      if (validContacts.length > 0) {
-        const { error: insertError } = await supabase.from("trusted_contacts").insert(
-          validContacts.map((c) => ({
-            user_id: user.id,
-            contact_name: c.name.trim(),
-            relation: c.relation,
-            contact_phone: c.phone.trim(),
-            contact_email: c.email.trim(),
-            access_status: "PENDING",
-          }))
-        );
-        if (insertError) throw insertError;
-      }
-
-      // Mark onboarding as complete
-      await supabase.from("profiles").update({
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      }).eq("id", user.id);
-
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSkip = async () => {
@@ -162,6 +112,83 @@ export default function EmergencyContactPage() {
       router.push("/dashboard");
     } catch {
       router.push("/dashboard");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    let hasErrors = false;
+    contacts.forEach((contact, index) => {
+      if (contact.name.trim()) {
+        const allTouched: Record<string, boolean> = {
+          name: true,
+          relation: true,
+          phone: true,
+          email: true,
+        };
+        if (contact.relation === "other") allTouched.otherRelation = true;
+        setContactTouched((prev) => {
+          const updated = [...prev];
+          updated[index] = allTouched;
+          return updated;
+        });
+        const nameErr        = validateContactField(index, "name", contact.name);
+        const relErr         = validateContactField(index, "relation", contact.relation);
+        const otherRelErr    = contact.relation === "other"
+          ? validateContactField(index, "otherRelation", contact.otherRelation)
+          : null;
+        const phoneErr       = validateContactField(index, "phone", contact.phone);
+        const emailErr       = validateContactField(index, "email", contact.email);
+        if (nameErr || relErr || otherRelErr || phoneErr || emailErr) hasErrors = true;
+      }
+    });
+
+    if (hasErrors) {
+      setError("Please fix the errors above before continuing.");
+      return;
+    }
+
+    const validContacts = contacts.filter((c) => c.name.trim());
+
+    // If no contacts were started at all, treat the same as "Skip for now"
+    if (validContacts.length === 0) {
+      handleSkip();
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error: insertError } = await supabase.from("trusted_contacts").insert(
+        validContacts.map((c) => ({
+          user_id: user.id,
+          contact_name: c.name.trim(),
+          relation: c.relation,
+          relation_other: c.relation === "other" ? c.otherRelation.trim() || null : null,
+          contact_phone: c.phone.trim(),
+          contact_email: c.email.trim(),
+          access_status: "PENDING",
+        }))
+      );
+      if (insertError) throw insertError;
+
+      // Mark onboarding as complete
+      await supabase.from("profiles").update({
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      }).eq("id", user.id);
+
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -244,6 +271,21 @@ export default function EmergencyContactPage() {
                     ))}
                   </select>
                   <FieldError error={contactTouched[index]?.relation ? contactErrors[index]?.relation ?? null : null} />
+
+                  {/* "Other" specify input */}
+                  {contact.relation === "other" && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        value={contact.otherRelation}
+                        onChange={(e) => updateContact(index, "otherRelation", e.target.value)}
+                        onBlur={() => handleContactBlur(index, "otherRelation", contact.otherRelation)}
+                        placeholder="e.g. Cousin, Uncle, Friend"
+                        className={`input-field ${contactTouched[index]?.otherRelation && contactErrors[index]?.otherRelation ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                      />
+                      <FieldError error={contactTouched[index]?.otherRelation ? contactErrors[index]?.otherRelation ?? null : null} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Mobile + Email — both mandatory */}

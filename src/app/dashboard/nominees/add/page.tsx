@@ -58,6 +58,8 @@ export default function AddNomineePage() {
   const [guardianMobile, setGuardianMobile] = useState("");
   const [panNumber, setPanNumber]           = useState("");
 
+  const [otherRelation, setOtherRelation] = useState("");
+
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [savedName, setSavedName] = useState("");
@@ -84,6 +86,9 @@ export default function AddNomineePage() {
       case "guardianMobile":
         if (isMinor && !value.trim()) return "Guardian mobile is required for a minor nominee";
         return validateMobileOptional(value);
+      case "otherRelation":
+        if (!value.trim()) return "Please specify the relationship";
+        return null;
       default: return null;
     }
   };
@@ -121,6 +126,7 @@ export default function AddNomineePage() {
       fullName: true, relation: true, mobileNumber: true,
       email: true, dob: true, panNumber: true,
     };
+    if (relation === "other") fieldsToTouch.otherRelation = true;
     if (isMinor) {
       fieldsToTouch.guardianName   = true;
       fieldsToTouch.guardianMobile = true;
@@ -135,6 +141,9 @@ export default function AddNomineePage() {
       dob:           validateField("dob", dob),
       panNumber:     validateField("panNumber", panNumber),
     };
+    if (relation === "other") {
+      newErrors.otherRelation = validateField("otherRelation", otherRelation);
+    }
     if (isMinor) {
       newErrors.guardianName   = validateField("guardianName", guardianName);
       newErrors.guardianMobile = validateField("guardianMobile", guardianMobile);
@@ -164,6 +173,7 @@ export default function AddNomineePage() {
         user_id: user.id,
         full_name: fullName.trim(),
         relation,
+        relation_other: relation === "other" ? otherRelation.trim() || null : null,
         contact_number: mobileNumber.trim() || null,
         email: email.trim() || null,
         dob: dob || null,
@@ -184,7 +194,7 @@ export default function AddNomineePage() {
   };
 
   const resetForm = () => {
-    setFullName(""); setRelation(""); setMobileNumber(""); setEmail("");
+    setFullName(""); setRelation(""); setOtherRelation(""); setMobileNumber(""); setEmail("");
     setDob(""); setGuardianName(""); setGuardianMobile(""); setPanNumber("");
     setErrors({}); setTouched({}); setFormError("");
     setSuccess(false);
@@ -251,7 +261,7 @@ export default function AddNomineePage() {
               <input
                 type="text"
                 value={fullName}
-                onChange={(e) => { setFullName(e.target.value); if (touched.fullName) setErrors((p) => ({ ...p, fullName: validateField("fullName", e.target.value) })); }}
+                onChange={(e) => { setFullName(e.target.value); if (touched.fullName) setErrors((p) => ({ ...p, fullName: validateField("fullName", e.target.value) })); setFormError(""); }}
                 onBlur={() => handleBlur("fullName", fullName)}
                 placeholder="As per government ID"
                 className={`input-field pl-11 ${touched.fullName && errors.fullName ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
@@ -271,9 +281,12 @@ export default function AddNomineePage() {
                   key={opt.value}
                   type="button"
                   onClick={() => {
-                    setRelation(relation === opt.value ? "" : opt.value);
+                    const newVal = relation === opt.value ? "" : opt.value;
+                    setRelation(newVal);
+                    if (newVal !== "other") { setOtherRelation(""); setErrors((p) => ({ ...p, otherRelation: null })); }
                     setTouched((p) => ({ ...p, relation: true }));
                     setErrors((p) => ({ ...p, relation: null }));
+                    setFormError("");
                   }}
                   className={`px-3 py-2.5 rounded-xl text-left border-2 transition-all ${
                     relation === opt.value
@@ -289,6 +302,21 @@ export default function AddNomineePage() {
               ))}
             </div>
             <FieldError error={touched.relation ? errors.relation ?? null : null} />
+
+            {/* "Other" specify input */}
+            {relation === "other" && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={otherRelation}
+                  onChange={(e) => { setOtherRelation(e.target.value); if (touched.otherRelation) setErrors((p) => ({ ...p, otherRelation: validateField("otherRelation", e.target.value) })); setFormError(""); }}
+                  onBlur={() => { setTouched((p) => ({ ...p, otherRelation: true })); setErrors((p) => ({ ...p, otherRelation: validateField("otherRelation", otherRelation) })); }}
+                  placeholder="e.g. Cousin, Uncle, Friend"
+                  className={`input-field ${touched.otherRelation && errors.otherRelation ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                />
+                <FieldError error={touched.otherRelation ? errors.otherRelation ?? null : null} />
+              </div>
+            )}
           </div>
 
           {/* Contact — mobile + email (at least one required) */}
@@ -309,7 +337,7 @@ export default function AddNomineePage() {
                   type="tel"
                   inputMode="numeric"
                   value={mobileNumber}
-                  onChange={(e) => { setMobileNumber(e.target.value); if (touched.mobileNumber) setErrors((p) => ({ ...p, mobileNumber: validateField("mobileNumber", e.target.value) })); if (formError.includes("contact method")) setFormError(""); }}
+                  onChange={(e) => { setMobileNumber(e.target.value); if (touched.mobileNumber) setErrors((p) => ({ ...p, mobileNumber: validateField("mobileNumber", e.target.value) })); setFormError(""); }}
                   onBlur={() => handleBlur("mobileNumber", mobileNumber)}
                   placeholder="98765 43210"
                   className={`input-field pl-11 ${touched.mobileNumber && errors.mobileNumber ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
@@ -325,7 +353,7 @@ export default function AddNomineePage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => { setEmail(e.target.value); if (touched.email) setErrors((p) => ({ ...p, email: validateField("email", e.target.value) })); if (formError.includes("contact method")) setFormError(""); }}
+                  onChange={(e) => { setEmail(e.target.value); if (touched.email) setErrors((p) => ({ ...p, email: validateField("email", e.target.value) })); setFormError(""); }}
                   onBlur={() => handleBlur("email", email)}
                   placeholder="name@example.com"
                   className={`input-field pl-11 ${touched.email && errors.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
