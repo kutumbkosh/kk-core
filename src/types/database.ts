@@ -164,11 +164,3 @@ export const ASSET_TYPE_CONFIG: Record<
   LOCKER: { label: "Locker", icon: "Lock", color: "#34495E" },
   REAL_ESTATE: { label: "Real Estate", icon: "Home", color: "#27AE60" },
 };
-cks", icon: "BarChart3", color: "#2C3E50" },
-  EPF: { label: "EPF", icon: "Building2", color: "#16A085" },
-  PPF_NPS: { label: "PPF / NPS", icon: "Wallet", color: "#2980B9" },
-  LOAN: { label: "Loan", icon: "HandCoins", color: "#E74C3C" },
-  CREDIT_CARD: { label: "Credit Card", icon: "CreditCard", color: "#9B59B6" },
-  LOCKER: { label: "Locker", icon: "Lock", color: "#34495E" },
-  REAL_ESTATE: { label: "Real Estate", icon: "Home", color: "#27AE60" },
-};
