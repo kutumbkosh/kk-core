@@ -44,8 +44,8 @@ Three environments, three separate Supabase projects, one Vercel project with br
 | Environment | Branch    | URL                         | Supabase Project    |
 |-------------|-----------|-----------------------------|--------------------|
 | Development | `feature/*` / local | `localhost:3000`  | `kutumbkosh-dev`    |
-| Staging     | `staging` | `staging.kutumbkosh.in`      | `kutumbkosh-staging`|
-| Production  | `main`    | `kutumbkosh.in`              | `kutumbkosh-prod`   |
+| Staging     | `staging` | `staging.kutumbkosh.com`      | `kutumbkosh-staging`|
+| Production  | `main`    | `kutumbkosh.com`              | `kutumbkosh-prod`   |
 
 ---
 
@@ -58,7 +58,7 @@ Before you start, make sure you have:
 - **Git** — [Download](https://git-scm.com/)
 - **Supabase account** — [Sign up free](https://supabase.com/)
 - **Vercel account** — [Sign up free](https://vercel.com/)
-- **Domain** (for production) — `kutumbkosh.in` recommended
+- **Domain** (for production) — `kutumbkosh.com` recommended
 
 ---
 
@@ -127,8 +127,8 @@ Vercel automatically deploys based on Git branches:
 
 | Push to branch | Deploys to              | Uses env vars scoped to |
 |----------------|-------------------------|-------------------------|
-| `main`         | `kutumbkosh.in` (production) | Production            |
-| `staging`      | `staging.kutumbkosh.in`  | Preview                 |
+| `main`         | `kutumbkosh.com` (production) | Production            |
+| `staging`      | `staging.kutumbkosh.com`  | Preview                 |
 | Any other      | Preview URL (auto-generated) | Preview              |
 
 ---
@@ -209,13 +209,13 @@ Go to **Vercel Dashboard > Your Project > Settings > Environment Variables**. Ad
 NEXT_PUBLIC_APP_ENV = staging
 NEXT_PUBLIC_SUPABASE_URL = https://your-staging-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY = your-staging-anon-key
-NEXT_PUBLIC_APP_URL = https://staging.kutumbkosh.in
+NEXT_PUBLIC_APP_URL = https://staging.kutumbkosh.com
 NEXT_PUBLIC_MOCK_PAYMENTS = true
 ```
 
 3. **Add custom domain (optional):**
 
-In Vercel, go to **Domains** and add `staging.kutumbkosh.in` linked to the `staging` branch.
+In Vercel, go to **Domains** and add `staging.kutumbkosh.com` linked to the `staging` branch.
 
 ### Deploying updates to staging
 
@@ -242,15 +242,15 @@ Go to **Vercel Dashboard > Settings > Environment Variables**. Add these for the
 NEXT_PUBLIC_APP_ENV = production
 NEXT_PUBLIC_SUPABASE_URL = https://your-prod-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY = your-prod-anon-key
-NEXT_PUBLIC_APP_URL = https://kutumbkosh.in
+NEXT_PUBLIC_APP_URL = https://kutumbkosh.com
 NEXT_PUBLIC_MOCK_PAYMENTS = false
 ```
 
 2. **Add your production domain:**
 
-In Vercel, go to **Domains** and add `kutumbkosh.in`. Update your domain registrar's DNS:
+In Vercel, go to **Domains** and add `kutumbkosh.com`. Update your domain registrar's DNS:
    - Type: `CNAME`
-   - Name: `@` (or `kutumbkosh.in`)
+   - Name: `@` (or `kutumbkosh.com`)
    - Value: `cname.vercel-dns.com`
 
 Vercel provisions SSL automatically.
@@ -258,8 +258,8 @@ Vercel provisions SSL automatically.
 3. **Update Supabase redirect URLs:**
 
 In your production Supabase project, go to **Authentication > URL Configuration** and set:
-   - Site URL: `https://kutumbkosh.in`
-   - Redirect URLs: `https://kutumbkosh.in/auth/callback`
+   - Site URL: `https://kutumbkosh.com`
+   - Redirect URLs: `https://kutumbkosh.com/auth/callback`
 
 ### Deploying updates to production
 
@@ -270,7 +270,7 @@ git merge staging
 git push origin main
 ```
 
-Vercel auto-deploys to production. Verify at `kutumbkosh.in`.
+Vercel auto-deploys to production. Verify at `kutumbkosh.com`.
 
 ### Production checklist
 
@@ -298,7 +298,7 @@ Before your first production deploy, verify:
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Dev project URL | Staging project URL | Prod project URL | Supabase API URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Dev anon key | Staging anon key | Prod anon key | Supabase public key |
 | `NEXT_PUBLIC_APP_NAME` | No | KutumbKosh | KutumbKosh | KutumbKosh | App display name |
-| `NEXT_PUBLIC_APP_URL` | Yes | `http://localhost:3000` | `https://staging.kutumbkosh.in` | `https://kutumbkosh.in` | App base URL |
+| `NEXT_PUBLIC_APP_URL` | Yes | `http://localhost:3000` | `https://staging.kutumbkosh.com` | `https://kutumbkosh.com` | App base URL |
 | `NEXT_PUBLIC_MOCK_PAYMENTS` | No | `true` | `true` | `false` | Use mock payment flow |
 | `RAZORPAY_KEY_ID` | Prod only | - | - | Your key | Razorpay API key |
 | `RAZORPAY_KEY_SECRET` | Prod only | - | - | Your secret | Razorpay secret |
@@ -337,7 +337,7 @@ git push -u origin feature/your-feature
 # Create PR: feature/your-feature → staging
 
 # 4. After review, merge to staging
-# Test on staging.kutumbkosh.in
+# Test on staging.kutumbkosh.com
 
 # 5. When ready, merge staging to main
 git checkout main
