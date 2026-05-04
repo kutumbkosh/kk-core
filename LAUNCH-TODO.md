@@ -32,4 +32,7 @@
 - [x] Run DB migration in staging + production Supabase SQL Editor: supabase/migrations/20260504_relation_other.sql (adds relation_other TEXT column to nominees and trusted_contacts — required for "Other" relationship bug fix shipped 2026-05-04). Done 2026-05-05 — Shubham confirmed.
 - [x] Run DB migration in staging + production Supabase SQL Editor: supabase/migrations/20260505_trusted_contacts_soft_delete.sql (adds deleted_at TIMESTAMPTZ column + RLS UPDATE policy + partial index to trusted_contacts — required for soft delete on Emergency Access page, shipped 2026-05-05). Done 2026-05-05 — Shubham confirmed.
 - [x] Set up error monitoring (Sentry or similar) — Done 2026-05-01. sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts, src/instrumentation.ts created. next.config.mjs wrapped with withSentryConfig (tunnelRoute /monitoring, hideSourceMaps, disableLogger). @sentry/nextjs added to package.json. PENDING: Shubham to run npm install, create Sentry account, set NEXT_PUBLIC_SENTRY_DSN + SENTRY_AUTH_TOKEN in Vercel.
-- [x] Set up analytics (Cloudflare Web Analytics) — Done 2026-05-01. src/components/CloudflareAnalytics.tsx cr
+- [x] Set up analytics (Cloudflare Web Analytics) — Done 2026-05-01. src/components/CloudflareAnalytics.tsx created (production-only, cookieless, free). layout.tsx updated. CSP updated: static.cloudflareinsights.com in script-src, cloudflareinsights.com in connect-src. PENDING: Shubham to go to Cloudflare Dashboard → Web Analytics → Add kutumbkosh.com → set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel production.
+
+## Branding & Marketing
+- [ ] Finalize social medi
