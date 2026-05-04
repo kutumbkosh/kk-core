@@ -59,6 +59,7 @@ REQUEST:   Sentry (error monitoring) stores data in US/EU (AWS US-East-1 by defa
            Reference: DECISIONS.md → 2026-05-02 | Tech
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        1
 ---
 
 FROM:      Engineering
@@ -92,6 +93,7 @@ REQUEST:   Mobile OTP verification for Profile Setup is currently NOT active.
 DEADLINE:  Before public launch (mobile verification is a trust signal for a
            financial vault, but not a hard blocker for internal testing)
 STATUS:    BLOCKED — awaiting Shubham's SMS provider decision and setup
+ID:        2
 ---
 
 FROM:      Legal / Compliance
@@ -110,6 +112,7 @@ REQUEST:   The SQL migrations for admin_access_log and the updated is_admin()
            in production. Until this is done, the audit trail does not exist in prod.
 DEADLINE:  Before production deploy
 STATUS:    Open — Ready for Shubham action
+ID:        3
 ---
 
 ---
@@ -139,6 +142,7 @@ STATUS:    Done — 2026-05-01. public/og-image.png confirmed present in repo.
            both correctly reference /og-image.png and https://kutumbkosh.com/og-image.png.
            Pending: Shubham to commit + deploy, then validate preview at opengraph.xyz
            or WhatsApp before marking launch complete.
+ID:        4
 ---
 
 FROM:      Marketing
@@ -193,6 +197,7 @@ STATUS:    Done — Fixed 2026-05-01. All 6 issues resolved in coming-soon/index
            Note: og-image.png must still be created by Marketing and deployed before
            WhatsApp preview will show the image. File currently missing from repo.
            Note: Shubham must re-upload coming-soon/index.html to Cloudflare Pages.
+ID:        5
 ---
 
 FROM:      Engineering
@@ -208,6 +213,7 @@ REQUEST:   coming-soon/index.html was replaced by Shubham (2026-05-01), revertin
            Recommend Shubham note this file as a compliance-sensitive file going forward.
 DEADLINE:  Awareness only
 STATUS:    Open
+ID:        6
 ---
 
 FROM:      Sales & Marketing
@@ -269,6 +275,7 @@ STATUS:    Done — 2026-05-03. Tech implementation complete in both surfaces.
            verbatim. Connector line and mobile layout handled via scoped <style>
            tag in the component. Inserted between </main> and <footer>.
            TypeScript clean (0 product errors).
+ID:        7
 ---
 
 FROM:      Sales & Marketing
@@ -300,6 +307,7 @@ REQUEST:   Pre-launch marketing activities requiring direct founder action:
               and press.
 DEADLINE:  Before launch day
 STATUS:    Open
+ID:        8
 ---
 
 FROM:      Finance
@@ -346,6 +354,7 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
            - docs/finance/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx (Razorpay config spec)
 DEADLINE:  Before production deploy — all 6 items are hard blockers
 STATUS:    Open
+ID:        9
 ---
 
 FROM:      Finance
@@ -386,6 +395,7 @@ REQUEST:   Finance has drafted the Payment, Subscription & Refund section of the
            Closes LAUNCH-TODO.md item: "Draft and publish Terms of Service page."
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        10
 ---
 
 FROM:      Finance
@@ -442,6 +452,7 @@ REQUEST:   Full Razorpay go-live configuration is required before any live payme
            all Section 3 (webhooks) and Section 7 (testing) items are complete.
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        11
 ---
 
 FROM:      Finance
@@ -459,6 +470,7 @@ REQUEST:   Finance incorrectly reported the communication plan as missing.
 DEADLINE:  N/A
 STATUS:    Closed — raised in error. Communication plan exists in system-rules.md
            and chat-instructions.md. No file needs to be created.
+ID:        12
 ---
 
 FROM:      Engineering
@@ -507,6 +519,7 @@ STATUS:    Done — 2026-05-02. Sentry wired up (sentry.client.config.ts,
            Web Analytics (src/components/CloudflareAnalytics.tsx, CSP updated).
            PENDING (Shubham): npm install, create Sentry account + set DSN,
            get Cloudflare beacon token — see steps 1–3 above.
+ID:        13
 ---
 
 FROM:      Engineering
@@ -558,6 +571,7 @@ DEADLINE:  N/A
 STATUS:    Done — 2026-05-02. All 8 fixes applied and TypeScript-verified clean
            (zero errors in product code; 2 Sentry pre-install warnings resolve
            automatically after npm install).
+ID:        14
 ---
 
 FROM:      Engineering
@@ -584,6 +598,7 @@ REQUEST:   Engineering has reviewed the Finance → Engineering Razorpay handoff
            in the repo and update this handoff.
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        15
 ---
 
 FROM:      Marketing
@@ -604,6 +619,7 @@ REQUEST:   Integrate Core Web Vitals monitoring from launch day.
            Reference: https://nextjs.org/docs/app/building-your-application/optimizing/analytics
 DEADLINE:  First week after production launch
 STATUS:    Open
+ID:        16
 ---
 
 FROM:      Marketing
@@ -626,6 +642,7 @@ REQUEST:   Set up Google Search Console for kutumbkosh.com.
            foundational monitoring tool for all SEO work going forward.
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        17
 ---
 
 FROM:      Product
@@ -712,6 +729,7 @@ STATUS:    Done — 2026-05-02. All mandatory field validation implemented.
            a provider is set, the OTP step will return an error. Decision on SMS
            provider is open — Engineering defaults to Supabase Phone Auth + Twilio
            unless Shubham specifies otherwise.
+ID:        18
 ---
 
 FROM:      Product
@@ -755,6 +773,7 @@ STATUS:    Done — 2026-05-02. generate_kutumb_id() Postgres function added
            Kutumb ID input field (backend logic deferred to post-launch).
            src/lib/kutumb-id.ts added for client-side use.
            DB migration: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql
+ID:        19
 ---
 
 FROM:      Product
@@ -834,89 +853,42 @@ REQUEST:   Three UX issues found on the Emergency Access dashboard page
            - Revoke Access: bg-red-50 text-red-700 border border-red-200
            - Restore Access: bg-blue-50 text-blue-700 border border-blue-200
            All: text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5
-
 DEADLINE:  Before public launch
-STATUS:    Done — 2026-05-05. All three fixes implemented in
-           src/app/dashboard/emergency/page.tsx.
-
-           Issue 1 (soft delete): New migration
-           supabase/migrations/20260505_trusted_contacts_soft_delete.sql adds
-           deleted_at TIMESTAMPTZ column + RLS UPDATE policy + partial index.
-           loadData query now filters .is("deleted_at", null). New
-           handleRemoveContact() function sets deleted_at = now(). Trash2 icon
-           button on each card triggers inline confirmation before executing.
-           Hard delete is NOT permitted — preserves audit trail per zero-access policy.
-
-           Issue 2 (warning badge): Contact cards now check !contact.contact_email
-           && !contact.contact_phone and display an amber pill badge
-           "⚠ Missing contact info" (bg-amber-100 border-amber-300 text-amber-800)
-           below the relation line.
-
-           Issue 3 (always-visible buttons): Removed all opacity-0 group-hover:opacity-100
-           patterns. Replaced with labeled pill buttons always visible:
-           PENDING → [CheckCircle2 Approve] (green); ACTIVE → [ShieldOff Revoke Access]
-           (red); REVOKED → [ShieldCheck Restore Access] (blue). Mobile-safe.
-
-           Also repaired pre-existing truncation in emergency-contact/page.tsx
-           (missing lines 323-372) and nominees/add/page.tsx (missing save section).
-           TypeScript clean — zero product errors (Sentry module errors pre-existing,
-           resolve on npm install).
-
-           PENDING (Shubham): Run new soft-delete migration — see handoff below.
+STATUS:    Done — 2026-05-05. All three UX fixes implemented on
+           src/app/dashboard/emergency/page.tsx:
+           (1) Soft delete: Trash2 button + inline confirmation; deleted_at
+               filter on all trusted_contacts queries; DB migration at
+               supabase/migrations/20260505_trusted_contacts_soft_delete.sql.
+           (2) Warning badge: amber pill shown on contact card when both
+               contact_phone and contact_email are null/empty.
+           (3) Always-visible pill buttons: PENDING→Approve (green, CheckCircle2),
+               ACTIVE→Revoke Access (red, ShieldOff), REVOKED→Restore Access
+               (blue, ShieldCheck). All hover-only opacity patterns removed.
+ID:        20
 ---
 
 FROM:      Engineering
 TO:        Shubham (Founder — direct action required)
-PRIORITY:  High — Before staging QA
-REQUEST:   New DB migration must be run in Supabase SQL Editor (staging, then production).
-
-           FILE: supabase/migrations/20260504_relation_other.sql
-
-           WHAT IT DOES:
-           Adds a relation_other TEXT column to both nominees and trusted_contacts.
-           This stores free-text when a user selects "Other" as the relationship
-           (e.g. "Cousin", "Uncle", "Business Partner"). The column is nullable —
-           existing records are unaffected.
-
-           HOW TO RUN:
-           1. Go to Supabase Dashboard → SQL Editor
-           2. Open the migration file above, copy all contents
-           3. Paste into the SQL Editor and click Run
-           4. Run on staging first; after verifying, repeat on production
-
-           WHY NOW:
-           Fixes to the nominee and trusted contact forms (2026-05-04) now pass
-           relation_other to the DB insert. Without this column, inserts where
-           relation = "other" will throw a DB error.
-
-DEADLINE:  Before staging QA of the form bug fixes
-STATUS:    Done — 2026-05-05. Shubham confirmed migration run on staging + production.
+PRIORITY:  High — Required to fix "Other" relationship selection bug
+REQUEST:   Run DB migration supabase/migrations/20260504_relation_other.sql in
+           Supabase SQL Editor. Run staging first, then production.
+           Migration adds: relation_other TEXT column to nominees and
+           trusted_contacts — required for "Other" relationship bug fix
+           shipped 2026-05-04.
+DEADLINE:  Immediate
+STATUS:    Done — 2026-05-05. Shubham confirmed migration run on both
+           staging and production Supabase environments.
+ID:        21
 ---
 
 FROM:      Engineering
 TO:        Shubham (Founder — direct action required)
-PRIORITY:  High — Before staging QA of emergency access fixes
-REQUEST:   New DB migration for trusted contacts soft delete must be run in
-           Supabase SQL Editor.
-
-           FILE: supabase/migrations/20260505_trusted_contacts_soft_delete.sql
-
-           WHAT IT DOES:
-           Adds a deleted_at TIMESTAMPTZ column to trusted_contacts. This enables
-           soft delete — removing a contact sets deleted_at = now() instead of
-           hard-deleting the row. Preserves audit trail per zero-routine-access policy.
-           Also adds a RLS UPDATE policy and a partial index for performance.
-
-           HOW TO RUN:
-           1. Go to Supabase Dashboard → SQL Editor
-           2. Open the migration file above, copy all contents
-           3. Paste into the SQL Editor and click Run
-           4. Run on staging first; after verifying, repeat on production
-
-           WHY NOW:
-           The Emergency Access page now uses .is("deleted_at", null) to filter
-           contacts. Without the column, the query will throw a DB error.
-
-DEADLINE:  Before staging QA of emergency access fixes
-STATUS:    Open — Ready for Shubham action
----
+PRIORITY:  High — Required for soft-delete feature to function
+REQUEST:   Run DB migration supabase/migrations/20260505_trusted_contacts_soft_delete.sql
+           in Supabase SQL Editor. Run staging first, then production.
+           Migration adds: deleted_at TIMESTAMPTZ column to trusted_contacts,
+           RLS UPDATE policy for soft delete, partial index for performance.
+DEADLINE:  Immediate
+STATUS:    Done — 2026-05-05. Shubham confirmed migration executed on both
+           staging and production Supabase environments.
+ID:        22
