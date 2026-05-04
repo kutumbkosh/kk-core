@@ -342,8 +342,8 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
               from first profitable period), and annual ITR filing.
 
            Reference documents produced by Finance:
-           - docs/FINANCE-TOS-PAYMENT-DRAFT.docx (pricing, GST, refund terms)
-           - docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx (Razorpay config spec)
+           - docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx (pricing, GST, refund terms)
+           - docs/finance/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx (Razorpay config spec)
 DEADLINE:  Before production deploy — all 6 items are hard blockers
 STATUS:    Open
 ---
@@ -356,7 +356,7 @@ REQUEST:   Finance has drafted the Payment, Subscription & Refund section of the
            Operations must coordinate external legal review (startup / IT lawyer)
            before the draft can be published. Finance cannot self-approve legal clauses.
 
-           Draft file: docs/FINANCE-TOS-PAYMENT-DRAFT.docx
+           Draft file: docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx
            (Also saved at: KutumbKosh/docs/FINANCE-TOS-PAYMENT-DRAFT.docx)
 
            The draft covers 10 clauses:
@@ -394,7 +394,7 @@ PRIORITY:  High — Launch Blocker
 REQUEST:   Full Razorpay go-live configuration is required before any live payment
            can be accepted. Finance has produced a detailed spec document:
 
-           Spec file: docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx
+           Spec file: docs/finance/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx
            (Also saved at: KutumbKosh/docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx)
 
            CRITICAL items Engineering must complete (Finance cannot issue go-live
@@ -634,7 +634,7 @@ PRIORITY:  High — Required before public launch
 REQUEST:   Mandatory field validation must be added across three forms. Each
            form has different rules — do not apply the same logic to all.
 
-           Full spec: docs/PRODUCT-MANDATORY-FIELDS-ENGINEERING-HANDOFF.docx
+           Full spec: docs/product/PRODUCT-MANDATORY-FIELDS-ENGINEERING-HANDOFF.docx
 
            Summary of changes required:
 
@@ -719,7 +719,7 @@ TO:        Engineering
 PRIORITY:  High — Required before public launch
 REQUEST:   Unique Kutumb ID feature for every user vault.
 
-           Full spec: docs/PRODUCT-KUTUMB-ID-ENGINEERING-HANDOFF.docx
+           Full spec: docs/product/PRODUCT-KUTUMB-ID-ENGINEERING-HANDOFF.docx
 
            Summary:
 
@@ -836,7 +836,33 @@ REQUEST:   Three UX issues found on the Emergency Access dashboard page
            All: text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5
 
 DEADLINE:  Before public launch
-STATUS:    Open
+STATUS:    Done — 2026-05-05. All three fixes implemented in
+           src/app/dashboard/emergency/page.tsx.
+
+           Issue 1 (soft delete): New migration
+           supabase/migrations/20260505_trusted_contacts_soft_delete.sql adds
+           deleted_at TIMESTAMPTZ column + RLS UPDATE policy + partial index.
+           loadData query now filters .is("deleted_at", null). New
+           handleRemoveContact() function sets deleted_at = now(). Trash2 icon
+           button on each card triggers inline confirmation before executing.
+           Hard delete is NOT permitted — preserves audit trail per zero-access policy.
+
+           Issue 2 (warning badge): Contact cards now check !contact.contact_email
+           && !contact.contact_phone and display an amber pill badge
+           "⚠ Missing contact info" (bg-amber-100 border-amber-300 text-amber-800)
+           below the relation line.
+
+           Issue 3 (always-visible buttons): Removed all opacity-0 group-hover:opacity-100
+           patterns. Replaced with labeled pill buttons always visible:
+           PENDING → [CheckCircle2 Approve] (green); ACTIVE → [ShieldOff Revoke Access]
+           (red); REVOKED → [ShieldCheck Restore Access] (blue). Mobile-safe.
+
+           Also repaired pre-existing truncation in emergency-contact/page.tsx
+           (missing lines 323-372) and nominees/add/page.tsx (missing save section).
+           TypeScript clean — zero product errors (Sentry module errors pre-existing,
+           resolve on npm install).
+
+           PENDING (Shubham): Run new soft-delete migration — see handoff below.
 ---
 
 FROM:      Engineering
@@ -864,5 +890,33 @@ REQUEST:   New DB migration must be run in Supabase SQL Editor (staging, then pr
            relation = "other" will throw a DB error.
 
 DEADLINE:  Before staging QA of the form bug fixes
+STATUS:    Done — 2026-05-05. Shubham confirmed migration run on staging + production.
+---
+
+FROM:      Engineering
+TO:        Shubham (Founder — direct action required)
+PRIORITY:  High — Before staging QA of emergency access fixes
+REQUEST:   New DB migration for trusted contacts soft delete must be run in
+           Supabase SQL Editor.
+
+           FILE: supabase/migrations/20260505_trusted_contacts_soft_delete.sql
+
+           WHAT IT DOES:
+           Adds a deleted_at TIMESTAMPTZ column to trusted_contacts. This enables
+           soft delete — removing a contact sets deleted_at = now() instead of
+           hard-deleting the row. Preserves audit trail per zero-routine-access policy.
+           Also adds a RLS UPDATE policy and a partial index for performance.
+
+           HOW TO RUN:
+           1. Go to Supabase Dashboard → SQL Editor
+           2. Open the migration file above, copy all contents
+           3. Paste into the SQL Editor and click Run
+           4. Run on staging first; after verifying, repeat on production
+
+           WHY NOW:
+           The Emergency Access page now uses .is("deleted_at", null) to filter
+           contacts. Without the column, the query will throw a DB error.
+
+DEADLINE:  Before staging QA of emergency access fixes
 STATUS:    Open — Ready for Shubham action
 ---

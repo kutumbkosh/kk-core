@@ -21,7 +21,9 @@ import {
   Eye,
   EyeOff,
   UserPlus,
-  RefreshCw,
+  ShieldOff,
+  ShieldCheck,
+  Trash2,
   XCircle,
   CheckCircle2,
   Hash,
@@ -47,13 +49,16 @@ export default function EmergencyPage() {
   // Preview
   const [showPreview, setShowPreview] = useState(false);
 
+  // Soft delete — inline confirmation
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+
   const loadData = useCallback(async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
     const [contactsRes, assetsRes, dossierRes] = await Promise.all([
-      supabase.from("trusted_contacts").select("*").eq("user_id", user.id).order("created_at"),
+      supabase.from("trusted_contacts").select("*").eq("user_id", user.id).is("deleted_at", null).order("created_at"),
       supabase.from("assets").select("*").eq("user_id", user.id).order("asset_type"),
       supabase.from("emergency_dossiers").select("*").eq("user_id", user.id).single(),
     ]);
@@ -133,6 +138,21 @@ export default function EmergencyPage() {
     }
   };
 
+  const handleRemoveContact = async (contactId: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("trusted_contacts")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", contactId);
+      if (error) throw error;
+      setConfirmRemoveId(null);
+      await loadData();
+    } catch (err) {
+      console.error("Failed to remove contact:", err);
+    }
+  };
+
   // Group assets by type for instructions
   const assetTypes = Array.from(new Set(assets.map((a) => a.asset_type)));
 
@@ -204,42 +224,93 @@ export default function EmergencyPage() {
           ) : (
             <div className="space-y-2">
               {contacts.map((contact) => (
-                <div key={contact.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${
-                    contact.access_status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" :
-                    contact.access_status === "REVOKED" ? "bg-red-100 text-red-700" :
-                    "bg-gray-200 text-gray-600"
-                  }`}>
-                    {contact.contact_name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{contact.contact_name}</p>
-                    <p className="text-xs text-gray-500">{contact.relation} · {contact.contact_email || contact.contact_phone || "No contact info"}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                      contact.access_status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" :
-                      contact.access_status === "REVOKED" ? "bg-red-50 text-red-700" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {contact.access_status}
-                    </span>
-                    {contact.access_status === "PENDING" && (
-                      <button onClick={() => handleContactStatusChange(contact.id, "ACTIVE")} className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors opacity-0 group-hover:opacity-100" title="Approve access">
-                        <CheckCircle2 className="w-4 h-4" />
+                <div key={contact.id} className="p-3 bg-gray-50 rounded-lg">
+                  {/* ── Inline removal confirmation ── */}
+                  {confirmRemoveId === contact.id ? (
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <p className="text-xs text-gray-700 flex-1 min-w-0">
+                        Remove <span className="font-semibold">{contact.contact_name}</span> as a trusted contact?
+                      </p>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => handleRemoveContact(contact.id)}
+                          className="text-xs font-medium px-3 py-1.5 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center gap-1.5"
+                        >
+                          <Trash2 className="w-3 h-3" /> Remove
+                        </button>
+                        <button
+                          onClick={() => setConfirmRemoveId(null)}
+                          className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-3">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 ${
+                        contact.access_status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" :
+                        contact.access_status === "REVOKED" ? "bg-red-100 text-red-700" :
+                        "bg-gray-200 text-gray-600"
+                      }`}>
+                        {contact.contact_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{contact.contact_name}</p>
+                        <p className="text-xs text-gray-500">
+                          {contact.relation}{contact.contact_email || contact.contact_phone ? ` · ${contact.contact_email || contact.contact_phone}` : ""}
+                        </p>
+                        {/* Fix 2 — warning badge for missing contact info */}
+                        {!contact.contact_email && !contact.contact_phone && (
+                          <span className="inline-flex items-center gap-1 mt-1 text-xs px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-amber-800">
+                            ⚠ Missing contact info
+                          </span>
+                        )}
+                        {/* Fix 3 — always-visible labeled pill action buttons */}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                            contact.access_status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" :
+                            contact.access_status === "REVOKED" ? "bg-red-50 text-red-700" :
+                            "bg-gray-100 text-gray-600"
+                          }`}>
+                            {contact.access_status}
+                          </span>
+                          {contact.access_status === "PENDING" && (
+                            <button
+                              onClick={() => handleContactStatusChange(contact.id, "ACTIVE")}
+                              className="text-xs font-medium px-3 py-1.5 rounded-full bg-green-50 text-green-700 border border-green-200 flex items-center gap-1.5"
+                            >
+                              <CheckCircle2 className="w-3 h-3" /> Approve
+                            </button>
+                          )}
+                          {contact.access_status === "ACTIVE" && (
+                            <button
+                              onClick={() => handleContactStatusChange(contact.id, "REVOKED")}
+                              className="text-xs font-medium px-3 py-1.5 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center gap-1.5"
+                            >
+                              <ShieldOff className="w-3 h-3" /> Revoke Access
+                            </button>
+                          )}
+                          {contact.access_status === "REVOKED" && (
+                            <button
+                              onClick={() => handleContactStatusChange(contact.id, "ACTIVE")}
+                              className="text-xs font-medium px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1.5"
+                            >
+                              <ShieldCheck className="w-3 h-3" /> Restore Access
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {/* Fix 1 — remove button (triggers inline confirmation) */}
+                      <button
+                        onClick={() => setConfirmRemoveId(contact.id)}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                        title="Remove contact"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                    )}
-                    {contact.access_status === "ACTIVE" && (
-                      <button onClick={() => handleContactStatusChange(contact.id, "REVOKED")} className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100" title="Revoke access">
-                        <XCircle className="w-4 h-4" />
-                      </button>
-                    )}
-                    {contact.access_status === "REVOKED" && (
-                      <button onClick={() => handleContactStatusChange(contact.id, "ACTIVE")} className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors opacity-0 group-hover:opacity-100" title="Re-activate">
-                        <RefreshCw className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -327,7 +398,6 @@ export default function EmergencyPage() {
               </div>
             </div>
           ) : showPreview ? (
-            /* ─── Preview Mode ─── */
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
                 <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1.5">
@@ -378,7 +448,6 @@ export default function EmergencyPage() {
               })}
             </div>
           ) : (
-            /* ─── Default state ─── */
             <div>
               {dossier ? (
                 <div className="space-y-3">
@@ -391,6 +460,88 @@ export default function EmergencyPage() {
                   )}
                   <p className="text-xs text-gray-400">
                     Last updated: {new Date(dossier.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-sm text-gray-500 mb-3">
+                    You haven&apos;t written any emergency instructions yet.
+                  </p>
+                  <button onClick={() => setEditingDossier(true)} className="btn-primary text-xs py-2 px-3">
+                    <FileText className="w-3.5 h-3.5 mr-1" /> Write your dossier
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ─── Emergency Access Request (Kutumb ID lookup — UI only at launch) ─── */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-3">
+            <Hash className="w-4 h-4 text-gray-500" />
+            <h3 className="text-sm font-bold text-gray-900">Access Someone&apos;s Vault</h3>
+          </div>
+          <p className="text-xs text-gray-500 mb-3">
+            If a vault holder has listed you as a trusted contact, enter their Kutumb ID to request emergency access.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="e.g., KK-A4B7C2"
+              maxLength={9}
+              className="input-field flex-1 font-mono uppercase tracking-wide text-sm"
+              onChange={(e) => {
+                // Normalise: allow only KK- prefix + charset
+                const raw = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+                e.target.value = raw;
+              }}
+            />
+            <button
+              type="button"
+              className="btn-secondary text-sm px-4"
+              onClick={() => {
+                // Backend access-request flow is a future feature.
+                // At launch: UI only — button intentionally non-functional.
+                alert("Emergency access requests are coming soon. Please contact the vault holder directly.");
+              }}
+            >
+              Request Access
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            The vault holder will be notified and must approve your request before you can see anything.
+          </p>
+        </div>
+
+        {/* ─── What gets shared ─── */}
+        <div className="card bg-gray-50 border-gray-200 p-4">
+          <h3 className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">What your contacts can see</h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {[
+              { label: "Asset names & types", ok: true },
+              { label: "Last 4 digits only", ok: true },
+              { label: "Nominee information", ok: true },
+              { label: "Your instructions", ok: true },
+              { label: "Full account numbers", ok: false },
+              { label: "Passwords / PINs", ok: false },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5">
+                {item.ok ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                ) : (
+                  <XCircle className="w-3.5 h-3.5 text-red-400" />
+                )}
+                <span className={item.ok ? "text-gray-600" : "text-gray-400 line-through"}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+eric" })}
                   </p>
                 </div>
               ) : (

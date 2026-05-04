@@ -305,21 +305,6 @@ export default function EmergencyContactPage() {
                           onChange={(e) => updateContact(index, "phone", e.target.value)}
                           onBlur={() => handleContactBlur(index, "phone", contact.phone)}
                           placeholder="98765 43210"
-                          className={`input-field pl-9 ${contactTouched[index]?.phone && contactErrors[index]?.phone ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
-                        />
-                      </div>
-                      <FieldError error={contactTouched[index]?.phone ? contactErrors[index]?.phone ?? null : null} />
-                    </div>
-                    <div>
-                      <label className="label">Email Address <span className="text-red-500">*</span></label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                          type="email"
-                          value={contact.email}
-                          onChange={(e) => updateContact(index, "email", e.target.value)}
-                          onBlur={() => handleContactBlur(index, "email", contact.email)}
-                          placeholder="priya@example.com"
                           className={`input-field pl-9 ${contactTouched[index]?.email && contactErrors[index]?.email ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
                         />
                       </div>

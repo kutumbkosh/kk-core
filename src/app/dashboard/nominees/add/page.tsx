@@ -449,19 +449,18 @@ export default function AddNomineePage() {
                 {formError}
               </div>
             )}
-            <button onClick={handleSave} disabled={saving} className="btn-primary w-full">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="btn-primary w-full"
+            >
               {saving ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving…</>
               ) : (
-                <><Check className="w-4 h-4 mr-2" />Save Nominee</>
+                "Save Nominee"
               )}
             </button>
-          </div>
-
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <p className="text-xs text-gray-600">
-              Nominee information is encrypted and only visible to you. It helps your family identify and claim your assets.
-            </p>
           </div>
         </div>
       </main>
