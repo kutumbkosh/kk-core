@@ -29,17 +29,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-// Relationship options — shared with Trusted Contact form
-export const RELATIONSHIP_OPTIONS = [
-  { value: "spouse",      label: "Spouse",           desc: "Husband or wife" },
-  { value: "child",       label: "Child",             desc: "Son or daughter" },
-  { value: "parent",      label: "Parent",            desc: "Father or mother" },
-  { value: "sibling",     label: "Sibling",           desc: "Brother or sister" },
-  { value: "grandchild",  label: "Grandchild",        desc: "Grandson or granddaughter" },
-  { value: "grandparent", label: "Grandparent",       desc: "Grandfather or grandmother" },
-  { value: "in_law",      label: "In-law",            desc: "Parent-in-law, sibling-in-law" },
-  { value: "other",       label: "Other",             desc: "Any other relation" },
-];
+import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 
 export default function AddNomineePage() {
   const router = useRouter();

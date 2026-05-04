@@ -9,7 +9,7 @@ import {
   validateEmail,
   validateRelationshipDropdown,
 } from "@/lib/validations";
-import { RELATIONSHIP_OPTIONS } from "@/app/dashboard/nominees/add/page";
+import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 import FieldError from "@/components/FieldError";
 import {
   UserPlus,
