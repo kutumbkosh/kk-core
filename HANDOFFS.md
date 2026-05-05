@@ -194,9 +194,11 @@ STATUS:    Done — Fixed 2026-05-01. All 6 issues resolved in coming-soon/index
            and og:description → approved copy; og:image + dimensions added pointing to
            https://kutumbkosh.com/og-image.png; og:locale en_IN added; full Twitter Card
            block added (card, title, description, image); canonical added.
-           Note: og-image.png must still be created by Marketing and deployed before
-           WhatsApp preview will show the image. File currently missing from repo.
-           Note: Shubham must re-upload coming-soon/index.html to Cloudflare Pages.
+           Note: og-image.png IS present in repo at public/og-image.png (51KB, confirmed
+           2026-05-04 via mid-review audit). Earlier note claiming "file missing" was
+           incorrect — Engineering glob pattern missed the file. File is ready.
+           Note: Shubham must commit public/og-image.png, deploy, and re-upload
+           coming-soon/index.html to Cloudflare Pages, then validate at opengraph.xyz.
 ID:        5
 ---
 
@@ -288,6 +290,9 @@ REQUEST:   Pre-launch marketing activities requiring direct founder action:
               was never implemented. Decision needed: add a Web3Forms form before
               launch, or keep email-only? If adding, share your Web3Forms access
               key with Engineering.
+              Note (2026-05-04 mid-review): The project brief previously described
+              Web3Forms as "live" — this was inaccurate. Web3Forms is NOT implemented.
+              The decision and any implementation remain open.
 
            2. SOCIAL MEDIA PROFILES — Instagram, LinkedIn, and Twitter/X profiles
               have not been created per LAUNCH-TODO.md. Set up @KutumbKosh (or
@@ -302,9 +307,9 @@ REQUEST:   Pre-launch marketing activities requiring direct founder action:
               coming-soon page, draft a launch email and schedule it to go out
               on the same day as the production deploy.
 
-           5. care@kutumbkosh.com — Confirm the inbox is live and monitored.
-              It is the only contact point for users, grievance requests,
-              and press.
+           5. care@kutumbkosh.com — ✅ CONFIRMED live and monitored (2026-05-04,
+              Shubham). It is the only contact point for users, grievance
+              requests, and press. No action required on this item.
 DEADLINE:  Before launch day
 STATUS:    Open
 ID:        8
@@ -884,11 +889,4 @@ ID:        21
 FROM:      Engineering
 TO:        Shubham (Founder — direct action required)
 PRIORITY:  High — Required for soft-delete feature to function
-REQUEST:   Run DB migration supabase/migrations/20260505_trusted_contacts_soft_delete.sql
-           in Supabase SQL Editor. Run staging first, then production.
-           Migration adds: deleted_at TIMESTAMPTZ column to trusted_contacts,
-           RLS UPDATE policy for soft delete, partial index for performance.
-DEADLINE:  Immediate
-STATUS:    Done — 2026-05-05. Shubham confirmed migration executed on both
-           staging and production Supabase environments.
-ID:        22
+REQUEST:   Run DB migration su
