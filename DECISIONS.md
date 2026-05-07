@@ -142,4 +142,35 @@ Sentry is restricted to **dev and staging only** until Operations formally clear
 
 ---
 
+### 2026-05-01 | Operations
+**Decision:** Operations legal risk assessment completed using risk-severity matrix. Four risks identified. Sentry cross-border transfer cleared for production (YELLOW/9 after pseudonymisation mitigations — anonymous data, S.16 rules not yet notified). Three new HANDOFFS raised: (1) Terms of Service — CRITICAL/RED must exist before launch; (2) Supabase email template re-upload — HIGH, blocking wrong DPDPA language from being sent; (3) Sub-processor DPA review — HIGH/ORANGE for Supabase, Vercel, Razorpay.
+**Rationale:** No ToS at launch = no liability protection, no governing law, no disclaimer of financial advice. This is a RED risk (25). Sub-processor DPAs are required under DPDPA 2023 for Data Fiduciaries. Email template re-upload is a direct violation of the 2026-04-28 Legal decision prohibiting DPDPA compliance claims.
+**Impact:** Shubham (three direct action items); Engineering (ToS acceptance checkbox + /terms page once ToS is drafted); Legal (ToS draft).
+
+---
+
+### 2026-05-07 | Finance
+**Decision:** ₹499/year Pro pricing is **GST-inclusive**. The user pays ₹499 total — no additional GST is charged at checkout. KutumbKosh collects ₹499, remits ₹76 GST, and retains ₹423 net revenue per Pro subscriber per year.
+**GST breakdown per transaction:** Base value = ₹423.73 (₹499 × 100/118), GST @ 18% = ₹76.27 (₹499 × 18/118). Round to ₹423 base + ₹76 GST = ₹499 on the GST invoice. SAC code 998314 applies. IGST for out-of-state customers; CGST + SGST for same-state customers — confirm KutumbKosh's state of registration with CA at time of GSTIN registration.
+**Rationale:** (1) The original ₹499 pricing decision (2026-04-28) was made on the basis of accessibility for Indian middle-class families — GST-exclusive would make the effective checkout price ₹589, directly contradicting that intent. (2) Consumer Protection (E-Commerce) Rules 2020 require displaying the total price inclusive of all applicable taxes on consumer-facing platforms. (3) Indian consumer SaaS convention is GST-inclusive display — a ₹499 + 18% GST format creates checkout confusion for the target demographic. (4) Pricing page simplicity: one number, no surprises for the user.
+**Impact:** Engineering (Razorpay order amount must be set to ₹49900 paise — the full ₹499 inclusive amount; GST invoice generated on payment.captured must back-calculate base and GST, not add GST on top of ₹499); Marketing (pricing page shows ₹499/year with a "GST inclusive" label — do NOT show ₹499 + GST); Finance (reconciliation uses ₹76 GST per Pro transaction — do not use ₹499 × 18% = ₹89.82, which is the GST-exclusive formula); Operations (pass this decision to the external legal reviewer for ToS Clause 3 — the GST-inclusive confirmation must appear in the published Terms of Service).
+
+---
+
+### 2026-05-07 | Legal + Operations
+**Decision:** DPDPA 2023 compliance assessment completed for emergency access V2 (inactivity timer auto-grant) and V3 (pre-authorized access). Both mechanisms are CONDITIONALLY CLEARED for Engineering to build, subject to 7 mandatory conditions.
+
+**V2 Clearance — Inactivity Timer Auto-Grant:**
+Upfront consent configuration satisfies DPDPA S.6 provided: (1) owner takes explicit affirmative action to set up the trigger; (2) the consent screen uses the locked copy in HANDOFFS.md ID 36; (3) grace period minimum is 14 days; (4) grace period notification is sent via both email AND in-app; (5) trusted contact is notified at designation with the locked copy in ID 36; (6) trusted contact's country of residence is captured (optional field) for future S.16 readiness. Purpose limitation is satisfied (emergency access is a core stated KutumbKosh purpose — must be listed in the Privacy Policy). S.16 cross-border transfer rules are not yet notified and present no hard legal blocker today.
+
+**V3 Clearance — Pre-Authorized Access:**
+Explicit pre-authorization satisfies DPDPA S.6 — cleaner consent basis than V2. Owner's ability to revoke at any time satisfies S.6(6) withdrawal requirement. Required: (1) V3 consent screen uses the locked copy in HANDOFFS.md ID 36; (2) trusted contact receives immediate notification email (locked copy in ID 36); (3) Engineering implements annual re-confirmation nudge for owner (KutumbKosh policy, not DPDPA mandate).
+
+**External Legal Review:** Strongly recommended before production go-live of either feature, given that both mechanisms involve automated sharing of financial SPDI (IT SPDI Rules 2011) with a third party. Build may proceed; go-live requires external sign-off.
+
+**Rationale:** Both mechanisms are defensible under DPDPA 2023 as conditional/pre-authorized consent models, provided the implementation follows the locked consent language and notification requirements. The weakest legal point in V2 is that auto-grant occurs by inaction (silence), which requires the explicit upfront setup and multi-channel grace period notification to be legally sound.
+**Impact:** Product (may now raise Engineering handoff for V2 and V3 — all 7 conditions in HANDOFFS.md ID 36 must be engineering requirements); Engineering (build per conditions); Operations (ensure Privacy Policy draft in HANDOFFS.md ID 27 lists emergency access as an explicit data processing purpose); Legal (engage external legal reviewer before production go-live of V2/V3).
+
+---
+
 _Add new decisions above this line, following the format._

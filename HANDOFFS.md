@@ -26,7 +26,7 @@ STATUS:    Open
 
 ## Open Handoffs
 
-FROM:      Tech
+FROM:      Engineering
 TO:        Operations
 PRIORITY:  High — Must resolve before production deploy
 REQUEST:   Sentry (error monitoring) stores data in US/EU (AWS US-East-1 by default).
@@ -58,8 +58,129 @@ REQUEST:   Sentry (error monitoring) stores data in US/EU (AWS US-East-1 by defa
 
            Reference: DECISIONS.md → 2026-05-02 | Tech
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    In Progress — Operations assessment below (2026-05-01)
+
+           OPERATIONS ASSESSMENT (2026-05-01):
+           Risk Score: YELLOW (9) — Moderate (3) x Possible (3) after pseudonymisation.
+
+           Assessment of "personal data" question: With UUIDs replaced, auth headers
+           stripped, IPs not captured, and no PII in URLs, the transmitted telemetry
+           is very likely anonymous data under DPDPA 2023 S.2(t) definition, which
+           requires data to be "capable of identifying" an individual. Scrubbed error
+           telemetry with no identifiers does not meet this threshold.
+
+           Assessment of S.16 cross-border transfer question: Since transfer rules
+           under DPDPA 2023 S.16 have NOT yet been notified by the Government of India
+           (as of May 2026), the restriction is not yet enforceable. The pseudonymisation
+           provides a secondary technical safeguard regardless.
+
+           OPERATIONS CLEARANCE: Sentry is CLEARED for production subject to:
+           (a) Engineering maintains the pseudonymisation config permanently
+           (b) Any future change to Sentry config that re-enables identifiers
+               requires fresh Operations review before deploy
+           (c) This clearance is reviewed if/when S.16 transfer rules are notified
+           Engineering may set NEXT_PUBLIC_SENTRY_DSN in Vercel production env vars.
 ID:        1
+---
+
+FROM:      Operations
+TO:        Shubham (Founder — critical action required before launch)
+PRIORITY:  CRITICAL — Launch Blocker
+REQUEST:   Terms of Service has NOT been drafted or published. This is a
+           CRITICAL legal risk (Risk Score: 25 — RED) identified in the
+           Operations legal risk assessment (2026-05-01).
+
+           Without a ToS at launch:
+           - No limitation of liability for KutumbKosh
+           - No acceptable use policy — cannot remove abusive users
+           - No IP ownership clause — user-generated content ownership unclear
+           - No dispute resolution mechanism or governing law clause
+           - No disclaimer of financial advice
+           - Users have no contractual framework governing the service
+           - LAUNCH-TODO.md has this as an unchecked item
+
+           Required actions:
+           1. Draft a Terms of Service covering:
+              - Acceptance mechanism (click-wrap at signup)
+              - Service description and limitations
+              - User obligations and acceptable use
+              - Limitation of liability and disclaimer of financial advice
+              - IP ownership (user data vs. platform IP)
+              - Governing law: India / jurisdiction: courts of [city]
+              - Termination and account deletion rights
+              - Changes to ToS (notice period)
+           2. Add a ToS acceptance checkbox to the signup/onboarding flow
+              (Engineering task — Operations to raise handoff once ToS is drafted)
+           3. Publish at /terms in the app (Engineering already has a Terms link
+              in the footer — it just needs a page)
+
+           Legal note: KutumbKosh handles financial asset data. The ToS must
+           explicitly disclaim that KutumbKosh is NOT a financial advisor,
+           investment manager, or regulated financial services provider.
+DEADLINE:  Before production deploy — DO NOT launch without ToS
+STATUS:    Open
+---
+
+FROM:      Operations
+TO:        Shubham (Founder — direct action required)
+PRIORITY:  High — Before production deploy
+REQUEST:   Supabase email templates (confirm-signup.html and magic-link.html)
+           have been fixed in code (DPDPA language corrected 2026-04-30) but
+           have NOT been manually re-uploaded to Supabase Dashboard.
+
+           Until re-uploaded, Supabase is still sending the old templates with
+           "DPDPA 2023 Compliant" language — directly violating the
+           2026-04-28 Legal decision prohibiting all compliance claims.
+
+           This affects all three environments separately:
+
+           Steps for EACH environment (Dev, Staging, Production):
+           1. Go to Supabase Dashboard → [project] → Authentication → Email Templates
+           2. Select "Confirm signup" → paste contents of
+              supabase/email-templates/confirm-signup.html → Save
+           3. Select "Magic Link" → paste contents of
+              supabase/email-templates/magic-link.html → Save
+           4. Send a test email to verify the template renders correctly
+
+           Do this for: Dev ☐  Staging ☐  Production ☐
+DEADLINE:  Before production deploy
+STATUS:    Open
+---
+
+FROM:      Operations
+TO:        Shubham (Founder — decision required)
+PRIORITY:  High — Before production deploy
+REQUEST:   Sub-processor DPA review has NOT been completed for KutumbKosh's
+           three critical data processors. Under DPDPA 2023, KutumbKosh (as
+           Data Fiduciary) must ensure Data Processors provide adequate
+           contractual protections (Risk Score: 12 — ORANGE).
+
+           The three sub-processors handling personal data are:
+
+           1. SUPABASE (primary data processor — stores all vault data)
+              - Review Supabase DPA at: https://supabase.com/legal/dpa
+              - Key checks: data deletion obligations, breach notification
+                timeline, sub-processor chain, data location (AWS ap-south-1
+                for Indian data residency)
+              - Action: Accept Supabase DPA and confirm data location is
+                ap-south-1 (Mumbai)
+
+           2. VERCEL (application hosting — processes data in transit)
+              - Review Vercel DPA at: https://vercel.com/legal/dpa
+              - Key checks: data processing locations, breach notification
+              - Action: Accept Vercel DPA
+
+           3. RAZORPAY (payment processor — processes payment data)
+              - Razorpay is a PCI DSS certified Indian payment processor
+                regulated by RBI. Review their privacy policy and data
+                processing terms.
+              - Action: Confirm Razorpay's standard merchant agreement
+                covers data processing obligations
+
+           For each: review, accept the DPA, and document the acceptance
+           date in DECISIONS.md.
+DEADLINE:  Before production deploy
+STATUS:    Open
 ---
 
 FROM:      Engineering
@@ -214,7 +335,7 @@ REQUEST:   coming-soon/index.html was replaced by Shubham (2026-05-01), revertin
            L1018: "Designed with India's DPDPA in mind" (was reverted to "Fully compliant")
            Recommend Shubham note this file as a compliance-sensitive file going forward.
 DEADLINE:  Awareness only
-STATUS:    Open
+STATUS:    Done
 ID:        6
 ---
 
@@ -338,11 +459,11 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
               18% GST under SAC code 998314. Confirm SAC code with your CA.
 
            4. PRICING DECISION — GST-INCLUSIVE vs. EXCLUSIVE
-              Confirm in writing whether ₹499/year is GST-inclusive (i.e., user
-              pays ₹499 total, KutumbKosh keeps ₹423 + remits ₹76 GST) or
-              GST-exclusive (user pays ₹499 + 18% = ₹589). This must be locked
-              before the pricing page goes live. Finance recommendation:
-              GST-inclusive for consumer clarity.
+              ✅ RESOLVED — Finance decision locked 2026-05-07 in DECISIONS.md.
+              ₹499/year is GST-INCLUSIVE. User pays ₹499 total. KutumbKosh
+              remits ₹76 GST and retains ₹423 net. Razorpay order = ₹49900
+              paise. See DECISIONS.md 2026-05-07 for full breakdown and
+              impact on Engineering, Marketing, and Operations.
 
            5. RAZORPAY KYC + LIVE MODE
               Complete KYC in the Razorpay merchant dashboard and get live mode
@@ -573,9 +694,7 @@ REQUEST:   8 product issues identified by Shubham have been fixed. Review and co
               /dashboard/emergency. Empty state replaced with CTA:
               "No trusted contacts set up yet." + "+ Add a trusted contact" link.
 DEADLINE:  N/A
-STATUS:    Done — 2026-05-02. All 8 fixes applied and TypeScript-verified clean
-           (zero errors in product code; 2 Sentry pre-install warnings resolve
-           automatically after npm install).
+STATUS:    Done
 ID:        14
 ---
 
@@ -602,7 +721,7 @@ REQUEST:   Engineering has reviewed the Finance → Engineering Razorpay handoff
            available. Please place the spec file and invoice HTML/PDF template
            in the repo and update this handoff.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done
 ID:        15
 ---
 
@@ -1178,4 +1297,429 @@ REQUEST:   Monthly billing is excluded at launch (DECISIONS.md 2026-04-28: annua
 DEADLINE:  First post-launch review (no rush)
 STATUS:    Open
 ID:        35
+---
+
+FROM:      Product
+TO:        Operations
+PRIORITY:  High — Required before Engineering can build emergency access trigger
+REQUEST:   Product has decided to implement a full inactivity-based emergency
+           access trigger (V2) and pre-authorized access (V3) as part of the
+           launch feature set. Before Engineering can build either mechanism,
+           Operations must formally assess and clear two related DPDPA concerns.
+
+           BACKGROUND:
+           KutumbKosh emergency access flow (current): A user adds a trusted
+           contact → contact is PENDING → owner approves → contact becomes
+           ACTIVE → owner can revoke → contact becomes REVOKED.
+
+           PROPOSED V2 — INACTIVITY TIMER:
+           If the vault owner has not logged in for a configurable number of
+           days (e.g., 30 / 60 / 90 / 180 days, owner's choice), the system
+           automatically notifies the trusted contact that they may request
+           access. After the contact requests, the owner gets a grace period
+           (e.g., 7 / 14 / 30 days, owner's choice) to deny. If the owner
+           does not deny within the grace period, access is automatically
+           granted by the system.
+
+           PROPOSED V3 — PRE-AUTHORIZED ACCESS:
+           The vault owner explicitly pre-authorises a trusted contact to view
+           the vault at any time without needing to request or wait for a timer.
+           Access is granted immediately and remains active until the owner
+           revokes it.
+
+           DPDPA QUESTIONS OPERATIONS MUST ANSWER:
+
+           Question 1 — Inactivity timer auto-grant (V2):
+           Under DPDPA 2023, KutumbKosh is a Data Fiduciary processing
+           sensitive personal financial data. The inactivity timer would cause
+           the system to share a user's personal financial data with a third
+           party (trusted contact) without real-time, active consent from the
+           owner at the point of sharing. The owner configured the timer
+           upfront, but is not actively consenting at the moment of grant.
+
+           Is this mechanism permissible under DPDPA 2023?
+           Specifically:
+           a) Does upfront configuration of the timer constitute valid consent
+              under DPDPA S.6 for the subsequent data sharing event?
+           b) Does auto-granting access to a third party based on inactivity
+              comply with the purpose limitation obligations under DPDPA?
+           c) Are there any notice or disclosure obligations to the trusted
+              contact (as a data principal whose data may also be processed)
+              at the point of access grant?
+           d) Does DPDPA S.16 cross-border transfer rules apply here if the
+              trusted contact accesses the vault from outside India?
+
+           Question 2 — Pre-authorized access (V3):
+           The owner explicitly pre-authorises a contact. This is closer to
+           active consent. However:
+           a) Is a one-time pre-authorization in a settings screen sufficient
+              ongoing consent for repeated vault access over an indefinite
+              period?
+           b) Are there any obligations around informing the trusted contact
+              that they have been granted access and what data they can see?
+           c) Should there be a mandatory expiry or review period for
+              pre-authorized access (e.g., owner must re-confirm annually)?
+
+           WHAT OPERATIONS NEEDS TO DELIVER:
+           1. Written clearance (or rejection) for V2 inactivity auto-grant,
+              with any conditions attached (e.g., required consent language,
+              notice to trusted contact, mandatory grace period minimums).
+           2. Written clearance (or rejection) for V3 pre-authorized access,
+              with any conditions attached.
+           3. If either mechanism requires specific consent language or user
+              notices, provide the exact copy for Engineering to implement.
+           4. Recommend whether an external legal advisor should be consulted
+              before build, given the sensitivity of financial data involved.
+
+           NOTE: Engineering will not begin building V2 or V3 until this
+           clearance is received. Product will not raise the Engineering
+           handoff until Operations responds to this one.
+
+DEADLINE:  Before Engineering begins emergency access trigger build
+STATUS:    Done — 2026-05-07. Operations/Legal assessment below.
+           See DECISIONS.md 2026-05-07 | Legal + Operations for full record.
+
+           ═══════════════════════════════════════════════════════
+           OPERATIONS / LEGAL RESPONSE TO HANDOFF ID 36
+           Date: 2026-05-07
+           ═══════════════════════════════════════════════════════
+
+           EXTERNAL LEGAL REVIEW RECOMMENDATION (answer this first):
+           YES — Operations strongly recommends engaging an external
+           startup/IT lawyer to review V2 and V3 before Engineering
+           begins building. KutumbKosh processes financial SPDI under
+           IT (SPDI) Rules 2011 (a higher-protection category than
+           general personal data), and both mechanisms involve
+           automatically sharing that data with a third party. The
+           consent questions below are answered to the best of
+           Operations' legal assessment, but a qualified legal opinion
+           should be obtained before production deploy of either feature.
+           This does not block Engineering from starting the build —
+           but the feature should not go live without external sign-off.
+
+           ───────────────────────────────────────────────────────
+           V2 — INACTIVITY TIMER AUTO-GRANT: CONDITIONAL CLEARANCE
+           ───────────────────────────────────────────────────────
+
+           VERDICT: CONDITIONALLY CLEARED — Engineering may build V2
+           subject to ALL conditions below being implemented.
+
+           Q1(a) — Is upfront timer configuration valid S.6 consent?
+
+           YES, with conditions. DPDPA S.6 requires consent to be
+           "free, specific, informed, unconditional, and unambiguous."
+           A conditional, forward-looking consent ("if I am inactive
+           for X days and do not deny during grace period, grant
+           access") is legally defensible as long as:
+           (1) The user takes a clear affirmative action to set it up
+               (not pre-ticked, not default-on).
+           (2) The consent screen gives full disclosure of what will
+               happen, to whom, and over what timeline.
+           (3) The user can cancel the trigger at any time before it
+               fires.
+
+           CRITICAL RISK: Auto-grant happens by inaction (not denying),
+           which under a strict reading conflicts with the DPDPA
+           principle that silence does not constitute consent. This
+           is mitigated by the upfront explicit setup AND by a genuine
+           grace period notification through confirmed channels — but
+           this is the single most important reason to obtain external
+           legal review before go-live.
+
+           CONDITION 1 — Mandatory grace period minimum:
+           The grace period must be a minimum of 14 days. Do not allow
+           the owner to set a shorter grace period at setup.
+
+           CONDITION 2 — Grace period notification channels:
+           When the inactivity trigger fires and the grace period
+           begins, KutumbKosh must notify the owner through BOTH:
+           (a) Email (to the registered email address), AND
+           (b) In-app notification (shown on next login, if any).
+           A single in-app-only notification is insufficient — the
+           owner may be unable to log in (which is the scenario).
+
+           CONDITION 3 — Consent screen language (LOCKED — use exact
+           copy; do not paraphrase):
+
+             "Inactivity Access Grant
+
+             If I have not logged into my KutumbKosh vault for [X]
+             days, I authorise KutumbKosh to notify [Contact Name]
+             that they may request access to my vault.
+
+             After [Contact Name] requests access, I will receive
+             [Y] days' notice by email to deny. If I do not deny
+             within this period, [Contact Name] will be granted
+             read-only access to my vault.
+
+             I understand:
+             • [Contact Name] will be notified immediately when
+               access is granted.
+             • I can turn this off at any time from my vault
+               settings before the inactivity timer fires.
+             • This is designed for my family's emergency readiness.
+
+             [✓ I confirm this is my choice — Save Setting]"
+
+           CONDITION 4 — Trusted contact notification at designation:
+           (see also Q1(c) below) — this notification MUST be sent
+           when the owner saves the inactivity trigger setting, not
+           only when access is eventually granted.
+
+           Q1(b) — Does auto-grant comply with purpose limitation?
+
+           YES — CLEARED. Emergency access for a nominated trusted
+           contact is a core stated purpose of KutumbKosh ("your
+           family is never left guessing"). This must be explicitly
+           listed as a processing purpose in the Privacy Policy before
+           V2 is launched. Operations will ensure this is included
+           when drafting the Privacy Policy (HANDOFFS.md ID 27).
+
+           Q1(c) — Notice obligations to the trusted contact?
+
+           YES — REQUIRED (not optional). The trusted contact must
+           receive two notifications:
+           (i) At designation: When the owner saves the inactivity
+               trigger, the trusted contact must receive an email
+               (use exact copy below):
+
+             "You have been added as a trusted contact on KutumbKosh
+             by [Owner Name].
+
+             What this means: If [Owner Name] is inactive on
+             KutumbKosh for an extended period, you may be contacted
+             to request access to their financial vault. You will
+             always receive advance notice before any access is
+             granted, and [Owner Name] will have the opportunity to
+             deny your request.
+
+             Your contact details are held securely and used only
+             for this purpose. If you have any questions, write to
+             us at care@kutumbkosh.com"
+
+           (ii) At access grant: When the grace period expires and
+               access is auto-granted, send the trusted contact an
+               access notification email with login instructions.
+
+           Q1(d) — Does S.16 apply if trusted contact is outside India?
+
+           S.16 cross-border transfer rules are NOT YET notified or
+           enforceable by the Government of India as of May 2026.
+           No hard legal blocker today.
+
+           CONDITION 5 — Future S.16 compliance readiness:
+           Engineering must capture the trusted contact's country
+           (at designation time, via a "Country of residence" field
+           — optional, free-text or dropdown). This enables Operations
+           to assess S.16 exposure when transfer rules are eventually
+           notified. This field is for internal compliance tracking
+           only and is not displayed in the vault.
+
+           ───────────────────────────────────────────────────────
+           V3 — PRE-AUTHORIZED ACCESS: CONDITIONAL CLEARANCE
+           ───────────────────────────────────────────────────────
+
+           VERDICT: CONDITIONALLY CLEARED — Engineering may build V3
+           subject to ALL conditions below being implemented.
+
+           V3 has a cleaner consent basis than V2 (explicit, active
+           pre-authorization by the owner). The risks are lower but
+           not zero, primarily around indefinite standing access
+           and the trusted contact's right to know.
+
+           Q2(a) — Is one-time pre-auth sufficient ongoing consent?
+
+           YES, with conditions. DPDPA S.6 allows consent to cover
+           ongoing processing as long as the user can withdraw it
+           at any time. The owner's ability to revoke (changing
+           status from PRE-AUTHORIZED back to REVOKED) satisfies
+           the S.6(6) withdrawal requirement.
+
+           The primary risk is "forgotten access" — the owner granted
+           pre-authorization, then forgot about it. This is not a
+           hard legal barrier but creates a practical and reputational
+           risk, especially if the owner's circumstances change (e.g.,
+           relationship breakdown with the trusted contact).
+
+           CONDITION 6 — Annual re-confirmation nudge:
+           Engineering must implement an annual reminder to the vault
+           owner for each active V3 pre-authorization:
+
+             "Reminder: [Contact Name] has pre-authorized access to
+             your vault. Is this still your intention?
+             [✓ Yes, keep access active]  [Revoke access]"
+
+           This is not legally mandatory under DPDPA today but is
+           required as a KutumbKosh product policy for accountability
+           and to manage reputational risk. Log re-confirmations in
+           the audit trail.
+
+           CONDITION 7 — Consent screen language (LOCKED — use exact
+           copy; do not paraphrase):
+
+             "Pre-Authorised Vault Access
+
+             I authorise [Contact Name] to view my KutumbKosh vault
+             at any time. This access is immediate and remains active
+             until I revoke it.
+
+             I understand:
+             • [Contact Name] will receive a notification with access
+               instructions immediately.
+             • I can revoke this access at any time from my vault
+               settings.
+             • I will receive an annual reminder to review this
+               setting.
+
+             [✓ I authorise this access — Save Setting]"
+
+           Q2(b) — Obligations to inform the trusted contact?
+
+           YES — REQUIRED. At the moment V3 access is granted (when
+           the owner saves the setting), the trusted contact must
+           receive an email notification (use exact copy below):
+
+             "[Owner Name] has granted you access to their
+             KutumbKosh vault.
+
+             You can now view their financial records whenever you
+             need to. Sign in at kutumbkosh.com to access the vault.
+
+             This access was authorised by [Owner Name] on [date].
+             They can revoke it at any time. If you have any
+             questions, write to us at care@kutumbkosh.com"
+
+           Q2(c) — Should there be a mandatory expiry or review period?
+
+           No mandatory DPDPA expiry requirement. However, as noted
+           in Condition 6, an annual re-confirmation nudge is required
+           as KutumbKosh policy. Engineering must implement this.
+
+           ───────────────────────────────────────────────────────
+           SUMMARY OF CONDITIONS (7 total, all mandatory):
+           ───────────────────────────────────────────────────────
+
+           V2 conditions:
+           1. Minimum 14-day grace period — no shorter option allowed
+           2. Grace period notification via email AND in-app
+           3. V2 consent screen — use locked copy above exactly
+           4. Trusted contact notification email at designation
+           5. Capture trusted contact country (optional field) for
+              future S.16 compliance readiness
+
+           V3 conditions:
+           6. Annual re-confirmation nudge for owner
+           7. V3 consent screen + trusted contact notification email
+              — use locked copy above exactly
+
+           Product may now raise the Engineering handoff for V2 and V3.
+           Reference this handoff ID 36 in the Engineering handoff.
+           All 7 conditions above must appear as engineering requirements
+           in that handoff — do not summarise or paraphrase them.
+
+           External legal review is strongly recommended before
+           production go-live of either feature (see recommendation
+           at the top of this response).
+
+ID:        36
+---
+
+FROM:      Finance
+TO:        Engineering
+PRIORITY:  High — Launch Blocker
+REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
+           Engineering must apply this decision in the following specific ways:
+
+           1. RAZORPAY ORDER AMOUNT
+              Set amount = 49900 (paise) — the full ₹499 inclusive amount.
+              Do NOT set amount = 42373 (base only) and add GST separately.
+              Do NOT set amount = 58982 (₹499 + 18% GST-exclusive formula).
+              The user is charged ₹499 total. This is the only correct value.
+
+           2. GST INVOICE BACK-CALCULATION (CRITICAL)
+              On payment.captured and subscription.charged webhook events, the
+              GST invoice must back-calculate from the collected amount.
+              Use this formula — NOT ₹499 × 18%:
+                base_amount  = ₹499 × 100/118 = ₹423.73  → round to ₹424
+                gst_amount   = ₹499 × 18/118  = ₹75.27   → round to ₹75
+                total        = ₹499 (collected)
+              ⚠ Using ₹499 × 18% = ₹89.82 is the GST-exclusive formula and
+              will over-state GST liability on every invoice. This is a legal
+              and financial error.
+
+           3. IGST vs CGST+SGST SPLIT
+              The split depends on KutumbKosh's registered state (to be confirmed
+              with CA at GSTIN registration):
+              - Customer in SAME state as KK's GSTIN → CGST (₹37.50) + SGST (₹37.50)
+              - Customer in DIFFERENT state → IGST (₹75)
+              Engineering must make this field dynamic based on customer's state
+              of billing address collected at checkout.
+
+           Reference: DECISIONS.md 2026-05-07 | Finance for full breakdown.
+           Cross-reference: FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx Section 5
+           (GST Invoice Generation) — update that spec to reflect the confirmed
+           back-calculation formula.
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        37
+---
+
+FROM:      Finance
+TO:        Sales & Marketing
+PRIORITY:  High — Before pricing page goes live
+REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
+           The pricing page and all marketing copy must reflect this correctly.
+
+           1. PRICING PAGE DISPLAY
+              Show: ₹499/year
+              Add label directly below the price: "Inclusive of GST"
+              Do NOT show: ₹499 + GST  or  ₹499 + 18% GST  or  ₹589
+              The label "Inclusive of GST" is also required under Consumer
+              Protection (E-Commerce) Rules 2020 for consumer-facing platforms.
+
+           2. ALL MARKETING COPY
+              Every instance of the Pro price must read "₹499/year" with no
+              additional tax qualifier. The GST-inclusive label belongs on the
+              pricing page only — not in every social post or ad.
+
+           3. WHAT NOT TO SAY
+              Do not write "₹499 + taxes" — this implies GST-exclusive pricing
+              and contradicts the locked decision.
+              Do not write "starting at ₹499" — there is only one Pro tier.
+
+           Reference: DECISIONS.md 2026-05-07 | Finance.
+DEADLINE:  Before pricing page goes live / before launch day
+STATUS:    Open
+ID:        38
+---
+
+FROM:      Finance
+TO:        Operations
+PRIORITY:  High — Before ToS is sent for external legal review
+REQUEST:   The GST-inclusive pricing decision (DECISIONS.md 2026-05-07) confirms
+           that ₹499/year is GST-inclusive, with ₹76 GST remitted per transaction
+           under SAC code 998314.
+
+           Operations must pass this specific decision to the external legal
+           reviewer as additional context for ToS Clause 3 (GST treatment) in
+           the Finance draft (docs/FINANCE-TOS-PAYMENT-DRAFT.docx):
+
+           1. Clause 3 of the Finance ToS draft states GST-inclusive pricing —
+              confirm with the reviewer that this clause correctly reflects
+              the Consumer Protection (E-Commerce) Rules 2020 requirement to
+              display total price inclusive of taxes.
+
+           2. Ask the reviewer to confirm the back-calculation formula used
+              for GST invoices (₹499 × 18/118 = ₹76) is compliant with GST
+              invoice rules under the CGST Act.
+
+           3. The GST-inclusive treatment must be explicitly stated in the
+              published ToS so users are not surprised. Confirm the current
+              Clause 3 wording is sufficient or request redline.
+
+           Operations to relay reviewer's findings back to Finance before
+           the ToS is published.
+DEADLINE:  Before ToS is sent to external legal reviewer
+STATUS:    Open
+ID:        39
 ---
