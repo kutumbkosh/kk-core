@@ -64,7 +64,7 @@
 - [ ] Operations: obtain formal DPDPA S.16 clearance for Sentry before setting NEXT_PUBLIC_SENTRY_DSN in Vercel production
 
 ## Infrastructure (Pending Shubham Actions)
-- [ ] Run `npm install` in vault/ — @sentry/nextjs added to package.json but not installed; commit updated package-lock.json before next Vercel deploy
+- [ ] Run `npm install` in vault/ — @sentry/nextjs and web-vitals added to package.json but not installed; commit updated package-lock.json before next Vercel deploy
 - [ ] Configure Resend transactional email — set RESEND_API_KEY in Vercel production for branded magic link, subscription, and renewal emails
 - [ ] Set NEXT_PUBLIC_SENTRY_DSN + SENTRY_AUTH_TOKEN in Vercel after Sentry account created and Operations DPDPA S.16 clearance received
 - [ ] Set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel production after Cloudflare Web Analytics beacon token obtained
@@ -85,5 +85,5 @@
 - [ ] Monitor traffic in Cloudflare Web Analytics (after beacon token set)
 - [ ] Direct outreach to first users / early waitlist sign-ups for feedback
 - [ ] Triage and prioritise post-launch bug reports
-- [ ] Integrate Core Web Vitals monitoring — add web-vitals npm package and send metrics to GA4 or logging endpoint (see Marketing → Engineering handoff in HANDOFFS.md)
+- [x] Integrate Core Web Vitals monitoring — Done 2026-05-07. web-vitals ^4.2.4 added to package.json. src/components/WebVitals.tsx collects CLS/FCP/INP/LCP/TTFB (production-only, dynamic import, sendBeacon). src/app/api/vitals/route.ts logs metrics to Vercel function logs with rating (good/needs-improvement/poor). WebVitals component wired into src/app/layout.tsx. PENDING: Shubham to run npm install.
 - [ ] Publish introductory blog post or LinkedIn article to build early SEO signal

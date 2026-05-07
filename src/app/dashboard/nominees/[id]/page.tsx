@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Nominee, NomineeRelation, Asset, AssetNomineeMapping } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
+import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 import { validateFullName, validatePhone, validatePAN, validateDOB, validateRelation, validateSharePercentage } from "@/lib/validations";
 import FieldError from "@/components/FieldError";
 import {
@@ -38,13 +39,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string; style?: 
   Building2, Wallet, HandCoins, CreditCard, Lock, Home,
 };
 
-const RELATION_OPTIONS: { value: NomineeRelation; label: string }[] = [
-  { value: "SPOUSE", label: "Spouse" },
-  { value: "CHILD", label: "Child" },
-  { value: "PARENT", label: "Parent" },
-  { value: "SIBLING", label: "Sibling" },
-  { value: "OTHER", label: "Other" },
-];
+// Build a display label map handling both new (lowercase) and legacy (uppercase) DB values
+const RELATION_DISPLAY: Record<string, string> = {
+  ...Object.fromEntries(RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
+  SPOUSE: "Spouse", CHILD: "Child", PARENT: "Parent", SIBLING: "Sibling", OTHER: "Other",
+};
 
 export default function NomineeDetailPage() {
   const router = useRouter();
@@ -81,14 +80,19 @@ export default function NomineeDetailPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [nomineeRes, assetsRes, mappingsRes, allMappingsRes] = await Promise.all([
+    const [nomineeRes, assetsRes, mappingsRes] = await Promise.all([
       supabase.from("nominees").select("*").eq("id", nomineeId).eq("user_id", user.id).single(),
       supabase.from("assets").select("*").eq("user_id", user.id).order("institution_name"),
       supabase.from("asset_nominee_mappings").select("*").eq("nominee_id", nomineeId),
-      supabase.from("asset_nominee_mappings").select("*"),
     ]);
 
     if (!nomineeRes.data) { router.push("/dashboard/nominees"); return; }
+
+    // Scope allMappings to user's own asset IDs for share-calculation
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const allMappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     const n = nomineeRes.data as Nominee;
     setNominee(n);
@@ -262,7 +266,7 @@ export default function NomineeDetailPage() {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-gray-900 truncate">{nominee.full_name}</h1>
-              <p className="text-xs text-gray-500">{nominee.relation}</p>
+              <p className="text-xs text-gray-500">{RELATION_DISPLAY[nominee.relation] ?? nominee.relation}</p>
             </div>
           </div>
           {!editing && (
@@ -284,9 +288,9 @@ export default function NomineeDetailPage() {
             </div>
             <div>
               <label className="label">Relationship <span className="text-red-500">*</span></label>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                {RELATION_OPTIONS.map((opt) => (
-                  <button key={opt.value} type="button" onClick={() => { setRelation(opt.value); setTouched(prev => ({ ...prev, relation: true })); setErrors(prev => ({ ...prev, relation: null })); }} className={`px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all ${relation === opt.value ? "border-vault-dark bg-blue-50 text-vault-dark" : "border-gray-200 text-gray-600"}`}>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {RELATIONSHIP_OPTIONS.map((opt) => (
+                  <button key={opt.value} type="button" onClick={() => { setRelation(opt.value as NomineeRelation); setTouched(prev => ({ ...prev, relation: true })); setErrors(prev => ({ ...prev, relation: null })); }} className={`px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all ${relation === opt.value || relation.toLowerCase() === opt.value ? "border-vault-dark bg-blue-50 text-vault-dark" : "border-gray-200 text-gray-600"}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -335,7 +339,7 @@ export default function NomineeDetailPage() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">{nominee.full_name}</h2>
                   <span className="text-sm bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full">
-                    {nominee.relation}
+                    {RELATION_DISPLAY[nominee.relation] ?? nominee.relation}
                   </span>
                 </div>
               </div>

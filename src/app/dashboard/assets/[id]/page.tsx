@@ -197,7 +197,7 @@ export default function AssetDetailPage() {
 
             <div>
               <label className="label">Identifier (last 4 digits)</label>
-              <input type="text" value={accountIdentifier} onChange={(e) => setAccountIdentifier(e.target.value.slice(0, 4))} maxLength={4} className="input-field" />
+              <input type="text" value={accountIdentifier} onChange={(e) => setAccountIdentifier(e.target.value.replace(/\D/g, "").slice(0, 4))} maxLength={4} className="input-field" />
             </div>
 
             {typeFields.length > 0 && (
@@ -220,7 +220,7 @@ export default function AssetDetailPage() {
                       ) : field.type === "textarea" ? (
                         <textarea value={metadata[field.name] || ""} onChange={(e) => setMetadata({ ...metadata, [field.name]: e.target.value })} placeholder={field.placeholder} rows={3} className="input-field resize-none" />
                       ) : (
-                        <input type={field.type === "date" ? "date" : "text"} value={metadata[field.name] || ""} onChange={(e) => setMetadata({ ...metadata, [field.name]: e.target.value })} placeholder={field.placeholder} className="input-field" />
+                        <input type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"} value={metadata[field.name] || ""} onChange={(e) => setMetadata({ ...metadata, [field.name]: e.target.value })} placeholder={field.placeholder} className="input-field" />
                       )}
                       {field.helpText && (
                         <p className="text-xs text-gray-400 mt-1 flex items-start gap-1">

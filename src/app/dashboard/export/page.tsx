@@ -35,11 +35,14 @@ const ASSET_TYPE_SYMBOLS: Record<string, string> = {
 };
 
 const RELATION_LABELS: Record<string, string> = {
-  SPOUSE: "Spouse",
-  CHILD: "Child",
-  PARENT: "Parent",
-  SIBLING: "Sibling",
-  OTHER: "Other",
+  spouse: "Spouse",
+  child: "Child",
+  parent: "Parent",
+  sibling: "Sibling",
+  grandchild: "Grandchild",
+  grandparent: "Grandparent",
+  in_law: "In-Law",
+  other: "Other",
 };
 
 export default function ExportPage() {
@@ -58,13 +61,17 @@ export default function ExportPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [assetsRes, nomineesRes, mappingsRes, dossierRes, profileRes] = await Promise.all([
+    const [assetsRes, nomineesRes, dossierRes, profileRes] = await Promise.all([
       supabase.from("assets").select("*").eq("user_id", user.id).eq("is_draft", false).order("asset_type"),
       supabase.from("nominees").select("*").eq("user_id", user.id),
-      supabase.from("asset_nominee_mappings").select("*"),
       supabase.from("emergency_dossiers").select("*").eq("user_id", user.id).single(),
       supabase.from("profiles").select("*").eq("id", user.id).single(),
     ]);
+
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setAssets(assetsRes.data || []);
     setNominees(nomineesRes.data || []);
@@ -102,7 +109,7 @@ export default function ExportPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }

@@ -48,7 +48,6 @@ function sendToLoggingEndpoint(metric: VitalMetric) {
 export default function WebVitals() {
   useEffect(() => {
     // Dynamic import keeps web-vitals out of the main bundle
-    // @ts-expect-error -- web-vitals resolves after npm install (in package.json)
     import("web-vitals").then(({ onCLS, onFCP, onINP, onLCP, onTTFB }) => {
       onCLS(sendToLoggingEndpoint);
       onFCP(sendToLoggingEndpoint);

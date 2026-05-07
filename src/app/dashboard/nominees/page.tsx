@@ -26,11 +26,15 @@ export default function NomineesPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [nomineesRes, assetsRes, mappingsRes] = await Promise.all([
+    const [nomineesRes, assetsRes] = await Promise.all([
       supabase.from("nominees").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("assets").select("*").eq("user_id", user.id),
-      supabase.from("asset_nominee_mappings").select("*"),
     ]);
+
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setNominees(nomineesRes.data || []);
     setAssets(assetsRes.data || []);
