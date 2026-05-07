@@ -173,4 +173,34 @@ Explicit pre-authorization satisfies DPDPA S.6 — cleaner consent basis than V2
 
 ---
 
+### 2026-05-07 | Product
+**Decision:** Emergency access V2 (inactivity timer auto-grant) and V3 (pre-authorized access) are confirmed for implementation before public launch. V1 manual-only access is insufficient to deliver the core product promise ("your family is never left guessing" — infographic step 6). Both V2 and V3 are required for the product to honestly support that claim.
+**Scope locked:**
+- V2: Configurable inactivity timer (owner selects window: 30/60/90/180 days). System notifies trusted contact when timer fires. Owner receives grace period (minimum 14 days, owner selects up to 30 days) to deny. If no denial, access is auto-granted.
+- V3: Owner explicitly pre-authorizes a trusted contact for immediate, open-ended vault access. Access remains active until owner revokes. Annual re-confirmation nudge from system.
+- Access level for both V2 and V3: summary view only (asset types, institution names, nominee names — no account numbers, no passwords). This matches the existing stated design; per-contact tiered access levels are deferred post-launch.
+- All 7 Operations conditions (HANDOFFS.md ID 36 / DECISIONS.md 2026-05-07 Legal+Operations) are mandatory engineering requirements — not optional enhancements.
+- External legal review is required before either feature goes live in production. Build may proceed immediately.
+**Rationale:** Users will not pay ₹499/year for a promise. The inactivity trigger is the mechanism that makes the emergency promise real — without it, the product is a financial organizer, not an emergency vault. Operations has conditionally cleared both mechanisms under DPDPA 2023.
+**Impact:** Engineering (full V2+V3 build — see HANDOFFS.md ID 37); Operations (ensure Privacy Policy lists emergency access as an explicit data processing purpose per HANDOFFS.md ID 27; engage external legal reviewer before go-live); Legal (external review required before V2/V3 production deploy).
+
+---
+
+### 2026-05-07 | Sales & Marketing
+**Decision:** Pricing copy locked for all channels. Violations in src/app/dashboard/pricing/page.tsx identified and escalated to Tech via HANDOFFS.md ID 40.
+**Copy locked:**
+- Pricing page Pro card: `₹499` (large bold) | `/year` (muted) | `Inclusive of GST` (text-xs text-gray-400, new line below /year)
+- All other channels (social, WhatsApp, email, ads): `₹499/year` — no GST qualifier
+- Launch-day headline: "Protect your family's financial legacy for ₹499/year."
+- Single source of truth at docs/marketing/pricing-copy-lock.md
+**Prohibited phrases (all channels, all future sessions):** `₹499 + GST`, `₹499 + 18% GST`, `₹589`, `₹499 + taxes`, `starting at ₹499`, `₹79/month`, `Annual saves you X% compared to monthly.`
+**Violations found in pricing/page.tsx (Tech to fix — HANDOFFS.md ID 40):**
+1. Line 126: `or ₹79/month` — monthly billing does not exist at launch (contradicts DECISIONS.md 2026-04-28 Finance)
+2. Lines 122–125: Missing `Inclusive of GST` label below price (required per Consumer Protection (E-Commerce) Rules 2020)
+3. Line 237 FAQ: "Can I switch between monthly and annual?" references non-existent monthly billing
+**Rationale:** Consumer Protection (E-Commerce) Rules 2020 require total price inclusive of taxes to be displayed. ₹79/month reference and monthly FAQ create false user expectations — no monthly billing exists at launch per DECISIONS.md 2026-04-28 Finance. Locking copy now prevents violations spreading across GTM assets.
+**Impact:** Tech (three fixes in pricing/page.tsx — see HANDOFFS.md ID 40 for exact code changes); Shubham (review pricing-copy-lock.md before any future pricing copy is created — it supersedes all prior pricing references).
+
+---
+
 _Add new decisions above this line, following the format._

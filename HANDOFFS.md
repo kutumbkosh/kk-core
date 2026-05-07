@@ -1624,102 +1624,290 @@ STATUS:    Done — 2026-05-07. Operations/Legal assessment below.
 ID:        36
 ---
 
-FROM:      Finance
+FROM:      Product
 TO:        Engineering
-PRIORITY:  High — Launch Blocker
-REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
-           Engineering must apply this decision in the following specific ways:
+PRIORITY:  High — Required before public launch
+REQUEST:   Build emergency access V2 (inactivity timer auto-grant) and V3
+           (pre-authorized access). This is a confirmed launch scope item per
+           DECISIONS.md 2026-05-07 | Product. Operations/Legal has conditionally
+           cleared both mechanisms — see DECISIONS.md 2026-05-07 | Legal+Operations
+           and HANDOFFS.md ID 36. All 7 conditions from Operations are MANDATORY
+           engineering requirements. Do not ship either feature without them.
 
-           1. RAZORPAY ORDER AMOUNT
-              Set amount = 49900 (paise) — the full ₹499 inclusive amount.
-              Do NOT set amount = 42373 (base only) and add GST separately.
-              Do NOT set amount = 58982 (₹499 + 18% GST-exclusive formula).
-              The user is charged ₹499 total. This is the only correct value.
+           External legal review is required before either feature goes live in
+           production. Build may begin immediately; go-live is gated on legal sign-off.
 
-           2. GST INVOICE BACK-CALCULATION (CRITICAL)
-              On payment.captured and subscription.charged webhook events, the
-              GST invoice must back-calculate from the collected amount.
-              Use this formula — NOT ₹499 × 18%:
-                base_amount  = ₹499 × 100/118 = ₹423.73  → round to ₹424
-                gst_amount   = ₹499 × 18/118  = ₹75.27   → round to ₹75
-                total        = ₹499 (collected)
-              ⚠ Using ₹499 × 18% = ₹89.82 is the GST-exclusive formula and
-              will over-state GST liability on every invoice. This is a legal
-              and financial error.
+           ═══════════════════════════════════════════════════════════════
+           OVERVIEW — WHAT TO BUILD
+           ═══════════════════════════════════════════════════════════════
 
-           3. IGST vs CGST+SGST SPLIT
-              The split depends on KutumbKosh's registered state (to be confirmed
-              with CA at GSTIN registration):
-              - Customer in SAME state as KK's GSTIN → CGST (₹37.50) + SGST (₹37.50)
-              - Customer in DIFFERENT state → IGST (₹75)
-              Engineering must make this field dynamic based on customer's state
-              of billing address collected at checkout.
+           Extend the existing trusted contacts system (trusted_contacts table,
+           src/app/dashboard/emergency/page.tsx) with two new access grant modes.
 
-           Reference: DECISIONS.md 2026-05-07 | Finance for full breakdown.
-           Cross-reference: FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx Section 5
-           (GST Invoice Generation) — update that spec to reflect the confirmed
-           back-calculation formula.
-DEADLINE:  Before production deploy
+           Current trusted contact statuses: PENDING → ACTIVE → REVOKED
+           New statuses to add: INACTIVITY_CONFIGURED, PRE_AUTHORIZED
+
+           ACCESS LEVEL FOR BOTH V2 AND V3:
+           Summary view only — asset types, institution names, nominee names.
+           No account numbers, no passwords, no full financial details.
+           This matches the existing stated design. Per-contact tiered access
+           levels are deferred to post-launch.
+
+           ═══════════════════════════════════════════════════════════════
+           V2 — INACTIVITY TIMER AUTO-GRANT
+           ═══════════════════════════════════════════════════════════════
+
+           USER FLOW:
+           1. Owner opens emergency access settings and selects a trusted contact.
+           2. Owner configures:
+              (a) Inactivity window — days before trusted contact is notified
+                  that they can request access. Options: 30 / 60 / 90 / 180 days.
+              (b) Grace period — days after contact requests before access is
+                  auto-granted. Options: 14 / 21 / 30 days.
+                  CONDITION 1: Minimum grace period is 14 days. Do not offer
+                  any option shorter than 14 days.
+           3. Owner sees V2 consent screen and taps confirm (see CONDITION 3 below).
+           4. Trusted contact receives a designation notification email
+              (see CONDITION 4 below).
+           5. Status of trusted contact is set to INACTIVITY_CONFIGURED in DB.
+
+           INACTIVITY DETECTION (background job):
+           - Track last_login_at on the profiles table (add column if not present).
+              Update last_login_at on every successful auth session.
+           - Run a daily background job (Supabase pg_cron or Vercel cron):
+              For each trusted contact with status INACTIVITY_CONFIGURED:
+              - If (now - owner.last_login_at) >= inactivity_window_days:
+                  AND contact.access_request_sent_at IS NULL:
+                  → Send notification email to trusted contact (see below).
+                  → Set access_request_sent_at = now() on trusted_contacts row.
+                  → Send grace period start notification to owner via email
+                    AND show in-app notification on next login. (CONDITION 2)
+
+           TRUSTED CONTACT NOTIFICATION (when inactivity timer fires):
+           Email to trusted contact:
+             Subject: "Action available — [Owner Name]'s KutumbKosh vault"
+             Body: "You have been listed as a trusted contact for [Owner Name]
+             on KutumbKosh. [Owner Name] has not been active for
+             [inactivity_window_days] days.
+             You can now request access to their vault at kutumbkosh.com.
+             [Owner Name] will be notified and will have [grace_period_days] days
+             to respond. If they do not respond, access will be granted automatically.
+             If you have any questions, write to us at care@kutumbkosh.com"
+
+           OWNER GRACE PERIOD NOTIFICATIONS (CONDITION 2 — both required):
+           (a) Email to owner (registered email address):
+             Subject: "Action required — [Contact Name] has requested vault access"
+             Body: "[Contact Name] has requested access to your KutumbKosh vault.
+             You have [grace_period_days] days to deny this request.
+             If you take no action, access will be granted automatically on [date].
+             [Deny access] [No action needed — I approve]
+             Manage your vault settings at kutumbkosh.com"
+           (b) In-app notification: shown as a banner on the owner's dashboard
+             on next login: "[Contact Name] has requested vault access. You have
+             [N] days to deny. [Deny] [Dismiss]"
+
+           AUTO-GRANT LOGIC:
+           - Run daily background job:
+              For each trusted contact with access_request_sent_at IS NOT NULL:
+              - If (now - access_request_sent_at) >= grace_period_days:
+                  AND status != ACTIVE AND status != REVOKED:
+                  → Set status = ACTIVE, access_granted_at = now()
+                  → Send access granted email to trusted contact (see below).
+                  → Send access granted notification to owner.
+
+           ACCESS GRANTED EMAIL TO TRUSTED CONTACT (after auto-grant):
+             Subject: "You now have access to [Owner Name]'s KutumbKosh vault"
+             Body: "Access to [Owner Name]'s KutumbKosh vault has been granted.
+             Sign in at kutumbkosh.com to view their financial records.
+             If you have any questions, write to us at care@kutumbkosh.com"
+
+           DATABASE CHANGES FOR V2:
+           - profiles table: add last_login_at (timestamptz, nullable).
+             Update on every successful Supabase auth session via trigger or
+             middleware.
+           - trusted_contacts table: add columns:
+               access_mode           text (values: 'MANUAL', 'INACTIVITY', 'PRE_AUTH')
+               inactivity_window_days integer (nullable)
+               grace_period_days      integer (nullable, minimum 14)
+               access_request_sent_at timestamptz (nullable)
+               access_granted_at      timestamptz (nullable)
+               contact_country        text (nullable) — see CONDITION 5 below
+
+           V2 CONSENT SCREEN — CONDITION 3 (LOCKED COPY — DO NOT PARAPHRASE):
+           Display this screen when the owner saves the inactivity timer setting.
+           Owner must tap the confirm button for the setting to be saved.
+
+             "Inactivity Access Grant
+
+             If I have not logged into my KutumbKosh vault for [X]
+             days, I authorise KutumbKosh to notify [Contact Name]
+             that they may request access to my vault.
+
+             After [Contact Name] requests access, I will receive
+             [Y] days' notice by email to deny. If I do not deny
+             within this period, [Contact Name] will be granted
+             read-only access to my vault.
+
+             I understand:
+             • [Contact Name] will be notified immediately when
+               access is granted.
+             • I can turn this off at any time from my vault
+               settings before the inactivity timer fires.
+             • This is designed for my family's emergency readiness.
+
+             [✓ I confirm this is my choice — Save Setting]"
+
+           TRUSTED CONTACT DESIGNATION EMAIL — CONDITION 4 (LOCKED COPY):
+           Send immediately when the owner saves the inactivity trigger setting.
+
+             Subject: "You've been added as a trusted contact on KutumbKosh"
+             Body:
+             "You have been added as a trusted contact on KutumbKosh
+             by [Owner Name].
+
+             What this means: If [Owner Name] is inactive on
+             KutumbKosh for an extended period, you may be contacted
+             to request access to their financial vault. You will
+             always receive advance notice before any access is
+             granted, and [Owner Name] will have the opportunity to
+             deny your request.
+
+             Your contact details are held securely and used only
+             for this purpose. If you have any questions, write to
+             us at care@kutumbkosh.com"
+
+           CONDITION 5 — TRUSTED CONTACT COUNTRY FIELD:
+           Add an optional "Country of residence" field (free-text or dropdown)
+           to the trusted contact form (both onboarding and dashboard add flows).
+           Store in trusted_contacts.contact_country. This field is for internal
+           Operations compliance tracking only — do not display it in any
+           user-facing vault view. Label: "Country (optional)" with helper text:
+           "Used for internal compliance purposes only."
+
+           ═══════════════════════════════════════════════════════════════
+           V3 — PRE-AUTHORIZED ACCESS
+           ═══════════════════════════════════════════════════════════════
+
+           USER FLOW:
+           1. Owner opens emergency access settings and selects a trusted contact.
+           2. Owner selects "Pre-authorise access" option.
+           3. Owner sees V3 consent screen and taps confirm (see CONDITION 7 below).
+           4. Trusted contact status is set to PRE_AUTHORIZED in DB.
+           5. Trusted contact receives an immediate notification email
+              (see CONDITION 7 below).
+           6. Trusted contact can sign in to kutumbkosh.com and view the summary
+              vault immediately — no timer, no request, no approval step.
+
+           OWNER REVOCATION:
+           Owner can change status from PRE_AUTHORIZED back to REVOKED at any
+           time from emergency access settings. On revocation, trusted contact
+           loses access immediately and receives a notification email:
+             "Your access to [Owner Name]'s KutumbKosh vault has been revoked."
+
+           ANNUAL RE-CONFIRMATION NUDGE — CONDITION 6:
+           Run annual background job (or pg_cron scheduled yearly):
+           For each trusted contact with status PRE_AUTHORIZED where
+           (now - access_granted_at) >= 365 days:
+           → Send reminder email to owner:
+
+             Subject: "Reminder — [Contact Name] has access to your vault"
+             Body:
+             "Reminder: [Contact Name] has pre-authorized access to
+             your vault. Is this still your intention?
+             [✓ Yes, keep access active]  [Revoke access]
+             Manage settings at kutumbkosh.com"
+
+           Log re-confirmation action (or inaction) in the audit trail
+           (admin_access_log or a new trusted_contact_audit_log table).
+
+           V3 CONSENT SCREEN — CONDITION 7a (LOCKED COPY — DO NOT PARAPHRASE):
+           Display this screen when the owner selects pre-authorized access.
+           Owner must tap the confirm button for the setting to be saved.
+
+             "Pre-Authorised Vault Access
+
+             I authorise [Contact Name] to view my KutumbKosh vault
+             at any time. This access is immediate and remains active
+             until I revoke it.
+
+             I understand:
+             • [Contact Name] will receive a notification with access
+               instructions immediately.
+             • I can revoke this access at any time from my vault
+               settings.
+             • I will receive an annual reminder to review this
+               setting.
+
+             [✓ I authorise this access — Save Setting]"
+
+           V3 TRUSTED CONTACT NOTIFICATION — CONDITION 7b (LOCKED COPY):
+           Send immediately when owner saves the pre-authorized setting.
+
+             Subject: "[Owner Name] has given you access to their vault"
+             Body:
+             "[Owner Name] has granted you access to their
+             KutumbKosh vault.
+
+             You can now view their financial records whenever you
+             need to. Sign in at kutumbkosh.com to access the vault.
+
+             This access was authorised by [Owner Name] on [date].
+             They can revoke it at any time. If you have any
+             questions, write to us at care@kutumbkosh.com"
+
+           ═══════════════════════════════════════════════════════════════
+           SUMMARY OF ALL 7 MANDATORY CONDITIONS (from Operations ID 36)
+           ═══════════════════════════════════════════════════════════════
+
+           CONDITION 1 — V2: Minimum 14-day grace period. No option shorter
+                         than 14 days may be offered to the owner.
+           CONDITION 2 — V2: Grace period start notification sent via BOTH
+                         email (to owner's registered address) AND in-app
+                         banner (shown on next login).
+           CONDITION 3 — V2: Consent screen uses the locked copy above exactly.
+                         Owner must take explicit affirmative action (tap confirm).
+                         Setting must NOT be pre-ticked or default-on.
+           CONDITION 4 — V2: Trusted contact receives designation notification
+                         email at the moment the owner saves the setting (locked
+                         copy above). Not deferred — sent immediately on save.
+           CONDITION 5 — V2+V3: Trusted contact country field (optional, free-text
+                         or dropdown) captured at designation for future S.16
+                         compliance readiness. Internal only, not user-facing.
+           CONDITION 6 — V3: Annual re-confirmation nudge email sent to owner.
+                         Re-confirmation (or inaction) logged in audit trail.
+           CONDITION 7 — V3: Consent screen and trusted contact notification email
+                         use the locked copy above exactly.
+
+           ═══════════════════════════════════════════════════════════════
+           UI — SETTINGS SCREEN DESIGN GUIDANCE
+           ═══════════════════════════════════════════════════════════════
+
+           On the emergency access dashboard (or a new "Access Settings" sub-page
+           per trusted contact), show three options the owner can select:
+
+           Option 1: "I'll approve manually" (default — existing MANUAL flow)
+           Option 2: "Grant access if I'm unreachable" (V2 inactivity timer)
+             → Show inactivity window selector + grace period selector on select
+           Option 3: "Trust them fully — access anytime" (V3 pre-authorized)
+
+           Use warm, non-technical labels consistent with brand voice. Avoid
+           "inactivity timer," "auto-grant," "pre-authorization" in the UI copy.
+           Example label for Option 2: "If I haven't been active for [90 days ▾]
+           and don't respond within [30 days ▾] of their request, grant access."
+
+           ═══════════════════════════════════════════════════════════════
+           GO-LIVE GATE
+           ═══════════════════════════════════════════════════════════════
+
+           Build may proceed immediately. However, V2 and V3 must NOT be enabled
+           in production until Operations confirms external legal review is complete.
+           Use a feature flag or environment variable to gate V2/V3 in production
+           until Operations gives the go-live signal.
+
+           Reference: HANDOFFS.md ID 36 (Operations clearance), DECISIONS.md
+           2026-05-07 | Product and 2026-05-07 | Legal+Operations.
+
+DEADLINE:  Before public launch (go-live gated on external legal review)
 STATUS:    Open
 ID:        37
----
-
-FROM:      Finance
-TO:        Sales & Marketing
-PRIORITY:  High — Before pricing page goes live
-REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
-           The pricing page and all marketing copy must reflect this correctly.
-
-           1. PRICING PAGE DISPLAY
-              Show: ₹499/year
-              Add label directly below the price: "Inclusive of GST"
-              Do NOT show: ₹499 + GST  or  ₹499 + 18% GST  or  ₹589
-              The label "Inclusive of GST" is also required under Consumer
-              Protection (E-Commerce) Rules 2020 for consumer-facing platforms.
-
-           2. ALL MARKETING COPY
-              Every instance of the Pro price must read "₹499/year" with no
-              additional tax qualifier. The GST-inclusive label belongs on the
-              pricing page only — not in every social post or ad.
-
-           3. WHAT NOT TO SAY
-              Do not write "₹499 + taxes" — this implies GST-exclusive pricing
-              and contradicts the locked decision.
-              Do not write "starting at ₹499" — there is only one Pro tier.
-
-           Reference: DECISIONS.md 2026-05-07 | Finance.
-DEADLINE:  Before pricing page goes live / before launch day
-STATUS:    Open
-ID:        38
----
-
-FROM:      Finance
-TO:        Operations
-PRIORITY:  High — Before ToS is sent for external legal review
-REQUEST:   The GST-inclusive pricing decision (DECISIONS.md 2026-05-07) confirms
-           that ₹499/year is GST-inclusive, with ₹76 GST remitted per transaction
-           under SAC code 998314.
-
-           Operations must pass this specific decision to the external legal
-           reviewer as additional context for ToS Clause 3 (GST treatment) in
-           the Finance draft (docs/FINANCE-TOS-PAYMENT-DRAFT.docx):
-
-           1. Clause 3 of the Finance ToS draft states GST-inclusive pricing —
-              confirm with the reviewer that this clause correctly reflects
-              the Consumer Protection (E-Commerce) Rules 2020 requirement to
-              display total price inclusive of taxes.
-
-           2. Ask the reviewer to confirm the back-calculation formula used
-              for GST invoices (₹499 × 18/118 = ₹76) is compliant with GST
-              invoice rules under the CGST Act.
-
-           3. The GST-inclusive treatment must be explicitly stated in the
-              published ToS so users are not surprised. Confirm the current
-              Clause 3 wording is sufficient or request redline.
-
-           Operations to relay reviewer's findings back to Finance before
-           the ToS is published.
-DEADLINE:  Before ToS is sent to external legal reviewer
-STATUS:    Open
-ID:        39
 ---

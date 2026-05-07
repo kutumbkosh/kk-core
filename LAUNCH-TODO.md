@@ -21,7 +21,7 @@
 - [ ] Mobile OTP verification for Profile Setup — BLOCKED: SMS provider (Twilio or MSG91) not yet chosen by Shubham. Configure in Supabase Dashboard → Auth → Phone, then confirm go-ahead to Engineering. See HANDOFFS.md.
 - [x] Kutumb ID — Done 2026-05-02. generate_kutumb_id() Postgres function (charset excludes 0/1/O/I, retry on collision). kutumb_id column added to profiles (NOT NULL UNIQUE, backfilled for existing users). Displayed in Settings with copy-to-clipboard. Printed in Vault Dossier PDF header. Emergency Access UI has Kutumb ID input field (backend logic is a future feature). src/lib/kutumb-id.ts added for client-side use.
 - [ ] Vault Dossier PDF generation — verify output quality (Kutumb ID now printed in PDF header — 2026-05-02)
-- [ ] Emergency access feature — test invite and access flow
+- [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-07), Operations DPDPA clearance received with 7 conditions (HANDOFFS.md ID 36), Engineering handoff raised (HANDOFFS.md ID 37). BLOCKED on go-live until external legal review complete (Operations to arrange).
 - [ ] Mobile responsiveness check across devices
 
 ## Infrastructure
@@ -37,6 +37,7 @@
 ## Branding & Marketing
 - [ ] Finalize social media profiles — set up @KutumbKosh (or best available handle) on Instagram, LinkedIn, and Twitter/X before launch day
 - [x] og-image.png created — Done 2026-05-01. public/og-image.png (1200×630px, 51KB) confirmed present in repo. Shubham to commit, deploy, and validate preview at https://www.opengraph.xyz or via WhatsApp before marking launch complete.
+- [x] Pricing copy locked — Done 2026-05-07. Sales & Marketing spec at docs/marketing/pricing-copy-lock.md. Three violations found in src/app/dashboard/pricing/page.tsx (line 126: "or ₹79/month"; missing "Inclusive of GST" label; line 237 monthly billing FAQ). Tech handoff raised as HANDOFFS.md ID 40 — must be fixed before pricing page goes live.
 - [ ] Schedule launch-day posts — draft 3–5 posts (Instagram, LinkedIn, WhatsApp broadcast) using brand kit templates at docs/marketing/KutumbKosh-Brand-Kit-v2.pdf. Prepare and schedule in advance.
 - [ ] Draft and send waitlist notification email on launch day (if any subscribers signed up via coming-soon page)
 - [x] care@kutumbkosh.com inbox — confirmed live and monitored (2026-05-04)
