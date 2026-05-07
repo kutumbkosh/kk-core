@@ -889,4 +889,293 @@ ID:        21
 FROM:      Engineering
 TO:        Shubham (Founder — direct action required)
 PRIORITY:  High — Required for soft-delete feature to function
-REQUEST:   Run DB migration su
+REQUEST:   Run DB migration supabase/migrations/20260505_trusted_contacts_soft_delete.sql
+           in Supabase SQL Editor. Run staging first, then production.
+           Migration adds: deleted_at TIMESTAMPTZ column to trusted_contacts,
+           RLS UPDATE policy for soft delete, partial index for performance.
+DEADLINE:  Immediate
+STATUS:    Done — 2026-05-05. Shubham confirmed migration executed on both
+           staging and production Supabase environments.
+ID:        22
+---
+
+---
+## Mid-Review Handoffs — 2026-05-04 (Shubham)
+---
+
+FROM:      Shubham - Mid Review
+TO:        Product
+PRIORITY:  High — Before pricing page and upgrade prompts go live
+REQUEST:   Free vs Pro feature scope is inconsistently defined across project files.
+           The project brief lists Free tier as "up to 3 assets, basic reminders,
+           nominee linking, vault dossier PDF" but "basic reminders" is not defined
+           anywhere. Product must:
+           1. Define exactly which reminder types are Free vs Pro. Currently known
+              Pro reminders: insurance expiry, FD maturity, vault review nudges.
+              Are any reminders available on Free? If yes, which ones?
+           2. Confirm whether Emergency Access (trusted contacts) is a Free or Pro
+              feature — currently unspecified in all project docs.
+           3. Confirm whether the Vault Dossier PDF export is fully available on
+              Free, or limited in some way (e.g., exports only 3 assets).
+           4. Document the confirmed tier map in DECISIONS.md and update the
+              project brief so all departments work from the same definition.
+           This directly impacts: upgrade prompt copy, pricing page, Engineering
+           feature gates (useSubscription hook), and Sales & Marketing copy.
+DEADLINE:  Before pricing page goes live
+STATUS:    Open
+ID:        23
+---
+
+FROM:      Shubham - Mid Review
+TO:        Product
+PRIORITY:  High — Before landing page copy is finalised
+REQUEST:   Emergency Access workflow is ambiguous. The landing page infographic
+           Step 6 says "your trusted contact gets access — instantly" — implying
+           automation. But the current implementation is UI-only; the actual backend
+           access logic is deferred post-launch (confirmed in Kutumb ID Done note,
+           HANDOFFS.md). Product must:
+           1. Define what "getting access" means in the current launch state.
+              Is the flow: user manually exports and shares dossier PDF with trusted
+              contact? Or is there a system-triggered notification?
+           2. If it is manual, update Step 6 copy on the landing page so it does
+              not over-promise automation. Raise a Sales & Marketing handoff with
+              the corrected copy.
+           3. Write a brief post-launch spec for the actual automated emergency
+              access flow (what triggers it, what the trusted contact receives,
+              how access is time-limited or revoked).
+           This affects landing page copy (Sales & Marketing), product trust, and
+           user expectation-setting at onboarding.
+DEADLINE:  Before launch day
+STATUS:    Open
+ID:        24
+---
+
+FROM:      Shubham - Mid Review
+TO:        Product
+PRIORITY:  Medium — Before pricing page and Free tier onboarding are finalised
+REQUEST:   Vault Dossier PDF scope for Free tier is undefined. The project brief
+           lists "vault dossier PDF" as a Free tier feature, but it is unclear:
+           1. Does the PDF export all assets a Free user has added (max 3)?
+           2. Is the PDF template identical for Free and Pro users?
+           3. Are any sections of the PDF gated on Pro (e.g., nominee summary,
+              emergency instructions page, Kutumb ID header)?
+           This must be confirmed before the pricing page copy and Free vs Pro
+           comparison table are written, and before upgrade prompts reference
+           the PDF as a Free feature.
+DEADLINE:  Before pricing page goes live
+STATUS:    Open
+ID:        25
+---
+
+FROM:      Shubham - Mid Review
+TO:        Operations
+PRIORITY:  High — Compliance risk (file has been reverted twice already)
+REQUEST:   coming-soon/index.html has been reverted to non-compliant DPDPA language
+           twice (2026-04-30 and 2026-05-01). Engineering re-fixed it both times.
+           There is no process preventing a third revert. Operations must:
+           1. Create a compliance-sensitive files list. Minimum scope:
+              - coming-soon/index.html (DPDPA language on lines ~964, ~965, ~1017, ~1018)
+              - src/app/privacy/page.tsx
+              - Supabase Auth email templates (magic-link.html, confirm-signup.html)
+           2. Write a mandatory pre-upload checklist step for coming-soon/index.html:
+              "Before re-uploading to Cloudflare Pages, verify DPDPA language
+              against DECISIONS.md entries dated 2026-04-28 and 2026-04-30."
+           3. Recommend adding a comment block at the top of coming-soon/index.html
+              listing compliance-sensitive lines and the approved replacement text,
+              so any editor knows what must be preserved.
+           Raise an Engineering handoff if code changes are required.
+DEADLINE:  Before next coming-soon/index.html upload to Cloudflare Pages
+STATUS:    Open
+ID:        26
+---
+
+FROM:      Shubham - Mid Review
+TO:        Operations
+PRIORITY:  High — Launch Blocker (must be live before first production user)
+REQUEST:   Full Privacy Policy and non-payment Terms of Service sections have not
+           been drafted. LAUNCH-TODO.md marks both as NOT DONE.
+           Finance has drafted only the Payment, Subscription & Refund section of
+           the ToS (docs/FINANCE-TOS-PAYMENT-DRAFT.docx).
+           Operations must:
+           1. Draft a full Privacy Policy for /privacy covering: categories of data
+              collected, purpose and legal basis, storage location (Supabase,
+              India-region), retention periods, user rights (access, correction,
+              erasure), grievance mechanism, DPDPA 2023 alignment, and contact info.
+           2. Draft the non-payment sections of the Terms of Service (account
+              eligibility, acceptable use, intellectual property, disclaimers,
+              limitation of liability, governing law, dispute resolution).
+           3. Integrate Finance's Payment/Subscription/Refund draft into the full ToS.
+           4. Send both documents to external legal counsel (startup/IT lawyer) for
+              review before publishing.
+           5. Publish at /privacy and /terms before the first user signs up on
+              production. Existing page routes already exist (src/app/privacy/ and
+              src/app/terms/).
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        27
+---
+
+FROM:      Shubham - Mid Review
+TO:        Operations
+PRIORITY:  Medium — Before production deploy
+REQUEST:   Cookie consent banner has no owner, no Engineering task, and no draft.
+           Operations must:
+           1. Assess whether a cookie consent banner is legally required given
+              KutumbKosh's current stack. Known cookie usage:
+              - Cloudflare Web Analytics: cookieless, no consent required.
+              - Supabase: sets session/auth cookies for logged-in users.
+              - Razorpay: may set third-party cookies during checkout flow.
+           2. If consent is required: write the banner copy in KutumbKosh brand
+              voice, define accept/decline behaviour, and raise an Engineering
+              handoff to implement it before production deploy.
+           3. If consent is NOT required for the current stack: document the
+              rationale in DECISIONS.md to close this item permanently.
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        28
+---
+
+FROM:      Shubham - Mid Review
+TO:        Engineering
+PRIORITY:  High — Compliance requirement (DECISIONS.md 2026-04-28)
+REQUEST:   DECISIONS.md (2026-04-28, Legal) requires Engineering to publish a
+           /grievance page linked from the /privacy footer. No handoff has
+           confirmed this page was ever built or verified.
+           Engineering must:
+           1. Check if a /grievance route exists at src/app/grievance/.
+           2. If it does NOT exist, create a simple static page at /grievance
+              containing:
+              - Grievance Officer: Shubham (Founder)
+              - Contact: care@kutumbkosh.com
+              - Acknowledgement SLA: 48 hours
+              - Resolution SLA: 30 days
+              - Submission method: mailto link to care@kutumbkosh.com with
+                subject pre-filled as "Grievance: [Brief Description]"
+           3. Confirm the /privacy page footer links to /grievance.
+           4. Update DECISIONS.md 2026-04-28 with confirmation that /grievance
+              is live, and mark this handoff Done.
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        29
+---
+
+FROM:      Shubham - Mid Review
+TO:        Operations
+PRIORITY:  Medium — Before ToS is published
+REQUEST:   Consumer Protection Act 2019 compliance review is unresolved. The Finance
+           ToS draft (docs/FINANCE-TOS-PAYMENT-DRAFT.docx) proposes a 7-day refund
+           window (Clause 5) and an auto-renewal disclosure (Clause 4.2).
+           Operations must:
+           1. Confirm with external legal counsel whether the 7-day refund window
+              meets or exceeds any statutory minimum under the Consumer Protection
+              Act 2019 and Consumer Protection (E-Commerce) Rules 2020 for SaaS
+              annual subscriptions.
+           2. Confirm whether the auto-renewal wording in Clause 4.2 satisfies RBI
+              and consumer protection disclosure requirements.
+           3. Relay findings to Finance to update the draft accordingly before the
+              ToS is published at /terms.
+DEADLINE:  Before ToS is published (pre-production deploy)
+STATUS:    Open
+ID:        30
+---
+
+FROM:      Shubham - Mid Review
+TO:        Shubham (Founder — action required before next Vercel deploy)
+PRIORITY:  High — Vercel build will fail without this
+REQUEST:   @sentry/nextjs was added to package.json (Done 2026-05-02) but
+           `npm install` has not been run since. The package-lock.json is out of
+           sync with package.json.
+           Action required:
+           1. In the vault/ project directory, run: npm install
+           2. This resolves @sentry/nextjs and updates package-lock.json.
+           3. Commit the updated package-lock.json along with any other pending
+              changes before the next Vercel deploy.
+           Without this step the Vercel production build will fail.
+DEADLINE:  Before next Vercel deploy
+STATUS:    Open
+ID:        31
+---
+
+FROM:      Shubham - Mid Review
+TO:        Engineering
+PRIORITY:  Medium — Before production deploy
+REQUEST:   Resend transactional email provider is not configured. README.md lists
+           RESEND_API_KEY as a production variable. Without it, all transactional
+           emails (magic link login, subscription confirmation, 14-day renewal
+           reminder, failed payment notification) will use Supabase's default email
+           sender — which is rate-limited (4/hour on free tier) and unbranded.
+           Engineering must:
+           1. Confirm which transactional emails currently go through Supabase
+              default vs. a custom provider.
+           2. Set up a Resend account at https://resend.com, verify the
+              kutumbkosh.com domain, and obtain the API key.
+           3. Configure Resend as the email provider — either via Supabase Dashboard
+              → Auth → SMTP (for magic links) or via Next.js API routes (for
+              subscription and payment emails).
+           4. Test all email types in staging: magic link, subscription confirmation,
+              renewal reminder, failed payment.
+           5. Add RESEND_API_KEY to Vercel production environment variables.
+           6. Raise a handoff to Shubham to supply the API key if account creation
+              requires founder credentials.
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        32
+---
+
+FROM:      Shubham - Mid Review
+TO:        Shubham (Founder — decision required, critical pricing dependency)
+PRIORITY:  Critical — Pricing page and Razorpay order amount cannot be finalised without this
+REQUEST:   GST treatment for ₹499/year Pro subscription is undecided. DECISIONS.md
+           locks the price at ₹499/year but explicitly defers the GST treatment.
+           This single decision blocks: (1) pricing page copy, (2) Razorpay order
+           amount in Engineering, (3) GST invoice template (CGST+SGST vs IGST split).
+           Options:
+           Option A — GST-inclusive (Finance recommendation):
+             User pays ₹499 total. KutumbKosh keeps ₹423.73 + remits ₹75.27 GST.
+             Simpler for the consumer; no surprise at checkout.
+           Option B — GST-exclusive:
+             User pays ₹499 + 18% = ₹589 total. Higher gross per transaction.
+             Less common for consumer SaaS in India.
+           Action: Confirm your decision in a reply, then Finance will update
+           DECISIONS.md and Engineering will set the Razorpay order amount.
+DEADLINE:  Before pricing page goes live
+STATUS:    Open
+ID:        33
+---
+
+FROM:      Shubham - Mid Review
+TO:        Shubham (Founder — action required with CA)
+PRIORITY:  High — Required before GST registration
+REQUEST:   SAC code 998314 has been used throughout Finance documents as the GST
+           classification for KutumbKosh's Pro subscription (SaaS). This code has
+           not been formally confirmed by a CA. An incorrect SAC code affects:
+           (1) the applicable GST rate (18% assumed), (2) IGST vs CGST+SGST
+           split on invoices, and (3) all future GSTR filings.
+           Action required:
+           1. Share the KutumbKosh product description with your CA.
+           2. Get written confirmation that SAC code 998314 is correct for a SaaS
+              digital vault annual subscription.
+           3. Record the CA's confirmation in DECISIONS.md with the date.
+DEADLINE:  Before GST registration
+STATUS:    Open
+ID:        34
+---
+
+FROM:      Shubham - Mid Review
+TO:        Finance
+PRIORITY:  Low — Post-launch planning item
+REQUEST:   Monthly billing is excluded at launch (DECISIONS.md 2026-04-28: annual
+           only, no monthly option). No post-launch plan or evaluation exists.
+           Finance must:
+           1. Evaluate whether a monthly billing option makes sense post-launch for
+              user acquisition (e.g., ₹59/month = ₹708/year effective, or ₹49/month
+              = ₹588/year) — lower barrier to trial, higher annual effective rate.
+           2. If recommended, assess Razorpay subscription plan configuration
+              changes required and the GST/invoice impact.
+           3. Add a post-launch roadmap item to DECISIONS.md or a product roadmap
+              doc so this is tracked rather than lost.
+           No action required before launch.
+DEADLINE:  First post-launch review (no rush)
+STATUS:    Open
+ID:        35
+---
