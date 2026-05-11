@@ -1624,6 +1624,106 @@ STATUS:    Done — 2026-05-07. Operations/Legal assessment below.
 ID:        36
 ---
 
+FROM:      Finance
+TO:        Engineering
+PRIORITY:  High — Launch Blocker
+REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
+           Engineering must apply this decision in the following specific ways:
+
+           1. RAZORPAY ORDER AMOUNT
+              Set amount = 49900 (paise) — the full ₹499 inclusive amount.
+              Do NOT set amount = 42373 (base only) and add GST separately.
+              Do NOT set amount = 58982 (₹499 + 18% GST-exclusive formula).
+              The user is charged ₹499 total. This is the only correct value.
+
+           2. GST INVOICE BACK-CALCULATION (CRITICAL)
+              On payment.captured and subscription.charged webhook events, the
+              GST invoice must back-calculate from the collected amount.
+              Use this formula — NOT ₹499 × 18%:
+                base_amount  = ₹499 × 100/118 = ₹423.73  → round to ₹424
+                gst_amount   = ₹499 × 18/118  = ₹75.27   → round to ₹75
+                total        = ₹499 (collected)
+              ⚠ Using ₹499 × 18% = ₹89.82 is the GST-exclusive formula and
+              will over-state GST liability on every invoice. This is a legal
+              and financial error.
+
+           3. IGST vs CGST+SGST SPLIT
+              The split depends on KutumbKosh's registered state (to be confirmed
+              with CA at GSTIN registration):
+              - Customer in SAME state as KK's GSTIN → CGST (₹37.50) + SGST (₹37.50)
+              - Customer in DIFFERENT state → IGST (₹75)
+              Engineering must make this field dynamic based on customer's state
+              of billing address collected at checkout.
+
+           Reference: DECISIONS.md 2026-05-07 | Finance for full breakdown.
+           Cross-reference: FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx Section 5
+           (GST Invoice Generation) — update that spec to reflect the confirmed
+           back-calculation formula.
+DEADLINE:  Before production deploy
+STATUS:    Open
+ID:        37
+---
+
+FROM:      Finance
+TO:        Sales & Marketing
+PRIORITY:  High — Before pricing page goes live
+REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07).
+           The pricing page and all marketing copy must reflect this correctly.
+
+           1. PRICING PAGE DISPLAY
+              Show: ₹499/year
+              Add label directly below the price: "Inclusive of GST"
+              Do NOT show: ₹499 + GST  or  ₹499 + 18% GST  or  ₹589
+              The label "Inclusive of GST" is also required under Consumer
+              Protection (E-Commerce) Rules 2020 for consumer-facing platforms.
+
+           2. ALL MARKETING COPY
+              Every instance of the Pro price must read "₹499/year" with no
+              additional tax qualifier. The GST-inclusive label belongs on the
+              pricing page only — not in every social post or ad.
+
+           3. WHAT NOT TO SAY
+              Do not write "₹499 + taxes" — this implies GST-exclusive pricing
+              and contradicts the locked decision.
+              Do not write "starting at ₹499" — there is only one Pro tier.
+
+           Reference: DECISIONS.md 2026-05-07 | Finance.
+DEADLINE:  Before pricing page goes live / before launch day
+STATUS:    Open
+ID:        38
+---
+
+FROM:      Finance
+TO:        Operations
+PRIORITY:  High — Before ToS is sent for external legal review
+REQUEST:   The GST-inclusive pricing decision (DECISIONS.md 2026-05-07) confirms
+           that ₹499/year is GST-inclusive, with ₹76 GST remitted per transaction
+           under SAC code 998314.
+
+           Operations must pass this specific decision to the external legal
+           reviewer as additional context for ToS Clause 3 (GST treatment) in
+           the Finance draft (docs/FINANCE-TOS-PAYMENT-DRAFT.docx):
+
+           1. Clause 3 of the Finance ToS draft states GST-inclusive pricing —
+              confirm with the reviewer that this clause correctly reflects
+              the Consumer Protection (E-Commerce) Rules 2020 requirement to
+              display total price inclusive of taxes.
+
+           2. Ask the reviewer to confirm the back-calculation formula used
+              for GST invoices (₹499 × 18/118 = ₹76) is compliant with GST
+              invoice rules under the CGST Act.
+
+           3. The GST-inclusive treatment must be explicitly stated in the
+              published ToS so users are not surprised. Confirm the current
+              Clause 3 wording is sufficient or request redline.
+
+           Operations to relay reviewer's findings back to Finance before
+           the ToS is published.
+DEADLINE:  Before ToS is sent to external legal reviewer
+STATUS:    Open
+ID:        39
+---
+
 FROM:      Product
 TO:        Engineering
 PRIORITY:  High — Required before public launch
@@ -1909,5 +2009,5 @@ REQUEST:   Build emergency access V2 (inactivity timer auto-grant) and V3
 
 DEADLINE:  Before public launch (go-live gated on external legal review)
 STATUS:    Open
-ID:        37
+ID:        40
 ---

@@ -21,7 +21,7 @@
 - [ ] Mobile OTP verification for Profile Setup — BLOCKED: SMS provider (Twilio or MSG91) not yet chosen by Shubham. Configure in Supabase Dashboard → Auth → Phone, then confirm go-ahead to Engineering. See HANDOFFS.md.
 - [x] Kutumb ID — Done 2026-05-02. generate_kutumb_id() Postgres function (charset excludes 0/1/O/I, retry on collision). kutumb_id column added to profiles (NOT NULL UNIQUE, backfilled for existing users). Displayed in Settings with copy-to-clipboard. Printed in Vault Dossier PDF header. Emergency Access UI has Kutumb ID input field (backend logic is a future feature). src/lib/kutumb-id.ts added for client-side use.
 - [ ] Vault Dossier PDF generation — verify output quality (Kutumb ID now printed in PDF header — 2026-05-02)
-- [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-07), Operations DPDPA clearance received with 7 conditions (HANDOFFS.md ID 36), Engineering handoff raised (HANDOFFS.md ID 37). BLOCKED on go-live until external legal review complete (Operations to arrange).
+- [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-07), Operations DPDPA clearance received with 7 conditions (HANDOFFS.md ID 36), Engineering handoff raised (HANDOFFS.md ID 40). BLOCKED on go-live until external legal review complete (Operations to arrange).
 - [ ] Mobile responsiveness check across devices
 
 ## Infrastructure
