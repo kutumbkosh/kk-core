@@ -15,7 +15,7 @@
 - [x] "How KutumbKosh Works" — Done 2026-05-03. Marketing design delivered (docs/marketing/how-it-works-infographic.html). Tech implemented in coming-soon/index.html (before features section, Marketing design faithful) and src/app/page.tsx (as <HowItWorks /> component at src/components/HowItWorks.tsx). Shubham to re-upload coming-soon/index.html to Cloudflare Pages.
 
 ## Product
-- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders)
+- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders) — BLOCKED: Product audit (2026-05-12) found 4 critical + 4 high bugs in Reminders and Emergency Access. Engineering handoff raised at HANDOFFS.md ID 44. Must be fixed before QA pass is meaningful.
 - [ ] Test Razorpay payment flow (Pro subscription) — BLOCKED: requires Shubham to complete Razorpay KYC + live mode activation first (Finance handoff). Engineering spec ready at docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx
 - [x] Mandatory field validation — Done 2026-05-02. Profile Setup (mobile mandatory, single-step form — no OTP yet, DOB mandatory 18+), Nominee form (relationship mandatory, at-least-one contact, minor guardian dynamic fields), Trusted Contact form (mobile AND email both mandatory). DB migration: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql.
 - [ ] Mobile OTP verification for Profile Setup — BLOCKED: SMS provider (Twilio or MSG91) not yet chosen by Shubham. Configure in Supabase Dashboard → Auth → Phone, then confirm go-ahead to Engineering. See HANDOFFS.md.
@@ -37,7 +37,9 @@
 ## Branding & Marketing
 - [ ] Finalize social media profiles — set up @KutumbKosh (or best available handle) on Instagram, LinkedIn, and Twitter/X before launch day
 - [x] og-image.png created — Done 2026-05-01. public/og-image.png (1200×630px, 51KB) confirmed present in repo. Shubham to commit, deploy, and validate preview at https://www.opengraph.xyz or via WhatsApp before marking launch complete.
-- [x] Pricing copy locked — Done 2026-05-07. Sales & Marketing spec at docs/marketing/pricing-copy-lock.md. Three violations found in src/app/dashboard/pricing/page.tsx (line 126: "or ₹79/month"; missing "Inclusive of GST" label; line 237 monthly billing FAQ). Tech handoff raised as HANDOFFS.md ID 40 — must be fixed before pricing page goes live.
+- [x] Pricing copy locked — Done 2026-05-07. Sales & Marketing spec at docs/marketing/pricing-copy-lock.md. Three violations found in src/app/dashboard/pricing/page.tsx (line 126: "or ₹79/month"; missing "Inclusive of GST" label; line 237 monthly billing FAQ). Engineering fixed all three (HANDOFFS.md ID 41 Done 2026-05-12).
+- [x] Pricing page tier copy corrected — Done 2026-05-12. Four factual errors in features array fixed (emergency access, trusted contacts, PDF, reminders all showed incorrect Free tier values). Engineering handoff raised as HANDOFFS.md ID 47.
+- [x] UpgradePrompt copy corrected — Done 2026-05-12. Three copy blocks written: emergency_access_v2v3 (new), emergency_contact_limit (new), all_reminders (fixed — removed vault review nudge from Pro-only desc). Engineering handoff raised as HANDOFFS.md ID 48.
 - [ ] Schedule launch-day posts — draft 3–5 posts (Instagram, LinkedIn, WhatsApp broadcast) using brand kit templates at docs/marketing/KutumbKosh-Brand-Kit-v2.pdf. Prepare and schedule in advance.
 - [ ] Draft and send waitlist notification email on launch day (if any subscribers signed up via coming-soon page)
 - [x] care@kutumbkosh.com inbox — confirmed live and monitored (2026-05-04)

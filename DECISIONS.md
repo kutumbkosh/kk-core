@@ -203,4 +203,68 @@ Explicit pre-authorization satisfies DPDPA S.6 — cleaner consent basis than V2
 
 ---
 
+### 2026-05-12 | Product
+**Decision:** Free vs Pro feature tier map locked. This resolves HANDOFFS.md ID 23 and unblocks pricing page, upgrade prompts, Engineering feature gates, and Sales & Marketing copy.
+
+**REMINDERS:**
+- Free tier: One reminder type — annual "vault review" nudge (prompt to review and update assets, nominees, and trusted contacts). Asset-agnostic; no expiry dates or maturity tracking required.
+- Pro tier: All reminder types — insurance expiry (configurable lead time: 30/60/90 days before expiry), FD maturity (configurable), vault review nudge (same as Free), plus any future reminder types added post-launch.
+- Rationale: "Basic reminders" in the project brief maps to the vault review nudge. Asset-specific reminders (insurance, FD) require knowing financial details and are the complexity that justifies Pro.
+
+**EMERGENCY ACCESS (TRUSTED CONTACTS):**
+- Free tier: Add up to 1 trusted contact. Manual approval mode only — owner must actively approve each access request in real time.
+- Pro tier: Up to 2 trusted contacts. All three access modes available — Manual, V2 (inactivity timer with configurable window and grace period), V3 (pre-authorized instant access).
+- Rationale: Free users get basic emergency protection. V2 and V3 automation — which works even when the owner cannot respond — is the meaningful Pro differentiator. This is the core reason to pay.
+
+**VAULT DOSSIER PDF:**
+- Free tier: Full PDF export. Identical template to Pro. Includes Kutumb ID in header, nominee summary, and emergency instructions page — no feature gating within the PDF. Content is naturally limited to the assets the Free user has added (max 3 assets).
+- Pro tier: Full PDF with all assets (unlimited). Same template.
+- Rationale: Watering down the Free PDF weakens the product's first impression and undermines the family-protection promise. The 3-asset natural limit is sufficient differentiation without artificial gating.
+
+**Impact:** Engineering (update useSubscription hook feature gates per tier map above — see new handoff); Sales & Marketing (update pricing page and comparison table — see new handoff); Operations (ensure Privacy Policy reflects emergency access as a processing purpose for both Free and Pro users).
+
+---
+
+### 2026-05-12 | Product
+**Decision:** Emergency access Step 6 infographic copy ("your trusted contact gets access — instantly") is confirmed as correct and requires no change. HANDOFFS.md ID 24 is resolved.
+- V3 (pre-authorized access): "instantly" is literally accurate — the trusted contact can access the vault the moment the owner saves the setting.
+- V2 (inactivity timer): not instant in time, but fully automatic — no owner intervention required when the timer fires and grace period expires. The copy communicates ease and certainty of access, not literal speed. It is defensible.
+- The "post-launch spec for automated emergency access flow" requested in ID 24 point 3 is superseded by HANDOFFS.md ID 40 (full V2+V3 Engineering spec).
+**Rationale:** ID 24 was raised when implementation was manual-only. V2+V3 confirmed for launch (DECISIONS.md 2026-05-07 | Product) resolves the over-promise concern.
+**Impact:** No copy changes required. Sales & Marketing copy for Step 6 stands as locked in DECISIONS.md 2026-05-02 | Product.
+
+---
+
+### 2026-05-12 | Product — Founder Decision
+**Decision:** `nominee_gap` and `draft_asset` alerts are shown to ALL users (Free and Pro). They are NOT gated on subscription tier.
+**Rationale:** These are UX safety / data-quality alerts, not scheduled reminder types. A Free user with an asset missing a nominee must be told — suppressing it would let them believe their vault is correctly set up when it is not. This directly undermines the product promise. The Free tier restriction ("vault review nudge only") applies only to the scheduled reminder types (insurance_expiry, fd_maturity, review_nudge). `nominee_gap` and `draft_asset` are reactive, asset-level alerts that serve every user regardless of tier.
+**Impact:** Engineering (HANDOFFS.md ID 44, M4 — decision confirmed, hold lifted; current behaviour of showing these alerts to all users is correct — no code change required).
+
+---
+
+### 2026-05-12 | Product — Founder Decision
+**Decision:** Vault review nudge trigger threshold is set to **180 days** (client-side check) for launch. Option 2 (server-side scheduled annual email via Resend + cron) is deferred post-launch.
+**Rationale:** 30-day trigger is too noisy and does not match the "annual vault review" label. 180 days balances usefulness with low noise. The client-side implementation (checking last asset updated_at on the Reminders page) is sufficient for launch — no cron infrastructure needed. Post-launch, this will be replaced with a proper annual email via Resend.
+**Implementation:** Change `daysSinceUpdate > 30` to `daysSinceUpdate > 180` in `src/app/dashboard/reminders/page.tsx` line ~178. No other changes required for launch.
+**Impact:** Engineering (HANDOFFS.md ID 44, M1 — hold lifted; apply 180-day threshold).
+
+---
+
+### 2026-05-12 | Sales & Marketing
+**Decision:** Pricing page tier feature copy finalised and locked per Product's tier map (DECISIONS.md 2026-05-12 | Product). Four factual errors corrected in the `features` array. Three UpgradePrompt copy blocks written.
+**Changes locked:**
+- "Smart reminders" Free: `"Annual vault review"` (was: "Nominee gaps only")
+- "Smart reminders" Pro: `"Insurance expiry, FD maturity & more"` (was: "All types (expiry, maturity, review)")
+- "Trusted contacts & dossier" renamed to `"Trusted contacts"`: Free `"1 contact"`, Pro `"Up to 2 contacts"` (was: both false — incorrectly implied no Free access)
+- "Emergency access": Free `"Manual approval"`, Pro `"Manual, automatic & pre-authorised"` (was: Free false — incorrectly implied no Free access)
+- "PDF export" renamed to `"Vault Dossier PDF"`: Free `"Up to 3 assets"`, Pro `"Full vault"` (was: both false — incorrectly implied no Free access)
+**UpgradePrompt copy locked (three blocks):**
+- `emergency_access_v2v3` (new): title "Automatic access is a Pro feature" / desc "With Pro, your trusted contact can get access automatically — no need for you to approve it in the moment."
+- `emergency_contact_limit` (new): title "Add more trusted contacts with Pro" / desc "Your free plan includes 1 trusted contact. Upgrade to Pro to add a second and configure how they access your vault."
+- `all_reminders` (fix): desc updated to remove "vault review nudges" (now a Free feature) — new desc: "Get timely alerts for insurance policy expiry and FD maturity dates. Available with KutumbKosh Pro."
+**Rationale:** Pricing page was showing Free users as having NO emergency access, NO trusted contacts, and NO vault PDF — all three are incorrect per the locked tier map. These errors would cause immediate user confusion post-launch. UpgradePrompt errors were similarly factually wrong.
+**Impact:** Engineering (implement features array fix via HANDOFFS.md ID 47; implement UpgradePrompt fixes via HANDOFFS.md ID 48 — both before launch).
+
+---
+
 _Add new decisions above this line, following the format._

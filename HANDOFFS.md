@@ -1044,7 +1044,13 @@ REQUEST:   Free vs Pro feature scope is inconsistently defined across project fi
            This directly impacts: upgrade prompt copy, pricing page, Engineering
            feature gates (useSubscription hook), and Sales & Marketing copy.
 DEADLINE:  Before pricing page goes live
-STATUS:    Open
+STATUS:    Done — 2026-05-12. Full tier map locked in DECISIONS.md 2026-05-12 | Product.
+           Reminders: Free = annual vault review nudge only; Pro = all types (insurance
+           expiry, FD maturity, vault review, future types). Emergency Access: Free = 1
+           contact, manual approval only; Pro = 2 contacts, all modes (Manual/V2/V3).
+           Vault Dossier PDF: Free = full template, max 3 assets (natural limit, no gating);
+           Pro = full template, unlimited assets. Downstream handoffs raised to Engineering
+           and Sales & Marketing.
 ID:        23
 ---
 
@@ -1068,7 +1074,12 @@ REQUEST:   Emergency Access workflow is ambiguous. The landing page infographic
            This affects landing page copy (Sales & Marketing), product trust, and
            user expectation-setting at onboarding.
 DEADLINE:  Before launch day
-STATUS:    Open
+STATUS:    Done — 2026-05-12. V2+V3 confirmed for launch (DECISIONS.md 2026-05-07 | Product)
+           resolves the over-promise concern entirely. Step 6 copy "gets access — instantly"
+           stands as locked — accurate for V3 (pre-authorized, truly instant) and defensible
+           for V2 (automatic, no owner intervention needed). Post-launch automation spec
+           superseded by HANDOFFS.md ID 40 (full Engineering V2+V3 build spec). No copy
+           changes required. Decision recorded in DECISIONS.md 2026-05-12 | Product.
 ID:        24
 ---
 
@@ -1725,7 +1736,11 @@ REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07
 
            Reference: DECISIONS.md 2026-05-07 | Finance.
 DEADLINE:  Before pricing page goes live / before launch day
-STATUS:    Open
+STATUS:    Done — 2026-05-07. Sales & Marketing created locked copy spec at
+           docs/marketing/pricing-copy-lock.md (single source of truth for all
+           channels). Three violations identified in pricing/page.tsx; Engineering
+           fixed all three via HANDOFFS.md ID 41 (Done 2026-05-12). S&M scope
+           fully closed.
 ID:        38
 ---
 
@@ -2074,10 +2089,6 @@ STATUS:    In Progress — 2026-05-11. Full V2+V3 build complete. All 7 DPDPA
            Once Operations clears → Shubham sets production env var → mark Done.
 ID:        40
 ---
-           is set to true in Vercel production.
-           Once Operations clears → Shubham sets production env var → mark Done.
-ID:        40
----
 
 FROM:      Sales & Marketing (via DECISIONS.md 2026-05-07)
 TO:        Engineering
@@ -2099,4 +2110,474 @@ STATUS:    Done — 2026-05-12. All three violations fixed:
            3. FAQ entry replaced: "Is billing annual only?" with accurate annual-only
               copy. TypeScript clean (0 errors). No commits made.
 ID:        41
+---
+
+FROM:      Product
+TO:        Engineering
+TASK:      Update useSubscription hook — feature gates per locked tier map
+CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the Free vs Pro tier map
+           (resolved HANDOFFS.md ID 23). Engineering must update the
+           useSubscription hook and all related feature-gate checks to match
+           the following:
+
+           FREE TIER:
+           - Trusted contacts: max 1
+           - Emergency access modes: Manual only (V2/V3 must be hidden/disabled
+             for Free users even after the NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3 flag
+             is enabled in production)
+           - Reminders: Annual vault review reminder only. All other reminder
+             types (insurance expiry, FD maturity, etc.) must be gated — upgrade
+             prompt shown.
+           - Vault Dossier PDF: No gating — full template generated for all tiers
+             (content is naturally limited since Free users have ≤3 assets).
+           - Asset limit: 3 (already gated — no change needed)
+
+           PRO TIER:
+           - Trusted contacts: max 2
+           - Emergency access modes: Manual, V2 (inactivity timer), V3
+             (pre-authorized) — all three available once V2V3 flag live in prod
+           - Reminders: All types (annual vault review, insurance expiry,
+             FD maturity, scheduled vault review nudges)
+           - Vault Dossier PDF: No gating — same full template as Free
+
+           IMPLEMENTATION NOTES:
+           - Check useSubscription hook at src/hooks/useSubscription.ts (or
+             equivalent). Confirm all gated features reference the hook rather
+             than hardcoded checks scattered in components.
+           - For V2/V3 mode selector on Emergency page: gate on BOTH Pro tier
+             AND NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3 flag. Do not show V2/V3 to
+             Free users even after flag is live.
+           - Reminder gating: check where reminder creation UI is rendered and
+             confirm upgrade prompts are shown for Free users on gated types.
+           - No DB schema changes required — this is UI/logic gating only.
+           - Reference: DECISIONS.md 2026-05-12 | Product (Free vs Pro tier map)
+             and HANDOFFS.md ID 40 (V2/V3 feature flag requirement).
+PRIORITY:  High — Must be complete before public launch
+STATUS:    Open
+ID:        42
+---
+
+FROM:      Product
+TO:        Sales & Marketing
+TASK:      Update pricing page copy with confirmed tier definitions
+CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the Free vs Pro tier map
+           (resolved HANDOFFS.md ID 23). The pricing page at
+           src/app/dashboard/pricing/page.tsx (and any public-facing pricing
+           section) must reflect the exact tier contents. Note: three pricing
+           violations (monthly billing, missing GST label, monthly FAQ) were
+           already fixed by Engineering per HANDOFFS.md ID 41. This handoff
+           is about tier feature copy, not pricing/billing copy.
+
+           CONFIRMED FREE TIER — use this language:
+           - "Up to 3 assets"
+           - "1 trusted contact"
+           - "Manual emergency access approval"
+           - "Annual vault review reminder"
+           - "Vault Dossier PDF (up to 3 assets)"
+
+           CONFIRMED PRO TIER — use this language:
+           - "Unlimited assets"
+           - "Up to 2 trusted contacts"
+           - "Manual, automatic, and pre-authorized emergency access"
+             (do NOT say "V2" or "V3" in user-facing copy — use plain labels)
+           - "All reminder types" or list: "Annual vault review, insurance
+             expiry, FD maturity, and more"
+           - "Full Vault Dossier PDF"
+
+           COPY GUIDANCE:
+           - Replace any occurrence of "basic reminders" with "Annual vault
+             review reminder" for Free tier.
+           - V2/V3 automation (automatic and pre-authorized access modes) is the
+             key Pro differentiator for emergency access — make this visible in
+             the Pro feature list.
+           - Do not use technical terms (inactivity timer, pre-authorization,
+             V2, V3) in user-facing copy.
+           - Raise an Engineering handoff if copy changes require code edits
+             to pricing/page.tsx — do not edit the file directly.
+PRIORITY:  Medium — Before public launch; pricing page must be accurate
+STATUS:    Done — 2026-05-12. Sales & Marketing finalised copy per brand voice
+           rules and Product's locked tier map. Engineering handoff raised as
+           HANDOFFS.md ID 47 with exact replacement features array.
+ID:        43
+---
+
+FROM:      Product
+TO:        Engineering
+TASK:      Reminders + Emergency Access code audit — 8 bugs to fix before launch
+CONTEXT:   Full audit of reminders/page.tsx, emergency/page.tsx,
+           onboarding/emergency-contact/page.tsx, api/emergency/access-mode/route.ts,
+           and src/types/database.ts against DECISIONS.md 2026-05-12 | Product
+           (Free vs Pro tier map) and HANDOFFS.md ID 40 (V2/V3 spec).
+           Issues are ordered by severity. Fix all CRITICAL and HIGH items before
+           any production deploy. MEDIUM items noted separately.
+
+           ═══════════════════════════════════════════════════════════════
+           CRITICAL — Fix before any commit that touches these files
+           ═══════════════════════════════════════════════════════════════
+
+           C1 — Email field missing from onboarding trusted contact form
+           File: src/app/onboarding/emergency-contact/page.tsx
+           The "Mobile + Email — both mandatory" section (lines ~292–315)
+           renders only the phone <input>. The email <input> is missing from
+           the JSX. Mail icon is imported but unused. validateEmail("") returns
+           "Email is required" at submit time, so any user who fills in a
+           contact name cannot submit the form and is permanently blocked.
+           Onboarding can only be completed by leaving the name blank and
+           skipping. Fix: add the email <input> field (with Mail icon, same
+           pattern as phone field) inside the space-y-3 div, before the
+           closing </div> of the bg-blue-50 section.
+
+           C2 — Phone field FieldError references email variables (copy-paste bug)
+           File: src/app/onboarding/emergency-contact/page.tsx, lines ~308–311
+           The phone <input> className condition and its FieldError both check
+           contactTouched[index]?.email and contactErrors[index]?.email instead
+           of .phone. Phone field errors never display. Fix: replace all .email
+           references in the phone field block with .phone.
+
+           C3 — V2/V3 AccessModePanel not gated on isPro
+           File: src/app/dashboard/emergency/page.tsx, line ~596
+           Current:  {V2V3_ENABLED && (<AccessModePanel contact={contact} onSaved={loadData} />)}
+           Required: {V2V3_ENABLED && isPro && (<AccessModePanel contact={contact} onSaved={loadData} />)}
+           When the feature flag is enabled in production, Free users currently
+           see and interact with V2/V3 mode options. This violates DECISIONS.md
+           2026-05-12 (Free = manual only).
+
+           C4 — API route has no Pro tier check
+           File: src/app/api/emergency/access-mode/route.ts
+           After authenticating the user and validating the V2V3 flag, the route
+           does not verify the user is on a Pro subscription. A Free user can
+           bypass the UI and call POST /api/emergency/access-mode to set
+           INACTIVITY or PRE_AUTHORIZED modes.
+           Fix: after fetching the user, query the subscriptions table:
+             select status, plan, current_period_end where user_id = user.id
+             and status in ('ACTIVE','CANCELLED') order by created_at desc limit 1
+           If plan != PRO or period has expired, return 403 for any access_mode
+           that is not MANUAL.
+
+           ═══════════════════════════════════════════════════════════════
+           HIGH — Logic bugs contradicting DECISIONS.md 2026-05-12
+           ═══════════════════════════════════════════════════════════════
+
+           H1 — review_nudge gated on Pro; must be available to Free
+           File: src/app/dashboard/reminders/page.tsx, line ~172
+           Current: if (hasAllReminders && assets.length > 0)
+           Required: if (assets.length > 0)   [ungated — all users]
+           DECISIONS.md 2026-05-12 explicitly assigns the annual vault review
+           nudge to Free tier. The current gate (hasAllReminders = Pro only)
+           means Free users never see it.
+           NOTE: See MEDIUM issue M1 about the 30-day trigger threshold —
+           Product decision pending on final threshold before fixing this.
+           For now, ungate the check; threshold adjustment is a follow-up.
+
+           H2 — UpgradePrompt on Emergency page misleads Free users
+           File: src/app/dashboard/emergency/page.tsx, lines ~489–491
+           Current: {!isPro && !subLoading && (<UpgradePrompt feature="emergency_access" variant="card" />)}
+           The "Emergency Access is a Pro feature" prompt blocks the page for
+           Free users — but Free users ARE entitled to 1 trusted contact with
+           manual mode per DECISIONS.md 2026-05-12. This prompt is factually
+           wrong and will confuse Free users who reach the page after onboarding.
+           Fix: remove the page-level UpgradePrompt entirely. Replace with:
+           (a) A contextual upgrade prompt on the V2/V3 mode options when isPro
+               is false (e.g. "Upgrade to Pro to configure automatic access")
+           (b) A contextual upgrade prompt on the Add button when the contact
+               count limit is reached (see H4 below)
+
+           H3 — No maxTrustedContacts in PLAN_LIMITS
+           File: src/types/database.ts, lines ~150–161
+           PLAN_LIMITS currently defines maxAssets and maxNominees but not
+           maxTrustedContacts. Without this, the useSubscription hook cannot
+           expose the limit and components cannot enforce it.
+           Fix: add maxTrustedContacts to the type and both plan objects:
+             FREE:  { maxAssets: 3, maxNominees: 2, maxTrustedContacts: 1, features: [...] }
+             PRO:   { maxAssets: Infinity, maxNominees: Infinity, maxTrustedContacts: 2, features: [...] }
+           Also expose maxTrustedContacts from useSubscription return type and
+           return value (alongside limits.maxAssets, limits.maxNominees).
+
+           H4 — Add button on Emergency page has no tier-based limit check
+           File: src/app/dashboard/emergency/page.tsx, line ~514
+           The UserPlus "Add" button always navigates to /onboarding/emergency-contact
+           regardless of contacts.length or tier. Free users with 1 contact can
+           click Add and reach the onboarding form, exceeding the Free limit.
+           Fix: use maxTrustedContacts from useSubscription (added in H3).
+           When contacts.length >= maxTrustedContacts:
+             - If Free: replace Add button with an inline upgrade prompt
+               "Add up to 2 contacts with Pro — Upgrade"
+             - If Pro: hide the Add button (already at Pro limit)
+           Same fix needed in onboarding/emergency-contact/page.tsx addContact()
+           function at line ~79: currently hardcodes contacts.length < 2.
+           Must be tier-aware. Pass max via prop or check subscription in the
+           onboarding page. For onboarding, since the user's tier is set, the
+           Pro limit of 2 is correct for Pro users; Free users should only be
+           able to fill in 1 contact form panel (not add a second row).
+
+           ═══════════════════════════════════════════════════════════════
+           MEDIUM — UX clarity; fix before production but not blocking staging
+           ═══════════════════════════════════════════════════════════════
+
+           M1 — review_nudge fires at 30 days; must be 180 days — UNBLOCKED
+           File: src/app/dashboard/reminders/page.tsx, line ~178
+           Change: daysSinceUpdate > 30  →  daysSinceUpdate > 180
+           Decision locked: DECISIONS.md 2026-05-12 | Product (Founder Decision).
+           180-day threshold confirmed for launch. Server-side annual email
+           is post-launch scope — no cron work needed now.
+
+           M2 — "Access Someone's Vault" description inaccurate for V3
+           File: src/app/dashboard/emergency/page.tsx, lines ~787–789
+           "The vault holder will be notified and must approve your request
+           before you can see anything." — inaccurate once V2/V3 are live
+           (V3 = pre-authorized, no approval needed).
+           Fix when V2V3 flag goes live in production: update text to:
+           "If the vault holder has pre-authorized you, you'll get access
+           immediately. Otherwise, they'll be notified to approve your request."
+
+           M3 — basic_reminders feature key defined but never checked
+           File: src/types/database.ts, line ~154
+           features: ["basic_reminders"] is in FREE PLAN_LIMITS but
+           canUseFeature("basic_reminders") is never called anywhere.
+           After H1 is fixed, use canUseFeature("basic_reminders") as the
+           explicit gate for review_nudge (rather than ungating completely),
+           to keep the pattern consistent with how all_reminders is used.
+           This makes the feature key meaningful and future-proof.
+
+           M4 — nominee_gap and draft_asset shown to Free users
+           File: src/app/dashboard/reminders/page.tsx, lines ~86–121
+           ✅ RESOLVED — Founder decision confirmed 2026-05-12 (DECISIONS.md).
+           nominee_gap and draft_asset are UX safety/data-quality alerts and
+           are NOT gated on subscription tier. Show to ALL users always.
+           Current behaviour is correct. No code change required.
+
+PRIORITY:  High — CRITICAL and HIGH items are launch blockers
+STATUS:    Open
+ID:        44
+---
+
+FROM:      Product
+TO:        Sales & Marketing
+TASK:      Update two UpgradePrompt copy blocks — emergency_access and all_reminders
+CONTEXT:   The audit (HANDOFFS.md ID 44) and DECISIONS.md 2026-05-12 | Product
+           (Free vs Pro tier map) changed the boundaries for two features.
+           The UpgradePrompt component at src/components/UpgradePrompt.tsx
+           has hardcoded featureMessages that are now factually wrong for both.
+           Sales & Marketing must draft corrected copy; Engineering will
+           implement it in the component file.
+
+           ─── CHANGE 1: emergency_access featureMessage ──────────────────
+
+           CURRENT (wrong):
+             title: "Emergency Access is a Pro feature"
+             desc:  "Set up trusted contacts and emergency dossiers to protect
+                    your family. Available with KutumbKosh Pro."
+
+           WHY WRONG: Free users ARE entitled to 1 trusted contact with manual
+           approval mode. Telling them Emergency Access is Pro-only is factually
+           incorrect and will confuse them immediately after onboarding.
+
+           WHAT'S NEEDED: Two separate contextual messages (both to be added
+           as new featureMessage keys — do not overwrite emergency_access):
+
+           Key: "emergency_access_v2v3"
+           Context: Shown when a Free user selects the V2 or V3 mode option
+           in the emergency access panel.
+           Draft the title + 1-line description that conveys:
+             "Automatic and pre-authorised access are Pro features. Upgrade to
+             configure how your trusted contact gets access — even if you can't
+             respond."
+           Tone: warm, empowering. Not fear-based.
+
+           Key: "emergency_contact_limit"
+           Context: Shown when a Free user tries to add a second trusted contact
+           (already has 1, which is the Free limit).
+           Draft the title + 1-line description that conveys:
+             "Free plan includes 1 trusted contact. Upgrade to Pro to add a
+             second contact and configure automatic access settings."
+           Tone: calm, informational.
+
+           ─── CHANGE 2: all_reminders featureMessage ─────────────────────
+
+           CURRENT (wrong):
+             title: "Advanced reminders are a Pro feature"
+             desc:  "Get alerts for insurance expiry, FD maturity, and vault
+                    review nudges. Available with KutumbKosh Pro."
+
+           WHY WRONG: Vault review nudge is now confirmed as a Free tier
+           feature (DECISIONS.md 2026-05-12). Listing it in the Pro-only
+           description is inaccurate.
+
+           WHAT'S NEEDED: Remove "vault review nudges" from the description.
+           Revised desc should convey:
+             "Get timely alerts for insurance policy expiry and FD maturity
+             dates. Available with KutumbKosh Pro."
+           Title can stay as is, or be refined.
+
+           ─── INSTRUCTIONS FOR SALES & MARKETING ─────────────────────────
+           Draft final copy for all three messages and raise an Engineering
+           handoff with the exact strings to be placed in UpgradePrompt.tsx.
+           Do not edit UpgradePrompt.tsx directly — that is Engineering scope.
+           Copy must follow brand voice: warm, simple, confident, empowering.
+           No fear-based language. No jargon (no "V2", "V3", "inactivity timer").
+
+PRIORITY:  Medium — Before public launch; these prompts are user-facing on live pages
+STATUS:    Done — 2026-05-12. Sales & Marketing drafted all three copy blocks
+           per brand voice rules. Engineering handoff raised as HANDOFFS.md ID 48
+           with exact strings ready for UpgradePrompt.tsx implementation.
+ID:        45
+---
+
+FROM:      Product
+TO:        Operations
+TASK:      Formally engage external legal reviewer for V2/V3 emergency access go-live
+CONTEXT:   DECISIONS.md 2026-05-07 | Legal+Operations (Operations conditional
+           clearance for V2/V3) explicitly states:
+           "External legal review is strongly recommended before production
+           go-live of either feature, given that both mechanisms involve
+           automated sharing of financial SPDI."
+           DECISIONS.md 2026-05-07 | Product and HANDOFFS.md ID 40 both confirm:
+           "Build may proceed; go-live requires external sign-off."
+           Engineering has completed the V2/V3 build (HANDOFFS.md ID 40 status,
+           updated 2026-05-12). The feature is live on dev/staging behind the
+           NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3 flag.
+           Production go-live is now solely blocked on Operations completing the
+           external legal review and sending the go-live signal to Engineering.
+
+           OPERATIONS ACTION REQUIRED:
+           1. Engage an external startup / IT law firm with DPDPA 2023 and
+              IT (SPDI) Rules 2011 experience to review the V2 and V3 designs.
+           2. Share the following with the reviewer:
+              - HANDOFFS.md ID 36 (Operations conditional clearance + all 7
+                conditions)
+              - HANDOFFS.md ID 40 (full Engineering spec with consent language
+                and notification copy)
+              - DECISIONS.md 2026-05-07 | Legal+Operations
+              - The V2/V3 consent screens and notification emails as built
+                (accessible on staging: NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true)
+           3. Once external reviewer confirms the implementation is compliant:
+              - Update this handoff to Done
+              - Notify Engineering to set NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true
+                in Vercel production
+              - Update LAUNCH-TODO.md emergency access item to Done
+
+           Note: This is a hard go-live gate. V2/V3 must NOT be enabled in
+           production without this clearance, even if all other launch items
+           are complete.
+
+PRIORITY:  High — Hard production go-live blocker for V2/V3
+STATUS:    Open
+ID:        46
+---
+
+FROM:      Sales & Marketing
+TO:        Engineering
+PRIORITY:  Medium — Before public launch; pricing page must show accurate tier info
+REQUEST:   Replace the `features` array in src/app/dashboard/pricing/page.tsx
+           (lines 22–31) with the corrected version below. This resolves four
+           factual errors identified when Product locked the Free vs Pro tier map
+           (DECISIONS.md 2026-05-12 | Product, HANDOFFS.md ID 43).
+
+           WHAT CHANGED AND WHY:
+           1. "Smart reminders" Free value: was "Nominee gaps only" → incorrect
+              after tier map lock. Free tier gets "Annual vault review" reminder.
+           2. "Emergency access": was Free false → incorrect. Free users get 1
+              trusted contact with manual approval mode. Only V2/V3 are Pro-only.
+           3. "PDF export" / "Trusted contacts & dossier": both showed Free false
+              → incorrect. Free gets Vault Dossier PDF (limited to 3 assets) and
+              1 trusted contact. Row names also updated to match product terminology.
+
+           EXACT REPLACEMENT — replace lines 22–31 with this verbatim:
+
+           const features = [
+             { name: "Assets", free: "Up to 3", pro: "Unlimited", icon: FileText },
+             { name: "Nominees", free: "Up to 2", pro: "Unlimited", icon: Users },
+             { name: "Asset-nominee linking", free: "Basic", pro: "With share %", icon: Percent },
+             { name: "Smart reminders", free: "Annual vault review", pro: "Insurance expiry, FD maturity & more", icon: Bell },
+             { name: "Trusted contacts", free: "1 contact", pro: "Up to 2 contacts", icon: Shield },
+             { name: "Emergency access", free: "Manual approval", pro: "Manual, automatic & pre-authorised", icon: AlertTriangle },
+             { name: "Vault Dossier PDF", free: "Up to 3 assets", pro: "Full vault", icon: Download },
+             { name: "Priority support", free: false, pro: true, icon: Headphones },
+           ];
+
+           ADDITIONAL CLEANUP (optional but recommended):
+           - Remove `Infinity` from the lucide-react import (line 19) — it is
+             imported but unused in the current file and was unused before this
+             change too.
+
+           NO OTHER CHANGES NEEDED. The JSX that renders the features array
+           (plan cards + comparison table) handles string vs boolean values
+           dynamically — no template changes required.
+
+           Reference: HANDOFFS.md ID 43 (Product → S&M, Done), DECISIONS.md
+           2026-05-12 | Product (Free vs Pro tier map).
+DEADLINE:  Before public launch
+STATUS:    Open
+ID:        47
+---
+
+FROM:      Sales & Marketing
+TO:        Engineering
+PRIORITY:  Medium — Before public launch; these prompts show on live user-facing pages
+REQUEST:   Update three featureMessage entries in src/components/UpgradePrompt.tsx.
+           Product audit (HANDOFFS.md ID 44, ID 45) found two entries factually
+           wrong after the tier map lock (DECISIONS.md 2026-05-12 | Product) and
+           one new entry needed for the V2/V3 gating UI.
+
+           ── ADD: key "emergency_access_v2v3" (new key) ──────────────────────
+           Context: Shown when a Free user selects the V2 (automatic) or V3
+           (pre-authorised) mode option in the Emergency Access panel. Must
+           not imply that ALL emergency access is Pro — Free users have manual
+           approval mode and 1 trusted contact.
+
+           title: "Automatic access is a Pro feature"
+           desc:  "With Pro, your trusted contact can get access automatically —
+                  no need for you to approve it in the moment."
+
+           ── ADD: key "emergency_contact_limit" (new key) ─────────────────────
+           Context: Shown when a Free user tries to add a second trusted contact
+           (Free plan limit is 1).
+
+           title: "Add more trusted contacts with Pro"
+           desc:  "Your free plan includes 1 trusted contact. Upgrade to Pro to
+                  add a second and configure how they access your vault."
+
+           ── UPDATE: key "all_reminders" (existing key — fix desc only) ────────
+           CURRENT (wrong — vault review nudge is a Free feature):
+             title: "Advanced reminders are a Pro feature"
+             desc:  "Get alerts for insurance expiry, FD maturity, and vault
+                    review nudges. Available with KutumbKosh Pro."
+
+           REPLACE desc WITH (title unchanged):
+             title: "Advanced reminders are a Pro feature"
+             desc:  "Get timely alerts for insurance policy expiry and FD
+                    maturity dates. Available with KutumbKosh Pro."
+
+           DO NOT TOUCH: "emergency_access" key — Product's handoff ID 45
+           confirms no change is needed to the existing emergency_access entry
+           once the new emergency_access_v2v3 key is added.
+
+           Reference: HANDOFFS.md ID 45 (Product → S&M, Done), DECISIONS.md
+           2026-05-12 | Product (Free vs Pro tier map).
+DEADLINE:  Before public launch
+STATUS:    Open
+ID:        48
+---
+
+FROM:      Shubham (Bug Report)
+TO:        Engineering
+PRIORITY:  High — UX/data integrity bug on a core form
+REQUEST:   Trusted contact form (onboarding) had multiple bugs:
+           1. Email field missing from JSX — user reported only one field visible
+              despite form collecting both phone and email.
+           2. Phone field error display referenced wrong key (email) — phone
+              validation errors were silently dropped.
+           3. Dashboard contact card showed only first truthy of email/phone
+              instead of both.
+DEADLINE:  Immediate
+STATUS:    Done — 2026-05-12. All bugs fixed:
+           1. src/app/onboarding/emergency-contact/page.tsx — Email Address field
+              added to JSX with Mail icon, type="email", inputMode="email",
+              proper validation wiring and FieldError display.
+           2. Phone field className and FieldError corrected to reference "phone"
+              key (was incorrectly referencing "email" key on both).
+           3. src/app/dashboard/emergency/page.tsx — contact card now displays
+              phone AND email separately (· phone · email) instead of first-truthy.
+           TypeScript clean (0 errors). No commits made.
+ID:        42
 ---
