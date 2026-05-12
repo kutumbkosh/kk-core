@@ -123,7 +123,7 @@ export default function PricingPage() {
               <span className="text-3xl font-extrabold text-gray-900">&#8377;499</span>
               <span className="text-sm text-gray-500 ml-1">/year</span>
             </div>
-            <p className="text-xs text-gray-400 mb-5">or &#8377;79/month</p>
+            <p className="text-xs text-gray-400 mb-5">Inclusive of GST</p>
 
             {isPro ? (
               <div className="w-full py-2.5 rounded-lg bg-blue-50 text-blue-600 text-sm font-semibold text-center mb-5 flex items-center justify-center gap-1.5">
@@ -234,7 +234,7 @@ export default function PricingPage() {
             { q: "Can I try Pro features before paying?", a: "All features are visible in the app. You can see exactly what you\u2019ll get before upgrading. We also offer a full refund within 7 days if you\u2019re not satisfied." },
             { q: "What happens to my data if I cancel?", a: "Your data stays safe. You\u2019ll keep access to your first 3 assets and 2 nominees on the free plan. Nothing is deleted." },
             { q: "Is my payment information secure?", a: "Payments are processed securely through Razorpay, India\u2019s leading payment gateway. We never store your card details." },
-            { q: "Can I switch between monthly and annual?", a: "Yes, you can switch anytime from your subscription settings. Annual saves you 49% compared to monthly." },
+            { q: "Is billing annual only?", a: "Yes, KutumbKosh Pro is billed annually at ₹499/year. This keeps things simple and gives your family uninterrupted protection for the whole year." },
           ].map((item) => (
             <div key={item.q} className="card p-4">
               <p className="text-sm font-semibold text-gray-900 mb-1">{item.q}</p>

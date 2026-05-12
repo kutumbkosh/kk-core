@@ -340,7 +340,7 @@ ID:        6
 ---
 
 FROM:      Sales & Marketing
-TO:        Tech
+TO:        Engineering
 PRIORITY:  High — Before Launch
 REQUEST:   "How KutumbKosh Works" infographic — implement in landing page and app.
 
@@ -1279,7 +1279,7 @@ REQUEST:   GST treatment for ₹499/year Pro subscription is undecided. DECISION
            Action: Confirm your decision in a reply, then Finance will update
            DECISIONS.md and Engineering will set the Razorpay order amount.
 DEADLINE:  Before pricing page goes live
-STATUS:    Open
+STATUS:    Done
 ID:        33
 ---
 
@@ -2066,10 +2066,37 @@ STATUS:    In Progress — 2026-05-11. Full V2+V3 build complete. All 7 DPDPA
               selector; V2 shows inactivity window + grace period dropdowns; V2/V3
               show exact locked consent copy from HANDOFFS.md ID #36 with checkbox
               before save. Country of residence field (Condition 5) included.
-           BLOCKED on go-live: Operations must confirm external legal review is
-           complete before NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3 is set to true in
-           Vercel production env vars.
-           BLOCKED on Shubham: Run DB migration in Supabase SQL Editor.
-           TypeScript clean (0 errors). No commits made.
+           UPDATE 2026-05-12: DB migration run in dev + stage by Shubham.
+           Code committed. NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true set in Vercel
+           dev + stage. Feature live and testable on dev/stage.
+           BLOCKED on production go-live only: Operations must confirm external
+           legal review is complete before flag is set to true in Vercel production.
+           Once Operations clears → Shubham sets production env var → mark Done.
 ID:        40
+---
+           is set to true in Vercel production.
+           Once Operations clears → Shubham sets production env var → mark Done.
+ID:        40
+---
+
+FROM:      Sales & Marketing (via DECISIONS.md 2026-05-07)
+TO:        Engineering
+PRIORITY:  High — Before pricing page goes live
+REQUEST:   Three pricing violations in src/app/dashboard/pricing/page.tsx identified
+           in DECISIONS.md 2026-05-07 | Sales & Marketing. Fix required before
+           launch — violations contradict locked pricing decisions and Consumer
+           Protection (E-Commerce) Rules 2020.
+           1. Line 126: "or ₹79/month" — monthly billing does not exist at launch
+              (contradicts DECISIONS.md 2026-04-28 Finance).
+           2. Missing "Inclusive of GST" label below ₹499/year price — required
+              under Consumer Protection (E-Commerce) Rules 2020.
+           3. Line 237 FAQ: "Can I switch between monthly and annual?" — references
+              non-existent monthly billing.
+DEADLINE:  Before pricing page goes live
+STATUS:    Done — 2026-05-12. All three violations fixed:
+           1. "or ₹79/month" replaced with "Inclusive of GST" label (line 126).
+           2. "Inclusive of GST" label now displays below ₹499/year in Pro card.
+           3. FAQ entry replaced: "Is billing annual only?" with accurate annual-only
+              copy. TypeScript clean (0 errors). No commits made.
+ID:        41
 ---

@@ -53,7 +53,7 @@
 - [ ] Register legal business entity (Pvt. Ltd. recommended; LLP or Sole Proprietorship acceptable for soft launch) at https://www.mca.gov.in
 - [ ] Open a business current account in entity name (HDFC, ICICI, or Kotak) — required for Razorpay settlements
 - [ ] Register for GSTIN at https://www.gst.gov.in — confirm SAC code 998314 with CA before registering
-- [ ] Confirm pricing decision in writing: ₹499/year GST-inclusive vs. GST-exclusive — must be locked before pricing page goes live (see HANDOFFS.md)
+- [x] Confirm pricing decision in writing: ₹499/year GST-inclusive — locked in DECISIONS.md 2026-05-07. pricing/page.tsx violations fixed 2026-05-12 (HANDOFFS.md ID #41).
 - [ ] Complete Razorpay KYC + live mode activation; link business current account for settlements
 - [ ] Engage a CA for GSTR-1, GSTR-3B, advance tax, and annual ITR filing
 
