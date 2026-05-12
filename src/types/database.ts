@@ -34,6 +34,9 @@ export type NomineeRelation =
 
 export type AccessStatus = "PENDING" | "ACTIVE" | "REVOKED";
 
+/** Emergency access mode — V1 = manual approval, V2 = inactivity timer, V3 = pre-authorized */
+export type AccessMode = "MANUAL" | "INACTIVITY" | "PRE_AUTHORIZED";
+
 export interface UserProfile {
   id: string;
   full_name: string;
@@ -104,6 +107,16 @@ export interface TrustedContact {
   activation_requested_at: string | null;
   activation_approved_at: string | null;
   created_at: string;
+  // V2/V3 fields — migration: 20260511_emergency_access_v2_v3.sql
+  access_mode: AccessMode;
+  inactivity_days: number;               // V2: 30 | 60 | 90 | 180
+  grace_period_days: number;             // V2: 14 | 21 | 30 (min 14 — Condition 1)
+  inactivity_trigger_fired_at: string | null;
+  inactivity_grace_ends_at: string | null;
+  v2_consent_at: string | null;
+  v3_consent_at: string | null;
+  v3_last_reconfirmed_at: string | null;
+  country_of_residence: string | null;   // S.16 compliance readiness — Condition 5
 }
 
 export interface EmergencyDossier {

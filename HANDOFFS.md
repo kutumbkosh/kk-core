@@ -742,7 +742,10 @@ REQUEST:   Integrate Core Web Vitals monitoring from launch day.
 
            Reference: https://nextjs.org/docs/app/building-your-application/optimizing/analytics
 DEADLINE:  First week after production launch
-STATUS:    Open
+STATUS:    Done — 2026-05-11. web-vitals@4.2.4 installed (package.json). 
+           src/components/WebVitals.tsx created — onCLS, onINP, onLCP captured 
+           and sent to /api/vitals route for server-side logging. Component 
+           mounted in src/app/layout.tsx. TypeScript clean (0 errors).
 ID:        16
 ---
 
@@ -1174,7 +1177,9 @@ REQUEST:   DECISIONS.md (2026-04-28, Legal) requires Engineering to publish a
            4. Update DECISIONS.md 2026-04-28 with confirmation that /grievance
               is live, and mark this handoff Done.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done — 2026-05-11. /grievance page confirmed live at src/app/grievance/page.tsx.
+           /privacy footer updated to include "Grievance Officer" link pointing to /grievance.
+           TypeScript clean (0 errors). Awaiting Shubham commit and deploy.
 ID:        29
 ---
 
@@ -1237,7 +1242,23 @@ REQUEST:   Resend transactional email provider is not configured. README.md list
            6. Raise a handoff to Shubham to supply the API key if account creation
               requires founder credentials.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    In Progress — 2026-05-11. Engineering work complete:
+           1. src/lib/resend.ts created — shared Resend utility (sendEmail fn +
+              templates: subscriptionConfirmation, renewalReminder, failedPayment).
+              Uses Resend REST API directly (no SDK), fire-and-forget pattern,
+              consistent with delete/route.ts.
+           2. src/app/api/razorpay/verify/route.ts updated — subscription
+              confirmation email fired after successful payment verification.
+           3. Renewal reminder and failed payment templates built and ready —
+              require a cron job or webhook trigger to fire (separate handoff needed).
+           BLOCKED on Shubham:
+           - RESEND_API_KEY: Shubham must create Resend account, verify kutumbkosh.com
+             domain, and add RESEND_API_KEY + RESEND_FROM_EMAIL to Vercel env vars.
+           - Magic link SMTP: Must be configured in Supabase Dashboard → Auth → SMTP
+             (Engineering cannot do this — requires Supabase project access).
+           - Cron job for renewal reminders: Not yet implemented — needs a separate
+             handoff to Engineering once Shubham confirms infrastructure preference
+             (Vercel Cron, Supabase Edge Functions, or external scheduler).
 ID:        32
 ---
 
@@ -1660,7 +1681,22 @@ REQUEST:   GST-inclusive pricing decision is now locked (DECISIONS.md 2026-05-07
            (GST Invoice Generation) — update that spec to reflect the confirmed
            back-calculation formula.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done — 2026-05-11. All three items implemented:
+           1. RAZORPAY ORDER AMOUNT: order/route.ts now server-enforces amount.
+              Client no longer sends amount — only cycle. Server maps cycle to
+              PLAN_PRICES (ANNUAL=49900 paise). Any client-side manipulation
+              of amount is completely ignored.
+           2. GST BACK-CALCULATION: src/lib/gst.ts created with calculateGst()
+              using the correct formula (base = collected×100/118, gst = collected×18/118).
+              The incorrect ₹499×18% formula is explicitly documented and guarded against.
+           3. IGST/CGST+SGST SPLIT: Dynamic based on KUTUMBKOSH_GST_STATE env var
+              vs customer billing state. Defaults to IGST (safer) until GSTIN is
+              registered and env var is set.
+           Also: verify/route.ts updated — amount_paid is now server-enforced
+           (was previously trusted from client). checkout/page.tsx cleaned up to
+           not send amount in either order or verify calls. TypeScript clean (0 errors).
+           NOTE: GST invoice generation (per-webhook) is part of ID #11 (webhook
+           infrastructure). src/lib/gst.ts is ready for that integration.
 ID:        37
 ---
 
@@ -2008,6 +2044,32 @@ REQUEST:   Build emergency access V2 (inactivity timer auto-grant) and V3
            2026-05-07 | Product and 2026-05-07 | Legal+Operations.
 
 DEADLINE:  Before public launch (go-live gated on external legal review)
-STATUS:    Open
+STATUS:    In Progress — 2026-05-11. Full V2+V3 build complete. All 7 DPDPA
+           conditions from ID #36 implemented. Feature-flagged behind
+           NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true (server-enforced on API route too).
+           Files created/modified:
+           1. supabase/migrations/20260511_emergency_access_v2_v3.sql — adds
+              access_mode, inactivity_days, grace_period_days, inactivity_trigger_fired_at,
+              inactivity_grace_ends_at, v2_consent_at, v3_consent_at,
+              v3_last_reconfirmed_at, country_of_residence to trusted_contacts.
+              Creates emergency_access_log table with full audit trail.
+           2. src/types/database.ts — TrustedContact and AccessMode types updated.
+           3. src/lib/resend.ts — 4 new email templates: v2DesignationNotification
+              (Condition 4 locked copy), v3DesignationNotification (Condition 7 locked
+              copy), v2GracePeriodStarted (Condition 2 — email channel), 
+              v3AnnualReconfirmation (Condition 6).
+           4. src/app/api/emergency/access-mode/route.ts — POST endpoint validates
+              consent, enforces Condition 1 (min 14-day grace), records consent
+              timestamps, writes audit log, fires designation notification emails.
+           5. src/app/dashboard/emergency/page.tsx — AccessModePanel component added
+              to each trusted contact card (feature-flagged). Shows V1/V2/V3 radio
+              selector; V2 shows inactivity window + grace period dropdowns; V2/V3
+              show exact locked consent copy from HANDOFFS.md ID #36 with checkbox
+              before save. Country of residence field (Condition 5) included.
+           BLOCKED on go-live: Operations must confirm external legal review is
+           complete before NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3 is set to true in
+           Vercel production env vars.
+           BLOCKED on Shubham: Run DB migration in Supabase SQL Editor.
+           TypeScript clean (0 errors). No commits made.
 ID:        40
 ---

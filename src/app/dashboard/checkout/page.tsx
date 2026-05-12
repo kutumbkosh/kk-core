@@ -152,7 +152,7 @@ export default function CheckoutPage() {
       const orderRes = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: currentPlan.price, cycle }),
+        body: JSON.stringify({ cycle }), // amount is server-enforced — never send from client
       });
 
       if (!orderRes.ok) {
@@ -191,8 +191,7 @@ export default function CheckoutPage() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                cycle,
-                amount: currentPlan.price,
+                cycle, // amount is server-enforced — never send from client
               }),
             });
 
@@ -396,7 +395,6 @@ export default function CheckoutPage() {
 
         {/* Trust signals */}
         <div className="flex items-center justify-center gap-4 text-xs text-gray-400 pb-4">
-          <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> 256-bit SSL</span>
           <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Razorpay secured</span>
         </div>
       </main>

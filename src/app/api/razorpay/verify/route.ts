@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import crypto from "crypto";
+import { sendEmail, templates } from "@/lib/resend";
+
+/** Server-enforced plan prices in INR (rupees) — matches order/route.ts paise values. */
+const PLAN_PRICE_INR: Record<string, number> = {
+  ANNUAL: 499,
+  MONTHLY: 99,
+};
 
 export async function POST(request: Request) {
   try {
@@ -16,11 +23,14 @@ export async function POST(request: Request) {
       razorpay_payment_id,
       razorpay_signature,
       cycle,
-      amount,
     } = await request.json();
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json({ error: "Missing payment details" }, { status: 400 });
+    }
+
+    if (!cycle || !["ANNUAL", "MONTHLY"].includes(cycle)) {
+      return NextResponse.json({ error: "Invalid billing cycle" }, { status: 400 });
     }
 
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -40,6 +50,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Payment verification failed" }, { status: 400 });
     }
 
+    // Server-enforced amount — never trust amount from client
+    const amountPaidInr = PLAN_PRICE_INR[cycle as string];
+
     // Payment verified — create subscription
     const now = new Date();
     const periodEnd = new Date(now);
@@ -54,7 +67,7 @@ export async function POST(request: Request) {
       plan: "PRO",
       status: "ACTIVE",
       billing_cycle: cycle,
-      amount_paid: amount,
+      amount_paid: amountPaidInr,         // server-enforced ₹499, never client value
       razorpay_subscription_id: razorpay_order_id,
       razorpay_payment_id: razorpay_payment_id,
       current_period_start: now.toISOString(),
@@ -72,6 +85,19 @@ export async function POST(request: Request) {
       .update({ converted_at: now.toISOString() })
       .eq("user_id", user.id)
       .is("converted_at", null);
+
+    // Send subscription confirmation email — fire-and-forget, never blocks response
+    if (user.email) {
+      sendEmail({
+        to: user.email,
+        ...templates.subscriptionConfirmation({
+          plan: "PRO",
+          cycle: cycle === "ANNUAL" ? "ANNUAL" : "MONTHLY",
+          amount: amountPaidInr,
+          periodEnd: periodEnd.toISOString(),
+        }),
+      }).catch(() => {});
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

@@ -122,8 +122,9 @@ export default function PrivacyPolicyPage() {
 
         {/* Footer links */}
         <div className="border-t border-gray-100 mt-10 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400">
-          <a href="/security" className="hover:text-gray-600 transition-colors">Trust & Security</a>
+          <a href="/security" className="hover:text-gray-600 transition-colors">Trust &amp; Security</a>
           <a href="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</a>
+          <a href="/grievance" className="hover:text-gray-600 transition-colors">Grievance Officer</a>
         </div>
       </main>
     </div>
