@@ -15,13 +15,14 @@
 - [x] "How KutumbKosh Works" — Done 2026-05-03. Marketing design delivered (docs/marketing/how-it-works-infographic.html). Tech implemented in coming-soon/index.html (before features section, Marketing design faithful) and src/app/page.tsx (as <HowItWorks /> component at src/components/HowItWorks.tsx). Shubham to re-upload coming-soon/index.html to Cloudflare Pages.
 
 ## Product
-- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders) — BLOCKED: Product audit (2026-05-12) found 4 critical + 4 high bugs in Reminders and Emergency Access. Engineering handoff at HANDOFFS.md ID 44. C1 + C2 fixed (HANDOFFS.md ID 51 Done 2026-05-12). 2 critical + 4 high remain open before QA pass is meaningful.
+- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders) — UNBLOCKED 2026-05-14. All 8 bugs from audit (HANDOFFS.md ID 44) are now resolved (IDs 51, 42 Done). QA pass can now be scheduled. Also include ID 52 items (Access Someone's Vault card + alert() fix) once Engineering implements Product's decision.
 - [ ] Test Razorpay payment flow (Pro subscription) — BLOCKED: requires Shubham to complete Razorpay KYC + live mode activation first (Finance handoff). Engineering spec ready at docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx
 - [x] Mandatory field validation — Done 2026-05-02. Profile Setup (mobile mandatory, single-step form — no OTP yet, DOB mandatory 18+), Nominee form (relationship mandatory, at-least-one contact, minor guardian dynamic fields), Trusted Contact form (mobile AND email both mandatory). DB migration: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql.
 - [ ] Mobile OTP verification for Profile Setup — BLOCKED: SMS provider (Twilio or MSG91) not yet chosen by Shubham. Configure in Supabase Dashboard → Auth → Phone, then confirm go-ahead to Engineering. See HANDOFFS.md.
 - [x] Kutumb ID — Done 2026-05-02. generate_kutumb_id() Postgres function (charset excludes 0/1/O/I, retry on collision). kutumb_id column added to profiles (NOT NULL UNIQUE, backfilled for existing users). Displayed in Settings with copy-to-clipboard. Printed in Vault Dossier PDF header. Emergency Access UI has Kutumb ID input field (backend logic is a future feature). src/lib/kutumb-id.ts added for client-side use.
 - [ ] Vault Dossier PDF generation — verify output quality (Kutumb ID now printed in PDF header — 2026-05-02)
-- [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-07), Operations DPDPA clearance received with 7 conditions (HANDOFFS.md ID 36), Engineering handoff raised (HANDOFFS.md ID 40). BLOCKED on go-live until external legal review complete (Operations to arrange).
+- [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Build complete (HANDOFFS.md ID 40 Done 2026-05-14, live on dev/stage). BLOCKED on production go-live until Operations confirms external legal review complete (HANDOFFS.md ID 46 Open).
+- [ ] Emergency access — /emergency/request public page — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-14 | Product). Engineering handoff raised at HANDOFFS.md ID 53. Trusted contacts currently have no usable entry point.
 - [ ] Mobile responsiveness check across devices
 
 ## Infrastructure

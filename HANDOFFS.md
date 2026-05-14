@@ -1096,7 +1096,10 @@ REQUEST:   Vault Dossier PDF scope for Free tier is undefined. The project brief
            comparison table are written, and before upgrade prompts reference
            the PDF as a Free feature.
 DEADLINE:  Before pricing page goes live
-STATUS:    Open
+STATUS:    Done — 2026-05-12. Resolved by DECISIONS.md 2026-05-12 | Product (Vault
+           Dossier PDF section): Full PDF, identical template for Free and Pro.
+           Includes Kutumb ID header, nominee summary, emergency instructions — no
+           gating within the PDF. Free content limited naturally by 3-asset max.
 ID:        25
 ---
 
@@ -2359,10 +2362,10 @@ CONTEXT:   Full audit of reminders/page.tsx, emergency/page.tsx,
            Current behaviour is correct. No code change required.
 
 PRIORITY:  High — CRITICAL and HIGH items are launch blockers
-STATUS:    Partially resolved — 2026-05-12. C1 (email field missing) and C2
-           (phone FieldError wrong key) fixed — see HANDOFFS.md ID 51.
-           C3, C4, H1, H2, H3, H4, M1, M2, M3 resolved — see HANDOFFS.md ID 42 Done note
-           (2026-05-14). All items in this audit are now closed.
+STATUS:    Done — 2026-05-14. All items resolved:
+           C1 + C2: fixed 2026-05-12 (HANDOFFS.md ID 51).
+           C3 + C4 + H1 + H2 + H3 + H4 + M1 + M2 + M3: fixed 2026-05-14 (HANDOFFS.md ID 42).
+           M4: no code change required (DECISIONS.md 2026-05-12 | Product — Founder Decision).
 ID:        44
 ---
 
@@ -2854,4 +2857,22 @@ STATUS:    Done — 2026-05-12. All bugs fixed:
            TypeScript clean (0 errors). No commits made.
            NOTE: Resolves C1 and C2 from HANDOFFS.md ID 44 audit.
 ID:        51
+---
+
+FROM:      Shubham (Bug Report)
+TO:        Engineering
+PRIORITY:  Low — UX improvement, not a blocker
+REQUEST:   Kutumb ID (KK-XXXXXX) is generated and stored in profiles.kutumb_id and
+           displayed in Settings. Shubham requested it also be visible directly on
+           the main dashboard so users do not need to navigate to Settings to find
+           or share their ID.
+DEADLINE:  Before public launch
+STATUS:    Done — 2026-05-14. Kutumb ID chip added to the welcome banner in
+           src/app/dashboard/page.tsx (both Pro and Free banner variants).
+           Implementation: Hash + Copy + Check icons imported from lucide-react.
+           kkIdCopied boolean state + handleCopyKKID() added. Chip renders below
+           the "Your KutumbKosh overview" subtitle when profile.kutumb_id is set —
+           font-mono, 10px, click-to-copy with 1.5 s Check icon confirmation.
+           TypeScript clean (0 errors). No commits made.
+ID:        53
 ---

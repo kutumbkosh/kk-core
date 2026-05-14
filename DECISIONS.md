@@ -301,4 +301,25 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 
 ---
 
+### 2026-05-14 | Product
+**Decision:** "Access Someone's Vault" entry point moves to a dedicated public page `/emergency/request`. It is removed from `/dashboard/emergency` entirely.
+
+**What changes:**
+- A new public page `/emergency/request` is created (no login required). It contains: Kutumb ID input field, a "Request Access" button, and a plain-language explanation of what happens next.
+- The V2 inactivity trigger email links directly to `/emergency/request` (not `/dashboard/emergency`).
+- A "Request access to someone's vault" secondary link is added to the login page for manual discovery.
+- The "Access Someone's Vault" card is removed from `/dashboard/emergency`. That page is exclusively for the vault owner's settings.
+- The alert() placeholder ("Emergency access requests are coming soon") is replaced as part of this build — Engineering does NOT fix it inline on the current page separately. Fix is bundled with the page move.
+
+**What does NOT change:**
+- The `/dashboard/emergency` page scope: trusted contact management, V2/V3 mode configuration, owner-side controls. No change.
+- The Kutumb ID format or lookup logic.
+- The access status flow (PENDING → APPROVED/DENIED) — unchanged.
+
+**Rationale:** A trusted contact in an emergency is not a vault owner. They have no reason to navigate `/dashboard/emergency` and may not have a KutumbKosh account. The V2/V3 email link must land them directly on an actionable page. A public `/emergency/request` URL is also shareable — vault owners can send it to contacts who weren't already registered. Keeping the card on the owner page created dual-audience confusion on a high-stakes flow.
+
+**Impact:** Engineering (implement `/emergency/request` public page, update V2 email template link, add login page link, remove card from `/dashboard/emergency` — see HANDOFFS.md ID 53); LAUNCH-TODO.md updated.
+
+---
+
 _Add new decisions above this line, following the format._
