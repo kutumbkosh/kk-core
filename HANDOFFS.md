@@ -2706,6 +2706,82 @@ STATUS:    Done — 2026-05-14. features array in pricing/page.tsx replaced with
 ID:        50
 ---
 
+FROM:      Engineering
+TO:        Product
+PRIORITY:  High — Blocks correct UX for trusted contacts pre-launch
+REQUEST:   Three bugs surfaced by Shubham (2026-05-14). Engineering has analysed all
+           three. Bug 1 is safe to implement immediately. Bugs 2 and 3 need Product
+           decisions before Engineering proceeds.
+
+           ═══════════════════════════════════════════════════════════════
+           BUG 2 — "Access Someone's Vault" card is on the wrong page
+           ═══════════════════════════════════════════════════════════════
+
+           CURRENT STATE:
+           The "Access Someone's Vault" card (Kutumb ID input + Request Access button)
+           is embedded inside src/app/dashboard/emergency/page.tsx — the vault
+           owner's emergency management page. A logged-in user sees it below
+           their own trusted contact management controls.
+
+           THE PROBLEM:
+           The person who needs this feature is a TRUSTED CONTACT, not the vault
+           owner. A trusted contact in an emergency:
+           (a) May not have a KutumbKosh account at all.
+           (b) Even if they do, they should not be navigating to /dashboard/emergency
+               which is clearly about managing their own vault's emergency settings.
+           The current placement creates confusion and blocks the correct UX.
+
+           WHAT ENGINEERING NEEDS PRODUCT TO DECIDE:
+           1. Should the access request entry point be a standalone PUBLIC page
+              (e.g., /emergency/request) — accessible without login?
+              OR should it require login first (current behaviour)?
+           2. Is this card's proper home a dedicated page reached via the
+              email link that trusted contacts receive when the inactivity timer
+              fires (HANDOFFS.md ID 40 V2/V3 flow)?
+              OR should it also remain available as a manual entry point
+              (e.g., at kutumbkosh.com/access)?
+           3. Should the card be REMOVED from /dashboard/emergency entirely,
+              or kept there as well (dual-placement)?
+
+           Engineering recommendation: move to a dedicated public page
+           /emergency/request, reached both from the V2/V3 email link and
+           from a "Request access to someone's vault" link on the login page.
+           Remove from /dashboard/emergency. Requires Product sign-off.
+
+           ═══════════════════════════════════════════════════════════════
+           BUG 3 — alert() placeholder: "Emergency access requests are coming soon"
+           ═══════════════════════════════════════════════════════════════
+
+           CURRENT STATE:
+           The Request Access button at src/app/dashboard/emergency/page.tsx
+           line 786 fires a browser alert() with the text:
+           "Emergency access requests are coming soon. Please contact the vault
+           holder directly."
+
+           This is poor UX (browser popup) and misleading — the user just entered
+           a Kutumb ID but doesn't know who the vault holder is or how to reach them.
+
+           WHAT ENGINEERING CAN DO INDEPENDENTLY:
+           Replace the alert() with a proper inline info card regardless of whether
+           the full access request feature is built. This is a cosmetic fix.
+           Proposed inline copy: "Access requests will be available at launch.
+           For urgent help, write to care@kutumbkosh.com."
+
+           WHAT ENGINEERING NEEDS PRODUCT TO DECIDE:
+           If Product approves the page move from Bug 2 above, this fix becomes
+           part of that build and Engineering will not fix it here separately.
+           If Product wants the card to stay on /dashboard/emergency as-is,
+           Engineering will fix the alert() to an inline message immediately.
+
+           Please confirm: fix alert() inline on current page now (quick), OR
+           hold until Bug 2 page-move decision is made?
+
+DEADLINE:  Before public launch — trusted contacts cannot use this feature at all
+           in current state
+STATUS:    Open
+ID:        52
+---
+
 FROM:      Sales & Marketing
 TO:        Engineering
 PRIORITY:  Medium — Before public launch; these prompts show on live user-facing pages

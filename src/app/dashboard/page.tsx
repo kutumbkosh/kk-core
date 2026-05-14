@@ -27,6 +27,9 @@ import {
   Bell,
   Settings,
   Download,
+  Hash,
+  Copy,
+  Check,
 } from "lucide-react";
 import type { UserProfile, Asset, Nominee, TrustedContact } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
@@ -46,6 +49,7 @@ export default function DashboardPage() {
   const [contacts, setContacts] = useState<TrustedContact[]>([]);
   const [mappings, setMappings] = useState<Array<{ asset_id: string; nominee_id: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [kkIdCopied, setKkIdCopied] = useState(false);
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -80,6 +84,13 @@ export default function DashboardPage() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const handleCopyKKID = () => {
+    if (!profile?.kutumb_id) return;
+    navigator.clipboard.writeText(profile.kutumb_id);
+    setKkIdCopied(true);
+    setTimeout(() => setKkIdCopied(false), 1500);
   };
 
   const totalAssets = assets.length;
@@ -144,7 +155,23 @@ export default function DashboardPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 Welcome{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h2>
-              <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+                {profile?.kutumb_id && (
+                  <button
+                    onClick={handleCopyKKID}
+                    className="flex items-center gap-1 text-[10px] font-mono text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Copy your Kutumb ID"
+                  >
+                    <Hash className="w-2.5 h-2.5" />
+                    {profile.kutumb_id}
+                    {kkIdCopied
+                      ? <Check className="w-2.5 h-2.5 text-green-500" />
+                      : <Copy className="w-2.5 h-2.5" />
+                    }
+                  </button>
+                )}
+              </div>
             </div>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/70 rounded-lg border border-blue-100">
               <Crown className="w-3.5 h-3.5 text-blue-600" />
@@ -169,7 +196,23 @@ export default function DashboardPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 Welcome{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h2>
-              <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+                {profile?.kutumb_id && (
+                  <button
+                    onClick={handleCopyKKID}
+                    className="flex items-center gap-1 text-[10px] font-mono text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Copy your Kutumb ID"
+                  >
+                    <Hash className="w-2.5 h-2.5" />
+                    {profile.kutumb_id}
+                    {kkIdCopied
+                      ? <Check className="w-2.5 h-2.5 text-green-500" />
+                      : <Copy className="w-2.5 h-2.5" />
+                    }
+                  </button>
+                )}
+              </div>
             </div>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200">
               <Shield className="w-3.5 h-3.5 text-gray-400" />
