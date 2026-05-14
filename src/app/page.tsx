@@ -322,6 +322,12 @@ export default function LandingPage() {
                       <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> End-to-end encrypted</span>
                       <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> Privacy first</span>
                     </div>
+
+                    <p className="text-center mt-3 text-sm text-gray-500">
+                      <a href="/emergency/request" className="hover:underline">
+                        Accessing someone&apos;s vault? →
+                      </a>
+                    </p>
                   </>
                 ) : (
                   <div className="py-2">
@@ -433,12 +439,6 @@ export default function LandingPage() {
             <a href="/privacy" className="hover:text-gray-600 transition-colors">Privacy</a>
             <a href="/terms" className="hover:text-gray-600 transition-colors">Terms</a>
           </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
->
         </div>
       </footer>
     </div>

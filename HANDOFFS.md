@@ -2949,6 +2949,24 @@ CONTEXT:   DECISIONS.md 2026-05-14 | Product resolved HANDOFFS.md ID 52 (Enginee
 
 PRIORITY:  High — Before public launch; trusted contacts have no usable
            entry point in current state
-STATUS:    Open
+STATUS:    Done — 2026-05-14. All four tasks implemented:
+           TASK 1: src/app/emergency/request/page.tsx created — public page, no
+           auth guard, standalone layout (no dashboard sidebar/nav). Centered card,
+           max-w-md. Kutumb ID input (font-mono, uppercase, maxLength 9, same
+           validation pattern as old card). On submit: inline confirmation card
+           "Your request has been sent. The vault holder will review it and you'll
+           be notified by email." Stub only — no backend API call. "Have an account?
+           Sign in →" link to /. 256-bit SSL trust footer.
+           TASK 2: "Access Someone's Vault" card removed entirely from
+           src/app/dashboard/emergency/page.tsx. Orphaned Hash import also removed.
+           TASK 3: Reviewed src/lib/resend.ts — all /dashboard/emergency links are
+           in OWNER-facing emails (v2GracePeriodStarted = owner email; v3Annual
+           Reconfirmation = owner email). No trusted contact template links to
+           /dashboard/emergency. No change required in resend.ts; owner links
+           correctly remain at /dashboard/emergency.
+           TASK 4: "Accessing someone's vault? →" link added to src/app/page.tsx
+           below the sign-in form trust badges. text-sm text-gray-500, links to
+           /emergency/request, no button chrome.
+           TypeScript clean (0 errors). No commits made.
 ID:        54
 ---

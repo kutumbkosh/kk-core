@@ -13,7 +13,7 @@ import UpgradePrompt from "@/components/UpgradePrompt";
 import {
   ArrowLeft, Shield, Save, Check, Loader2, Users, FileText, AlertTriangle,
   Eye, EyeOff, UserPlus, ShieldOff, ShieldCheck, Trash2, XCircle, CheckCircle2,
-  Hash, Timer, Zap, ChevronDown, ChevronUp,
+  Timer, Zap, ChevronDown, ChevronUp,
 } from "lucide-react";
 import EmergencyIllustration from "@/components/illustrations/EmergencyIllustration";
 
@@ -757,41 +757,6 @@ export default function EmergencyPage() {
               )}
             </div>
           )}
-        </div>
-
-        {/* Access Someone's Vault */}
-        <div className="card">
-          <div className="flex items-center gap-2 mb-3">
-            <Hash className="w-4 h-4 text-gray-500" />
-            <h3 className="text-sm font-bold text-gray-900">Access Someone&apos;s Vault</h3>
-          </div>
-          <p className="text-xs text-gray-500 mb-3">
-            If a vault holder has listed you as a trusted contact, enter their Kutumb ID to request emergency access.
-          </p>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="e.g., KK-A4B7C2"
-              maxLength={9}
-              className="input-field flex-1 font-mono uppercase tracking-wide text-sm"
-              onChange={(e) => {
-                const raw = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
-                e.target.value = raw;
-              }}
-            />
-            <button
-              type="button"
-              className="btn-secondary text-sm px-4"
-              onClick={() => {
-                alert("Emergency access requests are coming soon. Please contact the vault holder directly.");
-              }}
-            >
-              Request Access
-            </button>
-          </div>
-          <p className="text-xs text-gray-400 mt-2">
-            If the vault holder has pre-authorised you, you&apos;ll get access immediately. Otherwise, they&apos;ll be notified to approve your request.
-          </p>
         </div>
 
         {/* What gets shared */}
