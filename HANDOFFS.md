@@ -2781,7 +2781,8 @@ REQUEST:   Three bugs surfaced by Shubham (2026-05-14). Engineering has analysed
 
 DEADLINE:  Before public launch — trusted contacts cannot use this feature at all
            in current state
-STATUS:    Open
+STATUS:    Done — 2026-05-14. Product decision made (DECISIONS.md 2026-05-14 | Product).
+           Engineering implementation handoff raised as HANDOFFS.md ID 54.
 ID:        52
 ---
 
@@ -2875,4 +2876,79 @@ STATUS:    Done — 2026-05-14. Kutumb ID chip added to the welcome banner in
            font-mono, 10px, click-to-copy with 1.5 s Check icon confirmation.
            TypeScript clean (0 errors). No commits made.
 ID:        53
+---
+
+FROM:      Product
+TO:        Engineering
+TASK:      Create public /emergency/request page; remove "Access Someone's Vault"
+           card from /dashboard/emergency
+CONTEXT:   DECISIONS.md 2026-05-14 | Product resolved HANDOFFS.md ID 52 (Engineering
+           raised two design questions about the "Access Someone's Vault" card).
+           Full rationale in DECISIONS.md. Build spec below.
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 1 — New public page: src/app/emergency/request/page.tsx
+           ═══════════════════════════════════════════════════════════════
+
+           Access: Public — no login required. No auth guard.
+           Layout: Centered card, max-w-md, bg-white, shadow. Not inside the
+           dashboard layout — no sidebar, no top nav.
+
+           Page content:
+           - Heading: "Request access to a vault"
+           - Subtext (1 sentence): "Enter the Kutumb ID shared with you. The
+             vault holder will be notified to review your request."
+           - Kutumb ID input field (same validation pattern as current card)
+           - "Request Access" CTA button (btn-primary style)
+           - On submit: replace form with inline confirmation card —
+             "Your request has been sent. The vault holder will review it
+             and you'll be notified by email."
+             (Backend request-sending logic is post-launch scope. This is a
+             stub — display confirmation message only, no API call required.)
+           - Secondary link below the form: "Have an account? Sign in →"
+             (links to the existing login/auth page)
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 2 — Remove card from /dashboard/emergency
+           ═══════════════════════════════════════════════════════════════
+
+           File: src/app/dashboard/emergency/page.tsx
+           Remove the entire "Access Someone's Vault" section — the block
+           containing the Kutumb ID input, Request Access button, and the
+           alert() call. The page should contain only the vault owner's
+           trusted contact management and V2/V3 mode configuration.
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 3 — Update V2 inactivity email CTA link
+           ═══════════════════════════════════════════════════════════════
+
+           File: src/lib/resend.ts
+           In the v2GracePeriodStarted email template (sent to trusted contact
+           when the inactivity timer fires), update any CTA button/link that
+           currently points to /dashboard/emergency or similar. Must now link
+           to /emergency/request.
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 4 — Add discovery link on login page
+           ═══════════════════════════════════════════════════════════════
+
+           Locate the sign-in page (likely src/app/auth/login/page.tsx or
+           equivalent). Add below the main form:
+           "Accessing someone's vault? →" — links to /emergency/request.
+           Style: text-sm text-gray-500, no button chrome.
+
+           ═══════════════════════════════════════════════════════════════
+           NOTES
+           ═══════════════════════════════════════════════════════════════
+           - Do NOT build the access-request backend API. Stub only — show
+             the confirmation message on submit. Backend logic (Kutumb ID
+             lookup → notify vault holder → track request status) is
+             post-launch scope.
+           - TypeScript clean (0 errors) before marking Done.
+           - Commit message: reference HANDOFFS.md ID 52 + ID 54.
+
+PRIORITY:  High — Before public launch; trusted contacts have no usable
+           entry point in current state
+STATUS:    Open
+ID:        54
 ---

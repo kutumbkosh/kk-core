@@ -22,7 +22,7 @@
 - [x] Kutumb ID — Done 2026-05-02. generate_kutumb_id() Postgres function (charset excludes 0/1/O/I, retry on collision). kutumb_id column added to profiles (NOT NULL UNIQUE, backfilled for existing users). Displayed in Settings with copy-to-clipboard. Printed in Vault Dossier PDF header. Emergency Access UI has Kutumb ID input field (backend logic is a future feature). src/lib/kutumb-id.ts added for client-side use.
 - [ ] Vault Dossier PDF generation — verify output quality (Kutumb ID now printed in PDF header — 2026-05-02)
 - [ ] Emergency access feature — V2 (inactivity timer) + V3 (pre-authorized access) build — IN PROGRESS: Build complete (HANDOFFS.md ID 40 Done 2026-05-14, live on dev/stage). BLOCKED on production go-live until Operations confirms external legal review complete (HANDOFFS.md ID 46 Open).
-- [ ] Emergency access — /emergency/request public page — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-14 | Product). Engineering handoff raised at HANDOFFS.md ID 53. Trusted contacts currently have no usable entry point.
+- [ ] Emergency access — /emergency/request public page — IN PROGRESS: Product decision locked (DECISIONS.md 2026-05-14 | Product). Engineering handoff raised at HANDOFFS.md ID 54. Trusted contacts currently have no usable entry point.
 - [ ] Mobile responsiveness check across devices
 
 ## Infrastructure
