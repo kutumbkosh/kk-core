@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Shield,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 import NomineesIllustration from "@/components/illustrations/NomineesIllustration";
 
@@ -84,6 +85,25 @@ export default function NomineesPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-6">
+        {/* Nominee vs trusted contact explainer */}
+        <div className="card flex items-start gap-4 p-5 mb-6">
+          <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Users className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-gray-900 mb-1">
+              What&apos;s the difference between a nominee and a trusted contact?
+            </h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              A nominee is the person who legally inherits a specific asset — registered directly
+              with your bank, insurer, or fund. A trusted contact is someone who can see your
+              full vault summary if you&apos;re ever unreachable, so they know exactly what exists
+              and who to contact. They cannot claim any assets — only view the summary.
+              These can be the same person, or entirely different people.
+            </p>
+          </div>
+        </div>
+
         {/* Coverage alert */}
         {assetsWithoutNominee > 0 && (
           <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
@@ -158,6 +178,38 @@ export default function NomineesPage() {
                           })}
                           {linkedAssets.length > 4 && (
                             <span className="text-xs text-gray-400 px-2 py-1">
+                              +{linkedAssets.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-2">No assets linked yet</p>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-300 mt-1" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Helpful note */}
+        {nominees.length > 0 && (
+          <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <p className="text-sm text-gray-700 font-medium">
+              Tap on a nominee to link them to your assets and set their share percentage.
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Linking ensures your family knows exactly which assets they&apos;re entitled to.
+            </p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+">
                               +{linkedAssets.length - 4} more
                             </span>
                           )}

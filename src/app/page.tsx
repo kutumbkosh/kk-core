@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import HeroIllustration from "@/components/illustrations/HeroIllustration";
 import HowItWorks from "@/components/HowItWorks";
+import FAQ from "@/components/FAQ";
 
 
 export default function LandingPage() {
@@ -421,6 +422,8 @@ export default function LandingPage() {
 
       <HowItWorks />
 
+      <FAQ />
+
       {/* Footer */}
       <footer className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 sm:justify-between">
@@ -430,6 +433,12 @@ export default function LandingPage() {
             <a href="/privacy" className="hover:text-gray-600 transition-colors">Privacy</a>
             <a href="/terms" className="hover:text-gray-600 transition-colors">Terms</a>
           </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+>
         </div>
       </footer>
     </div>

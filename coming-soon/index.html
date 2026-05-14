@@ -18,6 +18,70 @@
   <meta name="twitter:description" content="Organize, protect, and pass on your family's financial legacy. Track bank accounts, insurance, FDs, PPF, and all nominees — in one secure vault." />
   <meta name="twitter:image" content="https://kutumbkosh.com/og-image.png" />
   <link rel="canonical" href="https://kutumbkosh.com" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is my data safe with KutumbKosh?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your data is protected with 256-bit encryption — the same standard used by banks. Everything in your vault is encrypted at rest, and all connections are secured in transit. We've also built our platform with Indian data privacy standards in mind, so your family's financial information is always in safe hands."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you store passwords or full account numbers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. KutumbKosh is a record-keeping tool, not a password manager. We store asset names, institution names, and the last 4 digits of an account if you choose to add them. We never ask for, or store, passwords, PINs, or full account numbers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the difference between a nominee and a trusted contact?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A nominee is the person legally entitled to inherit a specific asset — your bank, insurer, or fund holds that record, and KutumbKosh helps you document it in one place. A trusted contact is someone you trust to see your vault summary in an emergency, so they know what assets exist and who to contact. They cannot claim any asset — they can only see the summary. They can be the same person, or completely different people."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does KutumbKosh cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The free plan lets you add up to 3 assets, 1 trusted contact, and set up manual emergency access — at no cost, forever. KutumbKosh Pro is ₹499/year (GST inclusive) and gives you unlimited assets, up to 2 trusted contacts, automatic emergency access settings, all reminder types, and a full Vault Dossier PDF."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to my data if I delete my account?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your data is permanently deleted when you close your account. We do not retain any copies of your vault contents after deletion. Your family's financial records belong to you — and when you choose to leave, they leave with you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can anyone at KutumbKosh read my vault?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. We operate a zero-access policy — no KutumbKosh employee has routine access to the contents of your vault. Your data is visible only to you, and to anyone you explicitly choose to share access with."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does emergency access work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You decide who can see your vault and under what conditions. Your trusted contact can request access in an emergency, and you control whether that happens automatically after a waiting period or only with your approval. They see a vault summary — asset types, institution names, and nominee details. No passwords, no full account numbers."
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -918,6 +982,55 @@
       .section-heading { font-size: 1.6rem; }
       .mock-asset-row { padding: 0.5rem; }
     }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 6rem 1.5rem;
+      background: white;
+      position: relative;
+    }
+    .faq-list {
+      max-width: 700px;
+      margin: 2.5rem auto 0;
+    }
+    .faq-list details {
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .faq-list details:first-child {
+      border-top: 1px solid var(--gray-200);
+    }
+    .faq-list summary {
+      padding: 1.2rem 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      list-style: none;
+      user-select: none;
+    }
+    .faq-list summary::-webkit-details-marker { display: none; }
+    .faq-list summary::after {
+      content: '+';
+      color: var(--blue);
+      font-size: 1.5rem;
+      font-weight: 300;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .faq-list details[open] > summary::after { content: '\2212'; }
+    .faq-answer {
+      padding-bottom: 1.2rem;
+      font-size: 0.88rem;
+      color: var(--gray-500);
+      line-height: 1.75;
+    }
+    @media (max-width: 768px) {
+      .faq-section { padding: 4rem 1.2rem; }
+    }
   </style>
 </head>
 <body>
@@ -1257,6 +1370,44 @@
           <p>We never sell, share, or monetize your data. Period.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="faq-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-badge reveal" style="justify-content:center;">Common questions</div>
+      <h2 class="section-heading reveal" style="margin-left:auto;margin-right:auto;">Everything you need to know</h2>
+    </div>
+    <div class="faq-list">
+      <details class="reveal">
+        <summary>Is my data safe with KutumbKosh?</summary>
+        <p class="faq-answer">Your data is protected with 256-bit encryption &mdash; the same standard used by banks. Everything in your vault is encrypted at rest, and all connections are secured in transit. We&rsquo;ve also built our platform with Indian data privacy standards in mind, so your family&rsquo;s financial information is always in safe hands.</p>
+      </details>
+      <details class="reveal">
+        <summary>Do you store passwords or full account numbers?</summary>
+        <p class="faq-answer">No. KutumbKosh is a record-keeping tool, not a password manager. We store asset names, institution names, and the last 4 digits of an account if you choose to add them. We never ask for, or store, passwords, PINs, or full account numbers.</p>
+      </details>
+      <details class="reveal">
+        <summary>What&rsquo;s the difference between a nominee and a trusted contact?</summary>
+        <p class="faq-answer">A nominee is the person legally entitled to inherit a specific asset &mdash; your bank, insurer, or fund holds that record, and KutumbKosh helps you document it in one place. A trusted contact is someone you trust to see your vault summary in an emergency, so they know what assets exist and who to contact. They cannot claim any asset &mdash; they can only see the summary. They can be the same person, or completely different people.</p>
+      </details>
+      <details class="reveal">
+        <summary>What does KutumbKosh cost?</summary>
+        <p class="faq-answer">The free plan lets you add up to 3 assets, 1 trusted contact, and set up manual emergency access &mdash; at no cost, forever. KutumbKosh Pro is &#8377;499/year (GST inclusive) and gives you unlimited assets, up to 2 trusted contacts, automatic emergency access settings, all reminder types, and a full Vault Dossier PDF.</p>
+      </details>
+      <details class="reveal">
+        <summary>What happens to my data if I delete my account?</summary>
+        <p class="faq-answer">Your data is permanently deleted when you close your account. We do not retain any copies of your vault contents after deletion. Your family&rsquo;s financial records belong to you &mdash; and when you choose to leave, they leave with you.</p>
+      </details>
+      <details class="reveal">
+        <summary>Can anyone at KutumbKosh read my vault?</summary>
+        <p class="faq-answer">No. We operate a zero-access policy &mdash; no KutumbKosh employee has routine access to the contents of your vault. Your data is visible only to you, and to anyone you explicitly choose to share access with.</p>
+      </details>
+      <details class="reveal">
+        <summary>How does emergency access work?</summary>
+        <p class="faq-answer">You decide who can see your vault and under what conditions. Your trusted contact can request access in an emergency, and you control whether that happens automatically after a waiting period or only with your approval. They see a vault summary &mdash; asset types, institution names, and nominee details. No passwords, no full account numbers.</p>
+      </details>
     </div>
   </section>
 

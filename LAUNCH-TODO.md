@@ -74,8 +74,8 @@
 
 ## Support & Operations
 - [x] care@kutumbkosh.com — confirmed live and monitored (2026-05-04)
-- [x] FAQ — Landing page collapsible section: Done 2026-05-12. Copy at docs/marketing/faq-copy.md (7 Q&As). Engineering to implement (HANDOFFS.md ID 49). Placement: after "How It Works" section, before footer.
-- [x] FAQ — In-app nominee vs trusted contact explainer card: Done 2026-05-12. Copy at docs/marketing/faq-copy.md (Part 2). Engineering to implement (HANDOFFS.md ID 49). Placement: top of nominees dashboard section.
+- [x] FAQ — Landing page collapsible section: Done 2026-05-14. Implemented in coming-soon/index.html (details/summary accordion, no JS, FAQ JSON-LD schema in head) and src/app/page.tsx (src/components/FAQ.tsx, React useState accordion). 7 Q&As verbatim from docs/marketing/faq-copy.md. Placed after How It Works, before CTA/footer.
+- [x] FAQ — In-app nominee vs trusted contact explainer card: Done 2026-05-14. Added to src/app/dashboard/nominees/page.tsx at top of main, above coverage alert. Exact copy from docs/marketing/faq-copy.md Part 2. Users icon, card pattern matches emergency page.
 - [ ] Dedicated /faq page — DEFERRED post-launch (DECISIONS.md 2026-05-12 | Product). Build from real care@kutumbkosh.com questions after launch.
 - [ ] Define support SLA and response workflow for care@kutumbkosh.com inbox
 

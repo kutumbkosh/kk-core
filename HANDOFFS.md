@@ -2639,7 +2639,20 @@ CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the FAQ strategy.
            - Commit message should reference HANDOFFS.md ID 47 + ID 49.
 
 PRIORITY:  Medium — Before public launch; blocked on HANDOFFS.md ID 47
-STATUS:    Open
+STATUS:    Done — 2026-05-14.
+           TASK 1 (Landing page FAQ):
+           - coming-soon/index.html: FAQ JSON-LD schema added to <head>;
+             FAQ CSS (details/summary accordion, no JS) added; 7-item FAQ section
+             inserted between trust-section and CTA section.
+           - src/app/page.tsx: imports src/components/FAQ.tsx (React accordion,
+             useState, one-open-at-a-time); renders between <HowItWorks /> and footer.
+           - src/components/FAQ.tsx: new component created.
+           TASK 2 (In-app explainer card):
+           - src/app/dashboard/nominees/page.tsx: explainer card added at top of
+             <main>, above coverage alert. Uses Users icon, exact copy from
+             docs/marketing/faq-copy.md Part 2. Matches emergency page card pattern.
+           TypeScript: clean (0 errors).
+           Copy: verbatim from docs/marketing/faq-copy.md. No paraphrasing.
 ID:        49
 ---
 
