@@ -209,35 +209,3 @@ export default function NomineesPage() {
     </div>
   );
 }
-">
-                              +{linkedAssets.length - 4} more
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-2">No assets linked yet</p>
-                      )}
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-300 mt-1" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Helpful note */}
-        {nominees.length > 0 && (
-          <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <p className="text-sm text-gray-700 font-medium">
-              Tap on a nominee to link them to your assets and set their share percentage.
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Linking ensures your family knows exactly which assets they&apos;re entitled to.
-            </p>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
