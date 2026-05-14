@@ -15,7 +15,7 @@
 - [x] "How KutumbKosh Works" — Done 2026-05-03. Marketing design delivered (docs/marketing/how-it-works-infographic.html). Tech implemented in coming-soon/index.html (before features section, Marketing design faithful) and src/app/page.tsx (as <HowItWorks /> component at src/components/HowItWorks.tsx). Shubham to re-upload coming-soon/index.html to Cloudflare Pages.
 
 ## Product
-- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders) — BLOCKED: Product audit (2026-05-12) found 4 critical + 4 high bugs in Reminders and Emergency Access. Engineering handoff raised at HANDOFFS.md ID 44. Must be fixed before QA pass is meaningful.
+- [ ] Final QA pass on all dashboard flows (assets, nominees, reminders) — BLOCKED: Product audit (2026-05-12) found 4 critical + 4 high bugs in Reminders and Emergency Access. Engineering handoff at HANDOFFS.md ID 44. C1 + C2 fixed (HANDOFFS.md ID 51 Done 2026-05-12). 2 critical + 4 high remain open before QA pass is meaningful.
 - [ ] Test Razorpay payment flow (Pro subscription) — BLOCKED: requires Shubham to complete Razorpay KYC + live mode activation first (Finance handoff). Engineering spec ready at docs/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx
 - [x] Mandatory field validation — Done 2026-05-02. Profile Setup (mobile mandatory, single-step form — no OTP yet, DOB mandatory 18+), Nominee form (relationship mandatory, at-least-one contact, minor guardian dynamic fields), Trusted Contact form (mobile AND email both mandatory). DB migration: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql.
 - [ ] Mobile OTP verification for Profile Setup — BLOCKED: SMS provider (Twilio or MSG91) not yet chosen by Shubham. Configure in Supabase Dashboard → Auth → Phone, then confirm go-ahead to Engineering. See HANDOFFS.md.
@@ -38,12 +38,12 @@
 - [ ] Finalize social media profiles — set up @KutumbKosh (or best available handle) on Instagram, LinkedIn, and Twitter/X before launch day
 - [x] og-image.png created — Done 2026-05-01. public/og-image.png (1200×630px, 51KB) confirmed present in repo. Shubham to commit, deploy, and validate preview at https://www.opengraph.xyz or via WhatsApp before marking launch complete.
 - [x] Pricing copy locked — Done 2026-05-07. Sales & Marketing spec at docs/marketing/pricing-copy-lock.md. Three violations found in src/app/dashboard/pricing/page.tsx (line 126: "or ₹79/month"; missing "Inclusive of GST" label; line 237 monthly billing FAQ). Engineering fixed all three (HANDOFFS.md ID 41 Done 2026-05-12).
-- [x] Pricing page tier copy corrected — Done 2026-05-12. Four factual errors in features array fixed (emergency access, trusted contacts, PDF, reminders all showed incorrect Free tier values). Engineering handoff raised as HANDOFFS.md ID 47.
+- [x] Pricing page tier copy corrected — Done 2026-05-12. Four factual errors in features array fixed (emergency access, trusted contacts, PDF, reminders all showed incorrect Free tier values). Engineering handoff raised as HANDOFFS.md ID 50.
 - [x] UpgradePrompt copy corrected — Done 2026-05-12. Three copy blocks written: emergency_access_v2v3 (new), emergency_contact_limit (new), all_reminders (fixed — removed vault review nudge from Pro-only desc). Engineering handoff raised as HANDOFFS.md ID 48.
 - [ ] Schedule launch-day posts — draft 3–5 posts (Instagram, LinkedIn, WhatsApp broadcast) using brand kit templates at docs/marketing/KutumbKosh-Brand-Kit-v2.pdf. Prepare and schedule in advance.
 - [ ] Draft and send waitlist notification email on launch day (if any subscribers signed up via coming-soon page)
 - [x] care@kutumbkosh.com inbox — confirmed live and monitored (2026-05-04)
-- [ ] Decide on Web3Forms waitlist form — coming-soon page currently has no email capture form (only contact email). Decision pending: add Web3Forms form before launch, or keep email-only? If adding, share Web3Forms access key with Engineering.
+- [x] Web3Forms decision — Closed 2026-05-12. Shubham confirmed waitlist emails are already being stored. No form addition needed. Waitlist notification email (launch day) is now unblocked.
 
 ## SEO
 - [ ] Set up Google Search Console for kutumbkosh.com — add property, verify via Cloudflare DNS TXT record (see Marketing → Shubham handoff in HANDOFFS.md)
@@ -63,18 +63,20 @@
 - [ ] Draft full Privacy Policy (data collected, purpose, storage, retention, user rights, grievance, DPDPA alignment) — publish at /privacy before first production user
 - [ ] Draft full Terms of Service non-payment sections — Finance drafted Payment/Subscription/Refund section; Operations to draft remainder and coordinate external legal review before publish
 - [ ] Determine if cookie consent banner is legally required for current stack; if yes, raise Engineering handoff to implement
-- [ ] Confirm /grievance page exists at /grievance and is linked from /privacy footer (per DECISIONS.md 2026-04-28)
+- [x] Confirm /grievance page exists at /grievance and is linked from /privacy footer (per DECISIONS.md 2026-04-28) — Verified 2026-05-12. src/app/grievance/page.tsx exists; footer links confirmed present.
 - [ ] Operations: obtain formal DPDPA S.16 clearance for Sentry before setting NEXT_PUBLIC_SENTRY_DSN in Vercel production
 
 ## Infrastructure (Pending Shubham Actions)
-- [ ] Run `npm install` in vault/ — @sentry/nextjs and web-vitals added to package.json but not installed; commit updated package-lock.json before next Vercel deploy
+- [x] Run `npm install` in vault/ — Done. package-lock.json confirmed: 87 @sentry/nextjs entries + 3 web-vitals entries present (verified 2026-05-12).
 - [ ] Configure Resend transactional email — set RESEND_API_KEY in Vercel production for branded magic link, subscription, and renewal emails
 - [ ] Set NEXT_PUBLIC_SENTRY_DSN + SENTRY_AUTH_TOKEN in Vercel after Sentry account created and Operations DPDPA S.16 clearance received
 - [ ] Set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel production after Cloudflare Web Analytics beacon token obtained
 
 ## Support & Operations
 - [x] care@kutumbkosh.com — confirmed live and monitored (2026-05-04)
-- [ ] Draft FAQ content for common user queries
+- [x] FAQ — Landing page collapsible section: Done 2026-05-12. Copy at docs/marketing/faq-copy.md (7 Q&As). Engineering to implement (HANDOFFS.md ID 49). Placement: after "How It Works" section, before footer.
+- [x] FAQ — In-app nominee vs trusted contact explainer card: Done 2026-05-12. Copy at docs/marketing/faq-copy.md (Part 2). Engineering to implement (HANDOFFS.md ID 49). Placement: top of nominees dashboard section.
+- [ ] Dedicated /faq page — DEFERRED post-launch (DECISIONS.md 2026-05-12 | Product). Build from real care@kutumbkosh.com questions after launch.
 - [ ] Define support SLA and response workflow for care@kutumbkosh.com inbox
 
 ## Security (Completed)

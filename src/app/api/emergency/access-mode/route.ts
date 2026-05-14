@@ -63,6 +63,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid access_mode" }, { status: 400 });
     }
 
+    // C4 — Pro tier check: V2/V3 modes require an active Pro subscription (HANDOFFS.md ID #44)
+    if (access_mode !== "MANUAL") {
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("plan, status, current_period_end")
+        .eq("user_id", user.id)
+        .in("status", ["ACTIVE", "CANCELLED"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const isWithinPeriod = sub?.current_period_end
+        ? new Date(sub.current_period_end).getTime() > Date.now()
+        : false;
+      const isEffectivelyPro =
+        sub?.plan === "PRO" &&
+        (sub.status === "ACTIVE" || (sub.status === "CANCELLED" && isWithinPeriod));
+
+      if (!isEffectivelyPro) {
+        return NextResponse.json(
+          { error: "Pro subscription required for automatic access modes." },
+          { status: 403 }
+        );
+      }
+    }
+
     // V2/V3 require explicit consent confirmation
     if (access_mode !== "MANUAL" && consent_confirmed !== true) {
       return NextResponse.json(

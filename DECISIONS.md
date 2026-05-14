@@ -263,7 +263,41 @@ Explicit pre-authorization satisfies DPDPA S.6 — cleaner consent basis than V2
 - `emergency_contact_limit` (new): title "Add more trusted contacts with Pro" / desc "Your free plan includes 1 trusted contact. Upgrade to Pro to add a second and configure how they access your vault."
 - `all_reminders` (fix): desc updated to remove "vault review nudges" (now a Free feature) — new desc: "Get timely alerts for insurance policy expiry and FD maturity dates. Available with KutumbKosh Pro."
 **Rationale:** Pricing page was showing Free users as having NO emergency access, NO trusted contacts, and NO vault PDF — all three are incorrect per the locked tier map. These errors would cause immediate user confusion post-launch. UpgradePrompt errors were similarly factually wrong.
-**Impact:** Engineering (implement features array fix via HANDOFFS.md ID 47; implement UpgradePrompt fixes via HANDOFFS.md ID 48 — both before launch).
+**Impact:** Engineering (implement features array fix via HANDOFFS.md ID 50; implement UpgradePrompt fixes via HANDOFFS.md ID 48 — both before launch).
+
+---
+
+### 2026-05-12 | Product
+**Decision:** FAQ strategy for KutumbKosh — three-part approach locked for launch.
+
+**Part 1 — Landing page collapsible FAQ section (LAUNCH requirement):**
+A collapsible FAQ section is added to the coming-soon landing page (`coming-soon/index.html`) and the main app landing page (`src/app/page.tsx`). 5–7 questions only. Focus: trust and conversion — security posture, data privacy, password safety, pricing, and the nominee vs trusted contact distinction. Target audience: prospective users who have not yet signed up.
+
+**Part 2 — In-app contextual explainer cards (LAUNCH requirement):**
+Two specific locations get plain-language explainer cards using the existing "What is this?" card pattern from the emergency access page:
+- Nominees section: a card clarifying the nominee vs trusted contact distinction. A nominee is a legal beneficiary linked to a specific asset. A trusted contact gets emergency read access to the whole vault. These are different people for different purposes. This is the highest-priority confusion point.
+- Emergency access page: already has the "What is this?" summary card — no change needed.
+
+**Part 3 — Dedicated /faq page (DEFERRED post-launch):**
+No standalone /faq page at launch. Post-launch, once real support questions arrive at care@kutumbkosh.com, the FAQ page will be built from actual user data rather than assumptions. SEO benefit is negligible before organic traffic exists.
+
+**Rationale:** A dedicated /faq page serves neither prospective users nor active users particularly well at launch. Landing page FAQs answer the hesitation that kills conversions. In-app cards answer confusion at the exact moment it occurs. Both are high ROI. Building a /faq page now means writing answers to imagined questions.
+
+**Impact:** Sales & Marketing (draft FAQ copy and in-app card copy — see HANDOFFS.md ID 47); Engineering (implement landing page section and in-app card — see HANDOFFS.md ID 49); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-12 | Sales & Marketing
+**Decision:** Landing page FAQ copy and in-app nominee vs trusted contact explainer card finalised and locked. Web3Forms waitlist form decision closed.
+**FAQ copy locked** (docs/marketing/faq-copy.md — 7 Q&As + in-app card):
+- Approved security claim: "256-bit encryption — the same standard used by banks"
+- Approved privacy claim: "designed with Indian data privacy standards in mind" (not "DPDPA Compliant")
+- Approved zero-access claim: "no KutumbKosh employee has routine access to the contents of your vault"
+- Nominee vs trusted contact distinction: nominee = legal beneficiary registered with institution; trusted contact = vault summary viewer in emergency, cannot claim assets
+- Pricing FAQ: Free (3 assets, 1 trusted contact, manual access, vault review reminder); Pro (₹499/year GST inclusive, unlimited assets, 2 trusted contacts, automatic access, all reminders, full PDF)
+**Web3Forms decision:** Waitlist emails are already being stored per Shubham's confirmation. No email capture form addition required on coming-soon page. Waitlist notification email (launch-day) is now unblocked.
+**Rationale:** FAQ copy unblocks Engineering (ID 49 can now proceed). Web3Forms decision removes a pending item that was blocking the waitlist email draft.
+**Impact:** Engineering (proceed with FAQ implementation per HANDOFFS.md ID 49 — copy is at docs/marketing/faq-copy.md); Sales & Marketing (waitlist notification email now unblocked — next S&M item to draft).
 
 ---
 

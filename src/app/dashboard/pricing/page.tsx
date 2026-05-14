@@ -16,17 +16,16 @@ import {
   Bell,
   Percent,
   Headphones,
-  Infinity,
 } from "lucide-react";
 
 const features = [
   { name: "Assets", free: "Up to 3", pro: "Unlimited", icon: FileText },
   { name: "Nominees", free: "Up to 2", pro: "Unlimited", icon: Users },
   { name: "Asset-nominee linking", free: "Basic", pro: "With share %", icon: Percent },
-  { name: "Smart reminders", free: "Nominee gaps only", pro: "All types (expiry, maturity, review)", icon: Bell },
-  { name: "Emergency access", free: false, pro: true, icon: AlertTriangle },
-  { name: "PDF export", free: false, pro: true, icon: Download },
-  { name: "Trusted contacts & dossier", free: false, pro: true, icon: Shield },
+  { name: "Smart reminders", free: "Annual vault review", pro: "Insurance expiry, FD maturity & more", icon: Bell },
+  { name: "Trusted contacts", free: "1 contact", pro: "Up to 2 contacts", icon: Shield },
+  { name: "Emergency access", free: "Manual approval", pro: "Manual, automatic & pre-authorised", icon: AlertTriangle },
+  { name: "Vault Dossier PDF", free: "Up to 3 assets", pro: "Full vault", icon: Download },
   { name: "Priority support", free: false, pro: true, icon: Headphones },
 ];
 

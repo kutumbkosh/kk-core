@@ -147,15 +147,17 @@ export interface Subscription {
 }
 
 // Plan limits
-export const PLAN_LIMITS: Record<PlanType, { maxAssets: number; maxNominees: number; features: string[] }> = {
+export const PLAN_LIMITS: Record<PlanType, { maxAssets: number; maxNominees: number; maxTrustedContacts: number; features: string[] }> = {
   FREE: {
     maxAssets: 3,
     maxNominees: 2,
+    maxTrustedContacts: 1,
     features: ["basic_reminders"],
   },
   PRO: {
     maxAssets: Infinity,
     maxNominees: Infinity,
+    maxTrustedContacts: 2,
     features: ["basic_reminders", "all_reminders", "emergency_access", "pdf_export", "share_percentages", "priority_support"],
   },
 };

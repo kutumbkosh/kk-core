@@ -24,6 +24,14 @@ const featureMessages: Record<string, { title: string; desc: string }> = {
     title: "Emergency Access is a Pro feature",
     desc: "Set up trusted contacts and emergency dossiers to protect your family. Available with KutumbKosh Pro.",
   },
+  emergency_access_v2v3: {
+    title: "Automatic access is a Pro feature",
+    desc: "With Pro, your trusted contact can get access automatically — no need for you to approve it in the moment.",
+  },
+  emergency_contact_limit: {
+    title: "Add more trusted contacts with Pro",
+    desc: "Your free plan includes 1 trusted contact. Upgrade to Pro to add a second and configure how they access your vault.",
+  },
   pdf_export: {
     title: "PDF Export is a Pro feature",
     desc: "Download and print your complete vault summary. Available with KutumbKosh Pro.",
@@ -34,7 +42,7 @@ const featureMessages: Record<string, { title: string; desc: string }> = {
   },
   all_reminders: {
     title: "Advanced reminders are a Pro feature",
-    desc: "Get alerts for insurance expiry, FD maturity, and vault review nudges. Available with KutumbKosh Pro.",
+    desc: "Get timely alerts for insurance policy expiry and FD maturity dates. Available with KutumbKosh Pro.",
   },
 };
 

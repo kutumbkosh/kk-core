@@ -168,14 +168,14 @@ export default function RemindersPage() {
     }
   });
 
-  // 5. General review nudge if no activity in 30+ days (Pro only)
-  if (hasAllReminders && assets.length > 0) {
+  // 5. General review nudge if no activity in 180+ days (Free + Pro — DECISIONS.md 2026-05-12)
+  if (canUseFeature("basic_reminders") && assets.length > 0) {
     const lastUpdated = assets.reduce((latest, a) => {
       const d = new Date(a.updated_at);
       return d > latest ? d : latest;
     }, new Date(0));
     const daysSinceUpdate = Math.ceil((Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysSinceUpdate > 30) {
+    if (daysSinceUpdate > 180) {
       reminders.push({
         id: "review-nudge",
         type: "review_nudge",

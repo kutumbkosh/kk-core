@@ -344,7 +344,7 @@ function AccessModePanel({ contact, onSaved }: AccessModePanelProps) {
 
 export default function EmergencyPage() {
   const router = useRouter();
-  const { isPro, loading: subLoading } = useSubscription();
+  const { isPro, isAtTrustedContactLimit, loading: subLoading } = useSubscription();
   const [contacts, setContacts] = useState<TrustedContact[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [dossier, setDossier] = useState<EmergencyDossier | null>(null);
@@ -485,11 +485,6 @@ export default function EmergencyPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-6 space-y-6">
 
-        {/* Pro gate */}
-        {!isPro && !subLoading && (
-          <UpgradePrompt feature="emergency_access" variant="card" />
-        )}
-
         {/* Summary card */}
         <div className="card flex items-start gap-4 p-5">
           <div className="w-20 h-20 flex-shrink-0">
@@ -511,9 +506,13 @@ export default function EmergencyPage() {
             <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-500" /> Trusted Contacts
             </h3>
-            <button onClick={() => router.push("/onboarding/emergency-contact")} className="text-xs text-vault-accent font-medium flex items-center gap-1 hover:underline">
-              <UserPlus className="w-3.5 h-3.5" /> Add
-            </button>
+            {isAtTrustedContactLimit(contacts.length) ? (
+              <UpgradePrompt feature="emergency_contact_limit" variant="inline" />
+            ) : (
+              <button onClick={() => router.push("/onboarding/emergency-contact")} className="text-xs text-vault-accent font-medium flex items-center gap-1 hover:underline">
+                <UserPlus className="w-3.5 h-3.5" /> Add
+              </button>
+            )}
           </div>
 
           {contacts.length === 0 ? (
@@ -593,9 +592,14 @@ export default function EmergencyPage() {
                         </button>
                       </div>
 
-                      {/* V2/V3 access mode panel — feature-flagged */}
-                      {V2V3_ENABLED && (
+                      {/* V2/V3 access mode panel — feature-flagged + Pro-gated */}
+                      {V2V3_ENABLED && isPro && (
                         <AccessModePanel contact={contact} onSaved={loadData} />
+                      )}
+                      {V2V3_ENABLED && !isPro && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <UpgradePrompt feature="emergency_access_v2v3" variant="banner" />
+                        </div>
                       )}
                     </>
                   )}
@@ -786,7 +790,7 @@ export default function EmergencyPage() {
             </button>
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            The vault holder will be notified and must approve your request before you can see anything.
+            If the vault holder has pre-authorised you, you&apos;ll get access immediately. Otherwise, they&apos;ll be notified to approve your request.
           </p>
         </div>
 

@@ -2153,7 +2153,19 @@ CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the Free vs Pro tier map
            - Reference: DECISIONS.md 2026-05-12 | Product (Free vs Pro tier map)
              and HANDOFFS.md ID 40 (V2/V3 feature flag requirement).
 PRIORITY:  High — Must be complete before public launch
-STATUS:    Open
+STATUS:    Done — 2026-05-14. All sub-items resolved:
+           C3: AccessModePanel now gated on isPro (banner UpgradePrompt for Free users).
+           C4: API route /api/emergency/access-mode enforces Pro check server-side.
+           H1: review_nudge ungated — uses basic_reminders (Free + Pro), threshold 180 days.
+           H2: Page-level UpgradePrompt removed; Free users can use emergency page normally.
+           H3: PLAN_LIMITS.maxTrustedContacts added (Free: 1, Pro: 2); isAtTrustedContactLimit
+               added to useSubscription hook.
+           H4: Add button gated on isAtTrustedContactLimit — shows emergency_contact_limit
+               inline UpgradePrompt when at limit.
+           M1: review_nudge threshold corrected 30 → 180 days.
+           M2: V3 copy corrected — "pre-authorised → instant; otherwise notified to approve".
+           M3: Pricing page features array replaced with accurate tier data per DECISIONS.md
+               2026-05-12 | Product.
 ID:        42
 ---
 
@@ -2197,7 +2209,7 @@ CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the Free vs Pro tier map
 PRIORITY:  Medium — Before public launch; pricing page must be accurate
 STATUS:    Done — 2026-05-12. Sales & Marketing finalised copy per brand voice
            rules and Product's locked tier map. Engineering handoff raised as
-           HANDOFFS.md ID 47 with exact replacement features array.
+           HANDOFFS.md ID 50 with exact replacement features array.
 ID:        43
 ---
 
@@ -2347,7 +2359,10 @@ CONTEXT:   Full audit of reminders/page.tsx, emergency/page.tsx,
            Current behaviour is correct. No code change required.
 
 PRIORITY:  High — CRITICAL and HIGH items are launch blockers
-STATUS:    Open
+STATUS:    Partially resolved — 2026-05-12. C1 (email field missing) and C2
+           (phone FieldError wrong key) fixed — see HANDOFFS.md ID 51.
+           C3, C4, H1, H2, H3, H4, M1, M2, M3 resolved — see HANDOFFS.md ID 42 Done note
+           (2026-05-14). All items in this audit are now closed.
 ID:        44
 ---
 
@@ -2465,6 +2480,169 @@ STATUS:    Open
 ID:        46
 ---
 
+FROM:      Product
+TO:        Sales & Marketing
+TASK:      Draft all FAQ and contextual explainer copy for launch
+CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the FAQ strategy.
+           Two sets of copy are needed. Engineering (HANDOFFS.md ID 48) is
+           blocked on this handoff — provide copy before Engineering begins
+           implementation.
+
+           ═══════════════════════════════════════════════════════════════
+           DELIVERABLE 1 — Landing page FAQ (5–7 questions)
+           ═══════════════════════════════════════════════════════════════
+
+           Audience: Prospective users on the coming-soon / landing page.
+           Goal: Remove hesitation and build enough trust to sign up.
+           Format: Question + plain-language answer (2–4 sentences each).
+           Tone: Warm, simple, confident. No jargon. No fear framing.
+
+           Required topic coverage (Product-specified — copy is S&M's job):
+
+           1. Security / encryption
+              Cover: AES-256 encryption at rest, TLS in transit, zero-access
+              policy (KutumbKosh employees cannot read your vault).
+              Claim permitted: "Your data is protected with 256-bit encryption
+              — the same standard used by banks." (DECISIONS.md 2026-04-28 | Engineering)
+              Do NOT claim: "DPDPA 2023 Compliant" (DECISIONS.md 2026-04-28 | Legal)
+              Use instead: "Designed with Indian data privacy standards in mind"
+
+           2. Passwords and sensitive data
+              Cover: KutumbKosh does NOT store passwords, PINs, or full account
+              numbers. Only asset names, institution names, last 4 digits (optional),
+              and nominee/contact information.
+
+           3. Nominee vs Trusted Contact — what is the difference?
+              This is the most important FAQ. Cover clearly:
+              - Nominee = legal beneficiary linked to a specific asset (who
+                inherits it). Set by you with the institution (bank, insurer, etc.)
+              - Trusted Contact = someone who can see your vault summary in an
+                emergency, so they know what exists and who to contact. They
+                cannot claim assets — only view the summary.
+              - They can be the same person, or different people entirely.
+
+           4. Pricing — what is free, what is paid?
+              Cover: Free tier (3 assets, 1 trusted contact, manual access,
+              vault review reminder). Pro tier (₹499/year inclusive of GST,
+              unlimited assets, 2 trusted contacts, automatic access modes,
+              all reminder types, full PDF).
+
+           5. What happens to my data if I stop using KutumbKosh / delete
+              my account?
+              Cover: Data is permanently deleted on account closure. No residual
+              copies retained. (Align with zero-access policy and future privacy
+              policy — do not over-promise on specific timelines without legal
+              sign-off.)
+
+           6. Is my family's financial information visible to anyone at
+              KutumbKosh?
+              Cover: Zero-routine-access policy — no employee has standard
+              access to vault contents. (DECISIONS.md 2026-04-28 | Legal)
+
+           7. (Optional) How does emergency access work?
+              Cover at a high level: the owner controls who can request access
+              and under what conditions. Trusted contacts see a summary only —
+              no passwords, no full account numbers.
+
+           ═══════════════════════════════════════════════════════════════
+           DELIVERABLE 2 — In-app contextual card: Nominee vs Trusted Contact
+           ═══════════════════════════════════════════════════════════════
+
+           Audience: Active users on the nominees screen inside the app.
+           Goal: Pre-empt the single most likely confusion point before it
+           causes a support email or data error.
+           Format: Short card (matches existing "What is this?" card on the
+           emergency page). Heading + 2–3 sentences max. No bullet lists.
+           Tone: Warm, plain, reassuring.
+
+           Required content (Product-specified):
+           - A nominee is the person who legally inherits a specific asset.
+             You register nominees directly with your bank, insurer, or fund.
+             KutumbKosh records this — it does not create the legal nomination.
+           - A trusted contact is someone who can see your full vault summary
+             in an emergency. They know what exists and who to contact.
+             They cannot claim your assets.
+           - These can be the same person, or completely different people.
+
+           ═══════════════════════════════════════════════════════════════
+           OUTPUT FORMAT
+           ═══════════════════════════════════════════════════════════════
+           Deliver both sets of copy as a document in docs/marketing/.
+           Then raise an Engineering handoff (referencing HANDOFFS.md ID 48)
+           with the final copy ready to implement.
+           Do NOT implement in HTML or code — that is Engineering's scope.
+
+PRIORITY:  High — Engineering (ID 49) is blocked on this
+STATUS:    Done — 2026-05-12. Sales & Marketing drafted all copy per brand voice
+           rules and Product's coverage requirements. Deliverable at
+           docs/marketing/faq-copy.md. Engineering may now proceed with ID 49.
+           7 landing page Q&As + in-app nominee vs trusted contact card complete.
+ID:        47
+---
+
+FROM:      Product
+TO:        Engineering
+TASK:      Implement landing page FAQ section and in-app nominee explainer card
+CONTEXT:   DECISIONS.md 2026-05-12 | Product locked the FAQ strategy.
+           Sales & Marketing (HANDOFFS.md ID 47) will deliver all copy.
+           Engineering must NOT begin implementation until ID 47 is Done
+           and copy is confirmed.
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 1 — Landing page collapsible FAQ section
+           ═══════════════════════════════════════════════════════════════
+
+           Files to modify:
+           - coming-soon/index.html — add collapsible FAQ section
+           - src/app/page.tsx (or src/components/ if componentised)
+             — add the same section to the main app landing page
+
+           Placement: After the "How KutumbKosh Works" infographic section
+           (added 2026-05-03) and before the final CTA / footer.
+
+           Implementation requirements:
+           - Collapsible accordion pattern: question visible, answer
+             expands on click/tap. One open at a time preferred.
+           - 5–7 items (exact count per S&M copy from ID 47).
+           - Mobile-first. Must work without JS in coming-soon/index.html
+             (use <details>/<summary> HTML pattern for the static page).
+           - For src/app/page.tsx: React state or Tailwind peer pattern.
+           - Use brand colours (Primary Blue #2563EB, Gray-900 headings,
+             Gray-500 body text). Consistent with existing page styling.
+           - Section heading: "Common questions" or as specified in S&M copy.
+           - Add FAQ schema markup (JSON-LD) to the landing page <head>
+             for SEO — use the same Q&A pairs from the accordion.
+
+           ═══════════════════════════════════════════════════════════════
+           TASK 2 — In-app nominee vs trusted contact explainer card
+           ═══════════════════════════════════════════════════════════════
+
+           File to modify: the nominees list/management page.
+           Locate the correct file (likely src/app/dashboard/nominees/
+           or similar) — check codebase.
+
+           Placement: At the top of the nominees section, above the list
+           of existing nominees. Use the same card pattern as the "What
+           is this?" card on the emergency access page (src/app/dashboard/
+           emergency/page.tsx lines ~494–506): white card, icon, heading,
+           paragraph text.
+
+           Icon suggestion: Users icon (already imported in emergency page).
+           Copy: Use exactly what S&M provides in ID 47 Deliverable 2.
+           No bullet lists inside the card — prose only.
+
+           ═══════════════════════════════════════════════════════════════
+           NOTES
+           ═══════════════════════════════════════════════════════════════
+           - Do not create a standalone /faq page — deferred post-launch
+             per DECISIONS.md 2026-05-12 | Product.
+           - Commit message should reference HANDOFFS.md ID 47 + ID 49.
+
+PRIORITY:  Medium — Before public launch; blocked on HANDOFFS.md ID 47
+STATUS:    Open
+ID:        49
+---
+
 FROM:      Sales & Marketing
 TO:        Engineering
 PRIORITY:  Medium — Before public launch; pricing page must show accurate tier info
@@ -2507,8 +2685,12 @@ REQUEST:   Replace the `features` array in src/app/dashboard/pricing/page.tsx
            Reference: HANDOFFS.md ID 43 (Product → S&M, Done), DECISIONS.md
            2026-05-12 | Product (Free vs Pro tier map).
 DEADLINE:  Before public launch
-STATUS:    Open
-ID:        47
+STATUS:    Done — 2026-05-14. features array in pricing/page.tsx replaced with accurate
+           tier data: Free = "Up to 3" assets, "Up to 2" nominees, "1 contact", "Manual
+           approval" emergency; Pro = "Unlimited" assets/nominees, "Up to 2 contacts",
+           "Manual, automatic & pre-authorised" emergency. All values match DECISIONS.md
+           2026-05-12 | Product.
+ID:        50
 ---
 
 FROM:      Sales & Marketing
@@ -2555,7 +2737,9 @@ REQUEST:   Update three featureMessage entries in src/components/UpgradePrompt.t
            Reference: HANDOFFS.md ID 45 (Product → S&M, Done), DECISIONS.md
            2026-05-12 | Product (Free vs Pro tier map).
 DEADLINE:  Before public launch
-STATUS:    Open
+STATUS:    Done — 2026-05-14. Two new keys added to UpgradePrompt.tsx:
+           emergency_access_v2v3 and emergency_contact_limit. all_reminders description
+           updated. emergency_access key left untouched per instruction.
 ID:        48
 ---
 
@@ -2579,5 +2763,6 @@ STATUS:    Done — 2026-05-12. All bugs fixed:
            3. src/app/dashboard/emergency/page.tsx — contact card now displays
               phone AND email separately (· phone · email) instead of first-truthy.
            TypeScript clean (0 errors). No commits made.
-ID:        42
+           NOTE: Resolves C1 and C2 from HANDOFFS.md ID 44 audit.
+ID:        51
 ---
