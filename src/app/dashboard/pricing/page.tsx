@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   ArrowLeft,
@@ -31,7 +31,11 @@ const features = [
 
 export default function PricingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { plan, isPro, loading } = useSubscription();
+  // Pre-select plan based on ?plan= query param (HANDOFFS.md ID 60). Default: annual.
+  // Promote to useState when monthly plan card is added (ID 55).
+  const selectedPlan = searchParams.get("plan") === "monthly" ? "monthly" : "annual";
 
   if (loading) {
     return (
@@ -102,7 +106,7 @@ export default function PricingPage() {
           </div>
 
           {/* Pro plan */}
-          <div className={`card p-6 relative ${isPro ? "border-blue-300 ring-2 ring-blue-200" : "border-blue-200 ring-2 ring-blue-100"}`}>
+          <div className={`card p-6 relative ${isPro ? "border-blue-300 ring-2 ring-blue-200" : selectedPlan === "annual" ? "border-blue-400 ring-2 ring-blue-600" : "border-blue-200 ring-2 ring-blue-100"}`}>
             {/* Popular badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="px-3 py-1 bg-vault-accent text-white text-xs font-bold rounded-full shadow-sm">

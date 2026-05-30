@@ -492,8 +492,8 @@ REQUEST:   Finance has drafted the Payment, Subscription & Refund section of the
            Operations must coordinate external legal review (startup / IT lawyer)
            before the draft can be published. Finance cannot self-approve legal clauses.
 
-           Draft file: docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx
-           (Also saved at: KutumbKosh/docs/FINANCE-TOS-PAYMENT-DRAFT.docx)
+           Draft file: docs/finance/FINANCE-TOS-PAYMENT-DRAFT-v2.docx (updated 2026-05-21 — monthly billing added)
+           (Supersedes: docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx)
 
            The draft covers 10 clauses:
            1.  Subscription Plans & Pricing (Free vs Pro, ₹499/year)
@@ -3241,6 +3241,50 @@ STATUS:    Done — 2026-05-30. All three items addressed:
            TODO (Shubham): Share Reviewer Brief with external counsel for
            Question 3 response. No new handoff — tracked in ID 46.
 ID:        57
+---
+
+FROM:      Product
+TO:        Engineering
+PRIORITY:  Medium — Before pricing page goes live with monthly billing
+REQUEST:   Monthly billing is now live (DECISIONS.md 2026-05-21 | Finance).
+           When a Free user taps an UpgradePrompt and is navigated to the
+           pricing page (/dashboard/pricing), the Annual plan must be
+           pre-selected and visually highlighted by default.
+
+           DECISION: DECISIONS.md 2026-05-30 | Product — Annual pre-selected.
+
+           IMPLEMENTATION:
+           1. In src/components/UpgradePrompt.tsx, update the upgrade CTA
+              link/navigation to include a query param:
+              /dashboard/pricing?plan=annual
+           2. In src/app/dashboard/pricing/page.tsx, read the ?plan= query
+              param on mount. If plan=annual, highlight/pre-select the Annual
+              plan card. If plan=monthly, pre-select Monthly. If absent or
+              unrecognised, default to Annual.
+              Use standard Next.js useSearchParams() to read the param.
+           3. "Pre-selected" / "highlighted" means: the Annual card has a
+              visible selected state (e.g., ring-2 ring-blue-600 or equivalent
+              matching the existing card active style). The Monthly card is
+              visible but unstyled as default.
+
+           NO other changes. TypeScript clean (0 errors).
+           Commit message: reference HANDOFFS.md ID 60, DECISIONS.md 2026-05-30 | Product.
+
+DEADLINE:  Before pricing page goes live with monthly billing
+STATUS:    Done — 2026-05-30.
+           1. UpgradePrompt.tsx L56: handleUpgrade now pushes
+              /dashboard/pricing?plan=annual (all variants — card, banner,
+              modal, inline — share the same handler).
+           2. pricing/page.tsx: useSearchParams imported from next/navigation.
+              selectedPlan const derived from ?plan= param; defaults to
+              "annual" if absent or unrecognised. Pro card ring updated:
+              isPro → ring-blue-200; selectedPlan="annual" → ring-2 ring-blue-600;
+              otherwise → ring-blue-100.
+           NOTE: selectedPlan is a const (not useState) — no setter needed yet
+           as there is no monthly card UI. ID 55 must promote to useState with
+           click handlers when monthly plan card is added.
+           TypeScript clean (0 errors). No other changes made.
+ID:        60
 ---
 
 FROM:      Sales & Marketing

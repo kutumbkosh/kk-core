@@ -53,7 +53,7 @@ export default function UpgradePrompt({ feature, message, variant = "card", onCl
 
   if (dismissed) return null;
 
-  const handleUpgrade = () => router.push("/dashboard/pricing");
+  const handleUpgrade = () => router.push("/dashboard/pricing?plan=annual");
   const handleDismiss = () => { setDismissed(true); onClose?.(); };
 
   if (variant === "inline") {

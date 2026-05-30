@@ -419,4 +419,13 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 
 ---
 
+### 2026-05-30 | Product
+**Decision:** When a Free user taps an upgrade prompt and lands on the pricing page, the **Annual plan (₹499/year)** is pre-selected and visually highlighted by default.
+
+**Rationale:** Finance recommends Annual as the default at all times (DECISIONS.md 2026-05-21 | Finance). Pre-selecting Annual in the upgrade flow is consistent with that guidance, supports better unit economics, and ensures the savings message ("Save 15% vs monthly") is immediately visible to users arriving from an upgrade prompt. Monthly remains visible and selectable — it is not hidden.
+
+**Impact:** Engineering (add `?plan=annual` query param or equivalent pre-selection logic to the pricing page when navigating from UpgradePrompt — see HANDOFFS.md ID 60).
+
+---
+
 _Add new decisions above this line, following the format._
