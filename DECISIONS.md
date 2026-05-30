@@ -33,6 +33,7 @@ Each entry has:
 **Decision:** Pro tier priced at ₹499/year.
 **Rationale:** Annual billing simplicity, accessible price point for Indian middle-class families. No monthly billing option at launch.
 **Impact:** Engineering (Razorpay order creation uses annual amount), Marketing (pricing copy), Product (upgrade prompts reference ₹499/year).
+**⚠ SUPERSEDED (partial):** The "No monthly billing option at launch" clause is superseded by DECISIONS.md 2026-05-21 | Finance. ₹499/year remains the annual plan price and is unchanged.
 
 ---
 
@@ -319,6 +320,102 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 **Rationale:** A trusted contact in an emergency is not a vault owner. They have no reason to navigate `/dashboard/emergency` and may not have a KutumbKosh account. The V2/V3 email link must land them directly on an actionable page. A public `/emergency/request` URL is also shareable — vault owners can send it to contacts who weren't already registered. Keeping the card on the owner page created dual-audience confusion on a high-stakes flow.
 
 **Impact:** Engineering (implement `/emergency/request` public page, update V2 email template link, add login page link, remove card from `/dashboard/emergency` — see HANDOFFS.md ID 53); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-21 | Finance
+**Decision:** Monthly billing plan added. ₹49/month, GST-inclusive. This supersedes the "No monthly billing at launch" clause from DECISIONS.md 2026-04-28 | Finance.
+
+**Monthly plan pricing:**
+- User pays ₹49/month total — no additional GST at checkout.
+- GST back-calculation (same formula as annual): Base = ₹49 × 100/118 = ₹41.53 → round to ₹42. GST = ₹49 × 18/118 = ₹7.47 → round to ₹7. Total = ₹49. SAC code 998314 applies.
+- Razorpay monthly plan amount = 4900 paise.
+- Annual effective cost at ₹49/month = ₹588/year. Annual plan = ₹499/year. Savings = ₹89/year ≈ 15%.
+
+**Pricing page display:**
+- Monthly: ₹49/month — "Inclusive of GST"
+- Annual: ₹499/year — "Inclusive of GST" + "Save 15% vs monthly" (or equivalent savings messaging)
+- Savings messaging IS permitted — it was previously prohibited because monthly billing did not exist; that prohibition is now void.
+
+**What changes from prior locked decisions:**
+- DECISIONS.md 2026-05-07 | Sales & Marketing: prohibited phrase "Annual saves you X% compared to monthly" is **no longer prohibited** — savings comparison messaging is now required on the pricing page. docs/marketing/pricing-copy-lock.md must be updated by Sales & Marketing to reflect this.
+- HANDOFFS.md ID 41 (Done): removed "or ₹79/month" from pricing page. Engineering must now add ₹49/month option — this is a net new pricing page change, not a revert of ID 41.
+
+**GST/invoice impact for monthly billing:**
+- 12 GST invoices per subscriber per year (vs 1 for annual). Each invoice: ₹7 GST, ₹42 base.
+- IGST vs CGST+SGST split logic applies — same dynamic rule as annual (based on KutumbKosh registered state vs customer billing state).
+- CA reconciliation burden is 12× higher per monthly subscriber. Finance recommends annual as default and promoted option at all times.
+
+**Rationale:** Monthly billing reduces the barrier to trial for price-sensitive users. ₹49/month (₹588 annual effective) at 15% premium over annual creates a natural nudge toward annual. Annual remains the better unit economics option for both the user and KutumbKosh.
+
+**Impact:** Engineering (new Razorpay monthly plan at 4900 paise/month; monthly GST back-calculation; update pricing page — see HANDOFFS.md ID 55); Sales & Marketing (update pricing page copy, savings messaging, update pricing-copy-lock.md — see HANDOFFS.md ID 56); Operations (ToS Clause 1 must be amended to add monthly subscription plan — see HANDOFFS.md ID 57).
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Cookie consent banner is NOT legally required for KutumbKosh's current technology stack under Indian law (IT Act 2000, IT (SPDI) Rules 2011, DPDPA 2023). This permanently closes HANDOFFS.md ID 28.
+
+**Stack assessment:**
+1. **Cloudflare Web Analytics** — explicitly cookieless; no cookies are set at any point on the coming-soon landing page. Zero consent obligation.
+2. **Supabase auth/session cookies** — strictly necessary cookies set only after the user actively logs in. These are technically required for the service to function. No separate consent needed; the user's act of signing up and logging in constitutes the relevant consent.
+3. **Razorpay checkout cookies** — set only when the user actively initiates a payment. Cookies are technically necessary to complete that user-initiated transaction. No separate banner needed.
+
+**Legal basis:** India does not have a cookie-specific law equivalent to the EU ePrivacy Directive. The DPDPA 2023 requires consent for processing personal data but does not mandate a "cookie consent banner" as a separate UI control. The IT (SPDI) Rules 2011 contain no cookie-banner requirement. No Indian regulatory guidance requires a banner for strictly-necessary or transaction-initiated cookies.
+
+**Required follow-up (not a blocker):** The Privacy Policy draft (HANDOFFS.md ID 27) must include a "Cookies" section that transparently describes these three cookie types and their purpose. This satisfies DPDPA transparency obligations and is sufficient without a banner. Operations to include this section when drafting the Privacy Policy.
+
+**Rationale:** All three cookie sources are either cookieless, strictly necessary, or triggered by explicit user action. A banner would add friction without legal obligation and is not consistent with KutumbKosh's goal of a simple, trust-first user experience.
+
+**Impact:** Engineering (no cookie banner implementation required — do not build one without a new Operations decision); Operations (include Cookies section in Privacy Policy draft — ID 27); LAUNCH-TODO.md cookie consent item can be closed.
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Compliance-sensitive files registry created at `vault/operations/compliance-sensitive-files.md`. This closes HANDOFFS.md ID 26.
+
+**Registry scope:** Five files identified as compliance-sensitive: `coming-soon/index.html`, `src/app/privacy/page.tsx`, Supabase email templates (`confirm-signup.html`, `magic-link.html`), `src/app/auth/verify/page.tsx`, `src/app/onboarding/page.tsx`.
+
+**Mandatory pre-upload checklist:** Written for `coming-soon/index.html` — 8-step checklist must be completed before every Cloudflare Pages upload. Key checks: zero results for "DPDPA 2023 Compliant", exactly one result for approved phrase "designed with DPDPA 2023 in mind".
+
+**Comment block:** A compliance header comment block has been written and must be added to `coming-soon/index.html` by Engineering (HANDOFFS.md ID 58). The block embeds the DPDPA language rules directly in the file so any editor sees them immediately on opening.
+
+**Rationale:** The file was reverted twice (2026-04-30 and 2026-05-01). A checklist and in-file comment block are the lowest-overhead controls that prevent a third revert without adding deployment complexity.
+
+**Impact:** Engineering (add comment block to `coming-soon/index.html` — HANDOFFS.md ID 58); Shubham (complete pre-upload checklist before every Cloudflare Pages upload — checklist at `vault/operations/compliance-sensitive-files.md`).
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Privacy Policy (DRAFT v1.0), Terms of Service (DRAFT v1.0), and External Legal Reviewer Brief created and saved to `docs/operations/`. This advances HANDOFFS.md ID 27 to In Progress. Documents are NOT approved for publication — external legal review is required.
+
+**Privacy Policy scope:** Full DPDPA 2023-aligned policy. Covers 9 processing purposes (emergency access listed explicitly per ID 36 condition), SPDI classification of financial data under IT Rules 2011, Supabase India-region storage, retention schedule, user rights (DPDPA S.11–14), 6 sub-processors, cookies disclosure (per ID 28), grievance mechanism (Shubham, 48h/30d), zero-access policy.
+
+**Terms of Service scope:** 24-section integrated document. Part A (S.1–14): general terms drafted by Operations — account eligibility (18+, India, one account), acceptable use, IP, no financial advice disclaimer, liability cap (12-month fees paid), governing law (India), jurisdiction (Thane, Maharashtra), arbitration (Arbitration & Conciliation Act 1996, seat Thane). Part B (S.15–24): Finance payment draft v0.1 integrated. Clause 15 amended for monthly billing (₹49/month GST-inclusive) per ID 57.
+
+**Reviewer Brief scope:** 4 questions for external counsel: Consumer Protection Act 2019 refund/auto-renewal compliance; GST back-calculation confirmation; RBI e-NACH monthly billing disclosure; DPDPA V2/V3 emergency access production clearance.
+
+**Remaining placeholders in documents (must be resolved before publication):** Entity name and registered address (Privacy Policy S.2 — requires incorporation); GSTIN (ToS S.17 — requires GST registration per ID 9); Effective date (both documents — set at publication).
+
+**Impact:** Shubham (review documents, engage external legal counsel — IDs 10, 30, 39, 46, 57 questions all bundled into Reviewer Brief); Engineering (after counsel sign-off, raise handoff to implement approved text in /privacy and /terms routes).
+
+---
+
+### 2026-05-30 | Sales & Marketing
+**Decision:** Pricing copy lock updated for monthly billing. HANDOFFS.md ID 56 is now Done.
+
+**Changes to docs/marketing/pricing-copy-lock.md:**
+- Both plan cards specified for the pricing page: ₹49/month (Inclusive of GST) and ₹499/year (Inclusive of GST + "Save 15% vs monthly"). Annual is the default/prominent option.
+- Prohibited phrase "Annual saves you X% compared to monthly" **removed** — it is now permitted with the correct figure. Approved forms: `Save 15% vs monthly` or `Save ₹89/year vs monthly`.
+- Monthly price display format added as approved copy: `₹49/month — Inclusive of GST`.
+- UpgradePrompt CTA channel row added: `from ₹49/month or ₹499/year`.
+- All-channel anchor remains `₹499/year` — monthly pricing is a pricing page detail, not a GTM headline.
+- Tech implementation reference table updated: ID 55 (Engineering, Open), ID 59 (Engineering, Open — new handoff).
+
+**New handoff raised:** HANDOFFS.md ID 59 (S&M → Engineering) — update UpgradePrompt.tsx CTA button label from `₹499/year` to `from ₹49/month or ₹499/year` (line 120 only; no other changes).
+
+**Rationale:** DECISIONS.md 2026-05-21 | Finance confirmed monthly billing and voided the savings comparison prohibition. All S&M copy must now reflect both billing options while keeping annual as the prominent default.
+
+**Impact:** Engineering (implement UpgradePrompt CTA fix — HANDOFFS.md ID 59; implement pricing page monthly plan — HANDOFFS.md ID 55 from Finance); all future S&M sessions (use updated pricing-copy-lock.md as single source of truth).
 
 ---
 

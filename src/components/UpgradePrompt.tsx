@@ -117,7 +117,7 @@ export default function UpgradePrompt({ feature, message, variant = "card", onCl
       <h3 className="text-base font-bold text-gray-900 mb-1">{info.title}</h3>
       <p className="text-sm text-gray-500 mb-4 max-w-xs mx-auto">{info.desc}</p>
       <button onClick={handleUpgrade} className="btn-primary text-sm">
-        Upgrade to Pro &mdash; &#8377;499/year <ArrowRight className="w-4 h-4 ml-1.5" />
+        Upgrade to Pro &mdash; from &#8377;49/month or &#8377;499/year <ArrowRight className="w-4 h-4 ml-1.5" />
       </button>
     </div>
   );

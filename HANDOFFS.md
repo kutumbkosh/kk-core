@@ -58,7 +58,8 @@ REQUEST:   Sentry (error monitoring) stores data in US/EU (AWS US-East-1 by defa
 
            Reference: DECISIONS.md → 2026-05-02 | Tech
 DEADLINE:  Before production deploy
-STATUS:    In Progress — Operations assessment below (2026-05-01)
+STATUS:    Done — 2026-05-21. Operations assessment was delivered 2026-05-01
+           and clearance was granted. Marking Done to close the handoff.
 
            OPERATIONS ASSESSMENT (2026-05-01):
            Risk Score: YELLOW (9) — Moderate (3) x Possible (3) after pseudonymisation.
@@ -144,7 +145,7 @@ REQUEST:   Supabase email templates (confirm-signup.html and magic-link.html)
 
            Do this for: Dev ☐  Staging ☐  Production ☐
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done
 ---
 
 FROM:      Operations
@@ -520,7 +521,18 @@ REQUEST:   Finance has drafted the Payment, Subscription & Refund section of the
            kutumbkosh.com/terms before the first live payment is accepted.
            Closes LAUNCH-TODO.md item: "Draft and publish Terms of Service page."
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done — 2026-05-30. Operations has integrated the Finance payment
+           draft into the full Terms of Service and bundled all Finance
+           review questions into the External Legal Reviewer Brief.
+           Files in vault/docs/operations/:
+             • TERMS-OF-SERVICE-DRAFT-v1.docx — Finance clauses integrated
+               as Part B (Sections 15–24). Clause 1 amended for monthly
+               billing per ID 57.
+             • EXTERNAL-LEGAL-REVIEWER-BRIEF.docx — Finance review questions
+               covered in Questions 1 (Consumer Protection Act), 2 (GST),
+               and 3 (monthly auto-renewal).
+           TODO (Shubham): Engage external legal counsel, share Reviewer
+           Brief + both draft documents. No new handoff — tracked in ID 46.
 ID:        10
 ---
 
@@ -1121,7 +1133,19 @@ REQUEST:   coming-soon/index.html has been reverted to non-compliant DPDPA langu
               so any editor knows what must be preserved.
            Raise an Engineering handoff if code changes are required.
 DEADLINE:  Before next coming-soon/index.html upload to Cloudflare Pages
-STATUS:    Open
+STATUS:    Done — 2026-05-21. Operations deliverables complete:
+           1. Compliance-sensitive files registry created at:
+              vault/operations/compliance-sensitive-files.md
+              Covers 5 files: coming-soon/index.html, privacy/page.tsx,
+              confirm-signup.html, magic-link.html, auth/verify/page.tsx,
+              onboarding/page.tsx. Each entry lists the constraint and
+              approved text.
+           2. Mandatory 8-step pre-upload checklist written (embedded in
+              registry file). Key checks: zero results for "DPDPA 2023
+              Compliant", exactly one result for approved DPDPA phrase.
+           3. Comment block written and ready for Engineering to add to
+              coming-soon/index.html (HANDOFFS.md ID 58 raised).
+           Decision logged: DECISIONS.md 2026-05-21 | Operations.
 ID:        26
 ---
 
@@ -1147,7 +1171,59 @@ REQUEST:   Full Privacy Policy and non-payment Terms of Service sections have no
               production. Existing page routes already exist (src/app/privacy/ and
               src/app/terms/).
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    In Progress — 2026-05-21. Operations drafts complete. External
+           legal review and Shubham sign-off required before publication.
+
+           OPERATIONS OUTPUT (2026-05-21):
+           Three documents created in docs/operations/:
+
+           1. PRIVACY-POLICY-DRAFT-v1.docx
+              Full DPDPA-aligned Privacy Policy covering: data collected
+              (incl. SPDI), 9 processing purposes (emergency access
+              explicit per ID 36 condition), storage (Supabase India
+              region), retention periods, user rights (DPDPA S.11-14),
+              sub-processor table (6 processors), cookies section (per
+              ID 28 decision), grievance mechanism (Shubham,
+              care@kutumbkosh.com, 48h/30d SLA).
+
+           2. TERMS-OF-SERVICE-DRAFT-v1.docx
+              Full integrated ToS — 24 sections:
+              Part A (S.1-14): General terms — account eligibility,
+              acceptable use, IP, no financial advice disclaimer,
+              limitation of liability (capped at 12-month fees),
+              governing law (India), jurisdiction (Thane, Maharashtra),
+              dispute resolution (arbitration under Arbitration &
+              Conciliation Act 1996, seat: Thane).
+              Part B (S.15-24): Finance payment clauses integrated from
+              Finance draft v0.1. Clause 15 (Subscription Plans) amended
+              for monthly billing per ID 57 (₹49/month GST-inclusive
+              added alongside ₹499/year).
+
+           3. EXTERNAL-LEGAL-REVIEWER-BRIEF.docx
+              Briefing for external startup/IT counsel. Covers 4
+              specific questions: (1) Consumer Protection Act 2019 —
+              7-day refund window and auto-renewal disclosure; (2) GST
+              back-calculation formula and Clause 17 wording; (3)
+              Monthly billing auto-renewal — RBI e-NACH/SI circular;
+              (4) DPDPA 2023 V2/V3 emergency access go-live clearance.
+              Requests redlined drafts + written opinion letter.
+
+           NEXT ACTIONS FOR SHUBHAM:
+           a) Review all three documents
+           b) Engage external startup/IT law firm (HANDOFFS.md ID 46)
+           c) Share Reviewer Brief + both draft documents with counsel
+           d) Obtain counsel's redline and opinion letter
+           e) After counsel sign-off: raise Engineering handoff to
+              replace placeholder content in src/app/privacy/ and
+              src/app/terms/ with approved text
+
+           BLOCKERS before publication:
+           - External legal counsel review (IDs 10, 30, 39, 46, 57
+             questions all addressed in Reviewer Brief)
+           - Shubham entity name and registered address (placeholder
+             in Privacy Policy Section 2 — needed at incorporation)
+           - GSTIN (placeholder in ToS Section 17 — needed on GST
+             registration, HANDOFFS.md ID 9)
 ID:        27
 ---
 
@@ -1167,7 +1243,21 @@ REQUEST:   Cookie consent banner has no owner, no Engineering task, and no draft
            3. If consent is NOT required for the current stack: document the
               rationale in DECISIONS.md to close this item permanently.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done — 2026-05-21. No cookie consent banner is required.
+           Assessment:
+           (1) Cloudflare Web Analytics: cookieless — no cookies set,
+               no consent obligation.
+           (2) Supabase auth/session cookies: strictly necessary, set
+               only after user logs in. No separate banner required.
+           (3) Razorpay checkout cookies: set only during user-initiated
+               payment. Technically necessary, no banner required.
+           Legal basis: India has no cookie-specific law (no ePrivacy
+           equivalent). DPDPA 2023 does not mandate a cookie banner for
+           strictly-necessary or transaction-initiated cookies.
+           Decision logged: DECISIONS.md 2026-05-21 | Operations.
+           Required follow-up (not a blocker): Privacy Policy draft
+           (ID 27) must include a "Cookies" section describing these
+           three cookie types. Operations to include when drafting ID 27.
 ID:        28
 ---
 
@@ -1330,7 +1420,10 @@ REQUEST:   Monthly billing is excluded at launch (DECISIONS.md 2026-04-28: annua
               doc so this is tracked rather than lost.
            No action required before launch.
 DEADLINE:  First post-launch review (no rush)
-STATUS:    Open
+STATUS:    Done — 2026-05-21. Finance evaluation complete. Monthly billing confirmed:
+           ₹49/month GST-inclusive. Annual remains default and promoted option.
+           Decision recorded in DECISIONS.md 2026-05-21 | Finance.
+           New handoffs raised: ID 55 (Engineering), ID 56 (S&M), ID 57 (Operations).
 ID:        35
 ---
 
@@ -1774,7 +1867,17 @@ REQUEST:   The GST-inclusive pricing decision (DECISIONS.md 2026-05-07) confirms
            Operations to relay reviewer's findings back to Finance before
            the ToS is published.
 DEADLINE:  Before ToS is sent to external legal reviewer
-STATUS:    Open
+STATUS:    Done — 2026-05-30. GST-inclusive pricing decision and
+           back-calculation formula (₹499×18/118=₹76 annual;
+           ₹49×18/118=₹7 monthly) fully embedded in:
+             • TERMS-OF-SERVICE-DRAFT-v1.docx — Section 17 (GST),
+               vault/docs/operations/TERMS-OF-SERVICE-DRAFT-v1.docx
+             • EXTERNAL-LEGAL-REVIEWER-BRIEF.docx — Question 2 (GST
+               Treatment and Invoice Compliance), asks reviewer to confirm
+               Clause 17 wording, back-calculation formula, and SAC code
+               998314, vault/docs/operations/EXTERNAL-LEGAL-REVIEWER-BRIEF.docx
+           TODO (Shubham): Share Reviewer Brief with external counsel.
+           No new handoff — tracked in ID 46.
 ID:        39
 ---
 
@@ -2969,4 +3072,205 @@ STATUS:    Done — 2026-05-14. All four tasks implemented:
            /emergency/request, no button chrome.
            TypeScript clean (0 errors). No commits made.
 ID:        54
+---
+
+FROM:      Finance
+TO:        Engineering
+PRIORITY:  High — Before pricing page goes live with monthly billing
+REQUEST:   Monthly billing plan has been confirmed (DECISIONS.md 2026-05-21 | Finance).
+           Engineering must implement the following:
+
+           1. RAZORPAY MONTHLY PLAN
+              Create a new Razorpay plan with:
+              - amount = 4900 (paise) — ₹49 GST-inclusive
+              - period = "monthly"
+              - interval = 1
+              Add RAZORPAY_MONTHLY_PLAN_ID to Vercel environment variables.
+              Update src/app/api/razorpay/order/route.ts to map
+              cycle = "MONTHLY" → 4900 paise (alongside existing ANNUAL = 49900).
+
+           2. GST INVOICE BACK-CALCULATION FOR MONTHLY
+              On payment.captured for monthly subscriptions, use:
+                base_amount = ₹49 × 100/118 = ₹41.53 → round to ₹42
+                gst_amount  = ₹49 × 18/118  = ₹7.47  → round to ₹7
+                total = ₹49
+              src/lib/gst.ts calculateGst() already handles this dynamically
+              (it accepts the collected amount) — confirm it works for 49.
+
+           3. PRICING PAGE UPDATE
+              Add monthly plan option to src/app/dashboard/pricing/page.tsx:
+              - Show both plans: ₹49/month and ₹499/year
+              - Below ₹499/year: "Save 15% vs monthly" (or "Save ₹89/year")
+              - "Inclusive of GST" label required on BOTH prices
+              - Annual must remain the prominent/default option (visually)
+              - Update FAQ if it still says "annual only"
+
+           Reference: DECISIONS.md 2026-05-21 | Finance.
+DEADLINE:  Before pricing page goes live with monthly billing
+STATUS:    Open
+ID:        55
+---
+
+FROM:      Finance
+TO:        Sales & Marketing
+PRIORITY:  High — Pricing page and copy must reflect monthly billing
+REQUEST:   Monthly billing confirmed (DECISIONS.md 2026-05-21 | Finance).
+           The following copy and document changes are required:
+
+           1. PRICING PAGE COPY
+              Two plans now exist:
+              - ₹49/month — "Inclusive of GST"
+              - ₹499/year — "Inclusive of GST" + savings label ("Save 15% vs monthly"
+                or "Save ₹89/year — best value")
+              Annual must be the visually prominent/default option.
+
+           2. SAVINGS MESSAGING — NOW PERMITTED
+              The prohibition on "Annual saves you X% compared to monthly" in
+              pricing-copy-lock.md is VOID. That prohibition existed because
+              monthly billing did not exist. Now that monthly is live, savings
+              comparison messaging is required and correct.
+              Update docs/marketing/pricing-copy-lock.md to:
+              a) Remove "Annual saves you X% compared to monthly" from the
+                 prohibited phrases list.
+              b) Add the approved savings phrase: "Save 15% with annual billing"
+                 (or "Save ₹89/year vs monthly").
+              c) Add approved monthly price display: "₹49/month — Inclusive of GST"
+
+           3. UPGRADE PROMPTS
+              Any UpgradePrompt copy that references the price should reference
+              "from ₹49/month or ₹499/year" — not "₹499/year" as the only option.
+              Raise an Engineering handoff once copy is confirmed.
+
+           4. ALL-CHANNEL COPY NOTE
+              Social posts, WhatsApp, and ads: use "₹499/year" as the anchor.
+              Monthly price is a pricing page detail — not a headline in GTM.
+
+           Reference: DECISIONS.md 2026-05-21 | Finance.
+DEADLINE:  Before pricing page goes live with monthly billing
+STATUS:    Done — 2026-05-30. Sales & Marketing completed all four items:
+           1. pricing-copy-lock.md updated — both plan cards specified (₹49/month
+              and ₹499/year, both "Inclusive of GST"), annual as default/prominent.
+           2. Savings messaging updated — "Annual saves you X% compared to monthly"
+              prohibition removed (now void). Approved forms added:
+              "Save 15% vs monthly" and "Save ₹89/year vs monthly".
+           3. Monthly price display format added: "₹49/month — Inclusive of GST"
+           4. UpgradePrompt CTA button price reference updated — Engineering
+              handoff raised as HANDOFFS.md ID 59. All-channel anchor remains
+              ₹499/year per Finance instruction; ₹49/month is pricing page detail.
+ID:        56
+---
+
+FROM:      Operations
+TO:        Engineering
+PRIORITY:  Medium — Before next coming-soon/index.html upload to Cloudflare Pages
+REQUEST:   Add a compliance header comment block to the top of
+           coming-soon/index.html (immediately after the opening <html> tag)
+           so any editor sees the DPDPA language constraints before making changes.
+
+           This is a direct output of HANDOFFS.md ID 26 (Operations compliance
+           registry). The exact comment text to add is:
+
+           <!--
+             ╔══════════════════════════════════════════════════════════════════════╗
+             ║  KUTUMBKOSH — COMPLIANCE-SENSITIVE FILE                             ║
+             ║  Do NOT upload to Cloudflare Pages without completing the           ║
+             ║  pre-upload checklist in:                                           ║
+             ║  vault/operations/compliance-sensitive-files.md                     ║
+             ║                                                                     ║
+             ║  DPDPA LANGUAGE RULES (DECISIONS.md 2026-04-28 | Legal):           ║
+             ║  ✗ FORBIDDEN: "DPDPA 2023 Compliant" or "DPDPA compliant"         ║
+             ║  ✓ APPROVED:  "designed with DPDPA 2023 in mind"                  ║
+             ║  ✓ APPROVED:  "designed with Indian data privacy standards in mind" ║
+             ║                                                                     ║
+             ║  Compliance-sensitive line (approx.):                               ║
+             ║  Feature card ~line 1336 — DPDPA privacy claim                     ║
+             ║  Approved text: "Built for India, designed with DPDPA 2023 in      ║
+             ║  mind. 256-bit encryption. Zero data sharing with third parties."   ║
+             ╚══════════════════════════════════════════════════════════════════════╝
+           -->
+
+           Place immediately after the opening <html lang="en"> tag (line 2).
+           No other changes required.
+DEADLINE:  Before next coming-soon/index.html upload to Cloudflare Pages
+STATUS:    Done — 2026-05-30. Comment block added to coming-soon/index.html
+           immediately after <html lang="en"> tag (line 2). Exact text from
+           handoff spec used verbatim. No other changes made to the file.
+ID:        58
+---
+
+FROM:      Finance
+TO:        Operations
+PRIORITY:  High — Before ToS is sent for external legal review
+REQUEST:   Monthly billing has been confirmed (DECISIONS.md 2026-05-21 | Finance).
+           The Finance ToS draft (docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx)
+           Clause 1 (Subscription Plans & Pricing) currently describes only the
+           annual plan (₹499/year). Operations must:
+
+           1. Amend Clause 1 to include the monthly plan:
+              "Pro subscription is available on two billing cycles:
+               (a) Annual — ₹499/year, GST-inclusive
+               (b) Monthly — ₹49/month, GST-inclusive"
+
+           2. Confirm with external legal reviewer whether monthly auto-renewal
+              disclosure requirements differ from annual auto-renewal (Clause 4.2).
+              RBI circular on recurring mandates (e-NACH/SI) may apply separately
+              to monthly mandates. Flag to Finance if changes to Clause 4 are needed.
+
+           3. Confirm cancellation policy (Clause 6) covers monthly billing —
+              does "access until end of billing period" apply to both monthly
+              and annual? If yes, no change needed. If monthly has different
+              treatment, flag to Finance.
+
+           Reference: DECISIONS.md 2026-05-21 | Finance.
+DEADLINE:  Before ToS is sent to external legal reviewer
+STATUS:    Done — 2026-05-30. All three items addressed:
+           1. Clause 1 amended — monthly plan added as Section 15 of
+              integrated ToS (Part B):
+              "Pro Annual — ₹499/year, GST-inclusive"
+              "Pro Monthly — ₹49/month, GST-inclusive"
+              File: vault/docs/operations/TERMS-OF-SERVICE-DRAFT-v1.docx
+           2. Monthly auto-renewal disclosure — flagged to external
+              reviewer in EXTERNAL-LEGAL-REVIEWER-BRIEF.docx Question 3
+              (RBI e-NACH/SI circular question). Reviewer to advise if
+              Section 18 needs amendment before publication.
+              File: vault/docs/operations/EXTERNAL-LEGAL-REVIEWER-BRIEF.docx
+           3. Cancellation policy (Section 20.1) — amended to explicitly
+              cover both annual and monthly: "Cancellation takes effect
+              at the end of your current Subscription Year or Subscription
+              Month (as applicable)." No separate treatment needed.
+           TODO (Shubham): Share Reviewer Brief with external counsel for
+           Question 3 response. No new handoff — tracked in ID 46.
+ID:        57
+---
+
+FROM:      Sales & Marketing
+TO:        Engineering
+PRIORITY:  Medium — Before pricing page goes live with monthly billing
+REQUEST:   Monthly billing is now live (DECISIONS.md 2026-05-21 | Finance).
+           The UpgradePrompt CTA button currently shows a hardcoded price that
+           only references the annual plan. This must be updated to reflect
+           both billing options.
+
+           FILE: src/components/UpgradePrompt.tsx
+           LOCATION: Line 120 (the upgrade CTA button label)
+
+           CURRENT (wrong — only references annual plan):
+             Upgrade to Pro &mdash; &#8377;499/year
+
+           REPLACE WITH:
+             Upgrade to Pro &mdash; from &#8377;49/month or &#8377;499/year
+
+           NO OTHER CHANGES to this file.
+           Do NOT change titles, descriptions, or any other featureMessage
+           key content — those were locked in HANDOFFS.md ID 48 (Done 2026-05-14).
+           Do NOT change any other pricing references outside this one button label.
+
+           Reference: DECISIONS.md 2026-05-21 | Finance, HANDOFFS.md ID 56 (Done).
+           docs/marketing/pricing-copy-lock.md Section 4 (UpgradePrompt row).
+DEADLINE:  Before pricing page goes live with monthly billing
+STATUS:    Done — 2026-05-30. src/components/UpgradePrompt.tsx line 120 updated.
+           Changed from: "Upgrade to Pro &mdash; &#8377;499/year"
+           Changed to:   "Upgrade to Pro &mdash; from &#8377;49/month or &#8377;499/year"
+           No other changes made to the file per handoff spec.
+ID:        59
 ---
