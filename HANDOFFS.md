@@ -3107,7 +3107,27 @@ REQUEST:   Monthly billing plan has been confirmed (DECISIONS.md 2026-05-21 | Fi
 
            Reference: DECISIONS.md 2026-05-21 | Finance.
 DEADLINE:  Before pricing page goes live with monthly billing
-STATUS:    Open
+STATUS:    Done — 2026-05-30.
+           1. order/route.ts: MONTHLY price corrected from 9900 → 4900 paise
+              (₹99 placeholder replaced with confirmed ₹49 per DECISIONS.md
+              2026-05-21 | Finance). RAZORPAY_ANNUAL_PLAN_ID and
+              RAZORPAY_MONTHLY_PLAN_ID documented as required Vercel env vars
+              (pending Shubham Razorpay KYC — HANDOFFS.md ID 9).
+           2. gst.ts calculateGst(49) verified: base=42, gst=7, total=49. ✓
+           3. pricing/page.tsx:
+              - selectedPlan promoted from const → useState (as noted in ID 60
+                Done note). Seeded from ?plan= query param (annual default).
+              - Billing cycle toggle added above plan cards (hidden for isPro
+                users). Annual tab shows "Save 15%" badge.
+              - Pro card price is dynamic: ₹499/year or ₹49/month.
+              - "Inclusive of GST" shown under both prices.
+              - "Save ₹89/year vs monthly" savings badge shown on annual.
+              - Checkout button passes dynamic cycle:
+                /dashboard/checkout?plan=PRO&cycle=ANNUAL|MONTHLY
+              - FAQ updated: "Is billing annual only?" replaced with
+                "Which billing option should I choose?" — both plans
+                described with savings comparison.
+           TypeScript clean (0 errors). No commits made.
 ID:        55
 ---
 

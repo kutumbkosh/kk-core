@@ -3,12 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 
 /**
  * Server-enforced pricing — never trust client-provided amount.
- * Decision locked: DECISIONS.md 2026-05-07 | Finance
+ * Decisions locked: DECISIONS.md 2026-05-07 | Finance (annual)
+ *                   DECISIONS.md 2026-05-21 | Finance (monthly — HANDOFFS.md ID 55)
  * ₹499/year GST-inclusive → 49900 paise
+ * ₹49/month  GST-inclusive →  4900 paise
+ *
+ * NOTE: Razorpay subscription plans must be pre-created in the Razorpay dashboard.
+ * Set RAZORPAY_ANNUAL_PLAN_ID and RAZORPAY_MONTHLY_PLAN_ID in Vercel env vars
+ * once Shubham completes Razorpay KYC (HANDOFFS.md ID 9).
  */
 const PLAN_PRICES: Record<string, number> = {
-  ANNUAL: 49900, // paise — ₹499 GST-inclusive (DECISIONS.md 2026-05-07)
-  MONTHLY: 9900, // paise — ₹99 GST-inclusive (placeholder; finalise before launch)
+  ANNUAL:  49900, // paise — ₹499 GST-inclusive (DECISIONS.md 2026-05-07)
+  MONTHLY:  4900, // paise — ₹49  GST-inclusive (DECISIONS.md 2026-05-21)
 };
 
 export async function POST(request: Request) {
