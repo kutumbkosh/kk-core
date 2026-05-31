@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { validateInstructions } from "@/lib/validations";
+import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import type { TrustedContact, Asset, EmergencyDossier } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
@@ -89,7 +90,7 @@ function AccessModePanel({ contact, onSaved }: AccessModePanelProps) {
       setOpen(false);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(parseFormError(err));
     } finally {
       setSaving(false);
     }
@@ -422,7 +423,7 @@ export default function EmergencyPage() {
       await loadData();
     } catch (err) {
       console.error("Failed to save dossier:", err);
-      setDossierErrors((prev) => ({ ...prev, general: "Something went wrong. Please try again." }));
+      setDossierErrors((prev) => ({ ...prev, general: parseFormError(err) }));
     } finally {
       setSaving(false);
     }

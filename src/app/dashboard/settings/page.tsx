@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/types/database";
 import { validateFullName, validatePhone, validatePAN, validateDOB } from "@/lib/validations";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import {
   ArrowLeft,
   User,
@@ -134,7 +135,7 @@ export default function SettingsPage() {
       router.push("/");
     } catch (err) {
       setDeleting(false);
-      setDeleteError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setDeleteError(parseFormError(err, "delete"));
     }
   };
 

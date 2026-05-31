@@ -13,6 +13,7 @@ import {
   VALUE_BAND_OPTIONS,
 } from "@/lib/asset-fields";
 import { validateInstitution, validateAccountId, validateNotes, validateMetadataText, validateMetadataSelect, validateMetadataTextarea, validateMetadataDate } from "@/lib/validations";
+import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import {
   ArrowLeft,
@@ -216,7 +217,7 @@ export default function AddAssetPage() {
       setStep("success");
     } catch (err) {
       console.error("Failed to save asset:", err);
-      setFormError("Something went wrong. Please try again.");
+      setFormError(parseFormError(err));
     } finally {
       setSaving(false);
     }

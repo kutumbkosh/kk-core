@@ -9,6 +9,7 @@ import {
   ASSET_TYPE_FIELDS,
   VALUE_BAND_OPTIONS,
 } from "@/lib/asset-fields";
+import { parseFormError } from "@/lib/errors";
 import {
   ArrowLeft,
   Landmark,
@@ -49,6 +50,8 @@ export default function AssetDetailPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
   // Editable fields
   const [institutionName, setInstitutionName] = useState("");
@@ -109,7 +112,7 @@ export default function AssetDetailPage() {
       await loadAsset();
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Something went wrong. Please try again.");
+      setSaveError(parseFormError(err));
     } finally {
       setSaving(false);
     }
@@ -118,6 +121,7 @@ export default function AssetDetailPage() {
   const handleDelete = async () => {
     if (!asset) return;
     setDeleting(true);
+    setDeleteError("");
     try {
       const supabase = createClient();
       const { error } = await supabase.from("assets").delete().eq("id", asset.id);
@@ -125,7 +129,7 @@ export default function AssetDetailPage() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete. Please try again.");
+      setDeleteError(parseFormError(err, "delete"));
       setDeleting(false);
     }
   };
@@ -249,12 +253,15 @@ export default function AssetDetailPage() {
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="input-field resize-none" placeholder="Any notes for your family..." />
             </div>
 
+            {saveError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{saveError}</div>
+            )}
             <div className="border-t border-gray-100 pt-6 flex gap-3">
-              <button onClick={handleSave} disabled={saving || !institutionName.trim()} className="btn-primary flex-1">
+              <button onClick={() => { setSaveError(""); handleSave(); }} disabled={saving || !institutionName.trim()} className="btn-primary flex-1">
                 {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
                 Save Changes
               </button>
-              <button onClick={() => { setEditing(false); loadAsset(); }} className="btn-secondary">Cancel</button>
+              <button onClick={() => { setEditing(false); setSaveError(""); loadAsset(); }} className="btn-secondary">Cancel</button>
             </div>
           </div>
         ) : (
@@ -354,12 +361,17 @@ export default function AssetDetailPage() {
               <h3 className="font-semibold text-gray-900 mb-2">Danger Zone</h3>
               <p className="text-sm text-gray-500 mb-4">Removing this asset will also remove all linked nominee mappings.</p>
               {showDeleteConfirm ? (
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-red-600 font-medium flex-1">Are you sure? This can&apos;t be undone.</p>
-                  <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
-                    {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
-                  </button>
-                  <button onClick={() => setShowDeleteConfirm(false)} className="btn-ghost text-sm">Cancel</button>
+                <div className="space-y-3">
+                  {deleteError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{deleteError}</div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm text-red-600 font-medium flex-1">Are you sure? This can&apos;t be undone.</p>
+                    <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
+                      {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
+                    </button>
+                    <button onClick={() => { setShowDeleteConfirm(false); setDeleteError(""); }} className="btn-ghost text-sm">Cancel</button>
+                  </div>
                 </div>
               ) : (
                 <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-red-600 font-medium hover:text-red-700 transition-colors">

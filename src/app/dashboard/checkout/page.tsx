@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { parseFormError } from "@/lib/errors";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -223,7 +224,7 @@ export default function CheckoutPage() {
       rzp.open();
     } catch (err) {
       setProcessing(false);
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(parseFormError(err));
     }
   };
 

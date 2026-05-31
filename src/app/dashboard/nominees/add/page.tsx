@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import {
   validateFullName,
   validateMobileOptional,
@@ -177,7 +178,7 @@ export default function AddNomineePage() {
       setSuccess(true);
     } catch (err) {
       console.error("Failed to save nominee:", err);
-      setFormError("Something went wrong. Please try again.");
+      setFormError(parseFormError(err));
     } finally {
       setSaving(false);
     }

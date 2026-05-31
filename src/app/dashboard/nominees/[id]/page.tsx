@@ -7,6 +7,7 @@ import type { Nominee, NomineeRelation, Asset, AssetNomineeMapping } from "@/typ
 import { ASSET_TYPE_CONFIG } from "@/types/database";
 import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 import { validateFullName, validatePhone, validatePAN, validateDOB, validateRelation, validateSharePercentage } from "@/lib/validations";
+import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import {
   ArrowLeft,
@@ -74,6 +75,8 @@ export default function NomineeDetailPage() {
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [linkError, setLinkError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [unlinkError, setUnlinkError] = useState("");
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -161,7 +164,7 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Something went wrong.");
+      setFormError(parseFormError(err));
     } finally {
       setSaving(false);
     }
@@ -170,6 +173,7 @@ export default function NomineeDetailPage() {
   const handleDelete = async () => {
     if (!nominee) return;
     setDeleting(true);
+    setDeleteError("");
     try {
       const supabase = createClient();
       // Delete mappings first, then nominee
@@ -179,7 +183,7 @@ export default function NomineeDetailPage() {
       router.push("/dashboard/nominees");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete.");
+      setDeleteError(parseFormError(err, "delete"));
       setDeleting(false);
     }
   };
@@ -209,13 +213,14 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Link failed:", err);
-      alert("Failed to link asset. The total share for an asset cannot exceed 100%.");
+      setLinkError(parseFormError(err));
     } finally {
       setLinkSaving(false);
     }
   };
 
   const handleUnlinkAsset = async (mappingId: string) => {
+    setUnlinkError("");
     try {
       const supabase = createClient();
       const { error } = await supabase.from("asset_nominee_mappings").delete().eq("id", mappingId);
@@ -223,7 +228,7 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Unlink failed:", err);
-      alert("Failed to unlink asset.");
+      setUnlinkError(parseFormError(err, "delete"));
     }
   };
 
@@ -369,6 +374,9 @@ export default function NomineeDetailPage() {
             </div>
 
             {/* Linked Assets */}
+            {unlinkError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{unlinkError}</div>
+            )}
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -434,12 +442,17 @@ export default function NomineeDetailPage() {
               <h3 className="font-semibold text-gray-900 mb-2">Danger Zone</h3>
               <p className="text-sm text-gray-500 mb-4">This will also remove all asset-nominee links for {nominee.full_name}.</p>
               {showDeleteConfirm ? (
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-red-600 font-medium flex-1">Are you sure?</p>
-                  <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
-                    {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
-                  </button>
-                  <button onClick={() => setShowDeleteConfirm(false)} className="btn-ghost text-sm">Cancel</button>
+                <div className="space-y-3">
+                  {deleteError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{deleteError}</div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm text-red-600 font-medium flex-1">Are you sure?</p>
+                    <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
+                      {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
+                    </button>
+                    <button onClick={() => { setShowDeleteConfirm(false); setDeleteError(""); }} className="btn-ghost text-sm">Cancel</button>
+                  </div>
                 </div>
               ) : (
                 <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-red-600 font-medium hover:text-red-700">

@@ -13,6 +13,7 @@ import {
   type ValidationError,
 } from "@/lib/validations";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import { Shield, User, ArrowRight, Loader2 } from "lucide-react";
 
 export default function OnboardingProfile() {
@@ -129,7 +130,7 @@ export default function OnboardingProfile() {
 
       router.push("/onboarding/emergency-contact");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(parseFormError(err));
     } finally {
       setLoading(false);
     }

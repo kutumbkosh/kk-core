@@ -6,6 +6,7 @@ import { validateEmail } from "@/lib/validations";
 import { isRateLimited } from "@/lib/security";
 import { captureReferral } from "@/lib/referral";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import {
   Shield,
   ArrowRight,
@@ -116,7 +117,7 @@ export default function LandingPage() {
       setSent(true);
       setCountdown(30);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(parseFormError(err, "auth"));
     } finally {
       setLoading(false);
     }

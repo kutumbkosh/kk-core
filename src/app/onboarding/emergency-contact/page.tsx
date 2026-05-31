@@ -11,6 +11,7 @@ import {
 } from "@/lib/validations";
 import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import {
   UserPlus,
   ArrowRight,
@@ -186,7 +187,7 @@ export default function EmergencyContactPage() {
 
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(parseFormError(err));
     } finally {
       setLoading(false);
     }
