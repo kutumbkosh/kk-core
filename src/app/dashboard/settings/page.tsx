@@ -58,8 +58,8 @@ export default function SettingsPage() {
     if (data) {
       setProfile(data);
       setFullName(data.full_name || "");
-      setPhone(data.phone || "");
-      setDob(data.dob || "");
+      setPhone(data.mobile_number || "");
+      setDob(data.date_of_birth || "");
       setPan(data.pan_number || "");
     }
     setLoading(false);
@@ -104,15 +104,19 @@ export default function SettingsPage() {
     setSaved(false);
 
     const supabase = createClient();
-    await supabase.from("profiles").update({
-      full_name: fullName.trim(),
-      phone: phone.trim() || null,
-      dob: dob || null,
-      pan_number: pan.trim().toUpperCase() || null,
-      updated_at: new Date().toISOString(),
+    const { error: updateError } = await supabase.from("profiles").update({
+      full_name:      fullName.trim(),
+      mobile_number:  phone.trim() || null,
+      date_of_birth:  dob || null,
+      pan_number:     pan.trim().toUpperCase() || null,
+      updated_at:     new Date().toISOString(),
     }).eq("id", profile.id);
 
     setSaving(false);
+    if (updateError) {
+      setFormError("Unable to save your profile. Please try again.");
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };

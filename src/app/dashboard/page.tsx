@@ -35,6 +35,15 @@ import type { UserProfile, Asset, Nominee, TrustedContact } from "@/types/databa
 import { ASSET_TYPE_CONFIG } from "@/types/database";
 import EmptyStateIllustration from "@/components/illustrations/EmptyStateIllustration";
 
+const RELATION_LABELS: Record<string, string> = {
+  spouse: "Spouse", child: "Child", parent: "Parent", sibling: "Sibling",
+  grandchild: "Grandchild", grandparent: "Grandparent", in_law: "In-Law", other: "Other",
+};
+
+const ACCESS_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending", ACTIVE: "Active", REVOKED: "Revoked",
+};
+
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   Landmark, PiggyBank, TrendingUp, Shield, BarChart3,
   Building2, Wallet, HandCoins, CreditCard, Lock, Home,
@@ -64,7 +73,7 @@ export default function DashboardPage() {
       supabase.from("profiles").select("*").eq("id", user.id).single(),
       supabase.from("assets").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("nominees").select("*").eq("user_id", user.id),
-      supabase.from("trusted_contacts").select("*").eq("user_id", user.id),
+      supabase.from("trusted_contacts").select("*").eq("user_id", user.id).is("deleted_at", null),
       supabase.from("asset_nominee_mappings").select("asset_id, nominee_id"),
     ]);
 
@@ -404,7 +413,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{nominee.full_name}</p>
-                        <p className="text-xs text-gray-500">{nominee.relation}</p>
+                        <p className="text-xs text-gray-500">{RELATION_LABELS[nominee.relation] || nominee.relation}</p>
                       </div>
                       <ChevronRight className="w-3 h-3 text-gray-300" />
                     </div>
@@ -440,14 +449,14 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{contact.contact_name}</p>
-                        <p className="text-xs text-gray-500">{contact.relation}</p>
+                        <p className="text-xs text-gray-500">{RELATION_LABELS[contact.relation] || contact.relation}</p>
                       </div>
                       <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
                         contact.access_status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" :
                         contact.access_status === "REVOKED" ? "bg-red-50 text-red-700" :
                         "bg-gray-100 text-gray-600"
                       }`}>
-                        {contact.access_status}
+                        {ACCESS_STATUS_LABELS[contact.access_status] || contact.access_status}
                       </span>
                     </div>
                   ))}

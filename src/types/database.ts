@@ -152,7 +152,8 @@ export const PLAN_LIMITS: Record<PlanType, { maxAssets: number; maxNominees: num
     maxAssets: 3,
     maxNominees: 2,
     maxTrustedContacts: 1,
-    features: ["basic_reminders"],
+    // pdf_export is available on Free — DECISIONS.md 2026-05-12 | Product
+    features: ["basic_reminders", "pdf_export"],
   },
   PRO: {
     maxAssets: Infinity,

@@ -46,10 +46,11 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
+// Prices locked: DECISIONS.md 2026-05-07 (annual) + 2026-05-21 (monthly)
 const PLANS = {
   PRO: {
-    ANNUAL: { price: 499, label: "Pro Annual", perMonth: 42, saving: "Save 49% vs monthly" },
-    MONTHLY: { price: 79, label: "Pro Monthly", perMonth: 79, saving: null },
+    ANNUAL:  { price: 499, label: "Pro Annual",  perMonth: 42, saving: "Save 15% vs monthly — just ₹42/month" },
+    MONTHLY: { price: 49,  label: "Pro Monthly", perMonth: 49, saving: null },
   },
 };
 
@@ -309,7 +310,7 @@ export default function CheckoutPage() {
           {/* Cycle toggle */}
           <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
             <button
-              onClick={() => setCycle("ANNUAL")}
+              onClick={() => { setCycle("ANNUAL"); router.replace("/dashboard/checkout?plan=PRO&cycle=ANNUAL"); }}
               className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
                 cycle === "ANNUAL" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
               }`}
@@ -318,7 +319,7 @@ export default function CheckoutPage() {
               {cycle === "ANNUAL" && <span className="ml-1 text-xs text-green-600">(Best value)</span>}
             </button>
             <button
-              onClick={() => setCycle("MONTHLY")}
+              onClick={() => { setCycle("MONTHLY"); router.replace("/dashboard/checkout?plan=PRO&cycle=MONTHLY"); }}
               className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
                 cycle === "MONTHLY" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
               }`}
@@ -339,7 +340,7 @@ export default function CheckoutPage() {
             </div>
             <div className="text-right">
               <p className="text-lg font-bold text-gray-900">&#8377;{currentPlan.price}</p>
-              <p className="text-xs text-gray-500">/{cycle === "ANNUAL" ? "year" : "month"}</p>
+              <p className="text-xs text-gray-500">/{cycle === "ANNUAL" ? "year" : "month"} &bull; GST incl.</p>
             </div>
           </div>
 

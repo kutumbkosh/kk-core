@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Asset, Nominee, AssetNomineeMapping, EmergencyDossier, UserProfile } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
-import { useSubscription } from "@/hooks/useSubscription";
-import UpgradePrompt from "@/components/UpgradePrompt";
 import {
   ArrowLeft,
   Download,
@@ -47,7 +45,6 @@ const RELATION_LABELS: Record<string, string> = {
 
 export default function ExportPage() {
   const router = useRouter();
-  const { canUseFeature, isPro, loading: subLoading } = useSubscription();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [nominees, setNominees] = useState<Nominee[]>([]);
   const [mappings, setMappings] = useState<AssetNomineeMapping[]>([]);
@@ -393,15 +390,8 @@ export default function ExportPage() {
           </div>
         </div>
 
-        {/* Pro gate */}
-        {!isPro && !subLoading && (
-          <div className="mb-6">
-            <UpgradePrompt feature="pdf_export" variant="card" />
-          </div>
-        )}
-
-        {/* Export options */}
-        <div className={`space-y-3 mb-6 ${!isPro ? "opacity-50 pointer-events-none" : ""}`}>
+        {/* Export options — available on Free and Pro (DECISIONS.md 2026-05-12 | Product) */}
+        <div className="space-y-3 mb-6">
           <button
             onClick={handlePrint}
             className="card w-full flex items-center gap-4 p-5 hover:shadow-card-hover transition-all text-left"
