@@ -6,7 +6,7 @@ import { sendEmail, templates } from "@/lib/resend";
 /** Server-enforced plan prices in INR (rupees) — matches order/route.ts paise values. */
 const PLAN_PRICE_INR: Record<string, number> = {
   ANNUAL: 499,
-  MONTHLY: 99,
+  MONTHLY: 49, // DECISIONS.md 2026-05-21 | Finance — ₹49/month GST-inclusive
 };
 
 export async function POST(request: Request) {

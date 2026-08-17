@@ -53,9 +53,9 @@
 - [ ] Validate Core Web Vitals baseline post-launch — LCP < 2.5s, INP < 200ms, CLS < 0.1 (see Marketing → Engineering handoff in HANDOFFS.md)
 
 ## Finance & Payments (Shubham — All are hard launch blockers)
-- [ ] Register legal business entity (Pvt. Ltd. recommended; LLP or Sole Proprietorship acceptable for soft launch) at https://www.mca.gov.in
-- [ ] Open a business current account in entity name (HDFC, ICICI, or Kotak) — required for Razorpay settlements
-- [ ] Register for GSTIN at https://www.gst.gov.in — confirm SAC code 998314 with CA before registering
+- [x] Register legal business entity — Done 2026-06-01. KUTUMBKOSH FINTECH PRIVATE LIMITED incorporated. CIN: U62099MR2026PTC477196 | PAN: AAMCK9306L | TAN: PNEK28638B | Registered address: Lokpuram Malhar CHS, Bld No G2, 107, Majiwade, Sandozbaugh, Thane – 400607, Maharashtra. See DECISIONS.md 2026-06-01 | Operations.
+- [x] Open a business current account in entity name — Done 2026-07-24. Confirmed by Shubham.
+- [x] Register for GSTIN at https://www.gst.gov.in — Done 2026-07-24. Confirmed by Shubham. GST state = Maharashtra (MH). Engineering to set KUTUMBKOSH_GST_STATE env var (HANDOFFS.md ID 58).
 - [x] Confirm pricing decision in writing: ₹499/year GST-inclusive — locked in DECISIONS.md 2026-05-07. pricing/page.tsx violations fixed 2026-05-12 (HANDOFFS.md ID #41).
 - [ ] Complete Razorpay KYC + live mode activation; link business current account for settlements
 - [ ] Engage a CA for GSTR-1, GSTR-3B, advance tax, and annual ITR filing

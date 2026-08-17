@@ -1,6 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/security/page": "app/security/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/privacy/page": "app/privacy/page.js"
-}

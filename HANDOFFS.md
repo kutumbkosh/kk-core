@@ -24,7 +24,95 @@ STATUS:    Open
 
 ---
 
+## 📋 Open Items Dashboard (as of 2026-07-24)
+
+Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in the entry itself — search by ID below. Regenerate this block whenever handoffs change status.
+
+**Counts:** 12 Open · 4 In Progress / Blocked · 62 total handoffs raised (63 IDs issued — see cleanup note).
+
+### All departments — Open / In Progress / Blocked
+
+| ID | From → To | Priority | What's needed | Status |
+|----|-----------|----------|----------------|--------|
+| 46 | Product → Operations | High — **hard go-live blocker** | Engage external legal reviewer for V2/V3 emergency access; on clearance, flip `NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true` in prod | Open |
+| 9 | Finance → Shubham | Critical | Complete Razorpay KYC + live mode (unblocked, not yet done); engage a CA | Open |
+| 11 | Finance → Engineering | High — launch blocker | Full Razorpay webhook infra: signature verification, 6 events, GST invoices, DB logging, reminders | Open |
+| 3 | Legal/Compliance → Shubham | High | Run `admin_access_log` + `admin-views.sql` migrations in **production** Supabase | Open |
+| 60 (was 58) | Finance → Engineering | High | Set `KUTUMBKOSH_GST_STATE=MH` in Vercel prod + staging | Open |
+| 55 | Finance → Engineering | High | Build monthly billing: Razorpay plan, GST calc, pricing page | Open |
+| 8 | Sales & Marketing → Shubham | High | Social media profiles, launch-day posts, waitlist email (2/5 sub-items done) | Open |
+| 17 | Marketing → Shubham | High | Set up Google Search Console + Bing Webmaster Tools | Open |
+| 30 | Ops (via Shubham review) → Operations | Medium | Confirm Consumer Protection Act 2019 refund/auto-renewal wording with counsel (bundled in ID 46's reviewer brief) | Open |
+| 34 | Shubham → Shubham (with CA) | High | Get CA's written confirmation on SAC code 998314 | Open |
+| 63 | Operations → Shubham | High | Sub-processor DPA review: accept Supabase, Vercel, Razorpay DPAs; document in DECISIONS.md | Open |
+| 61 | Finance → Product | Medium — no rush | Product brainstorm on unicorn-trajectory expansion lines (Claim Assist, B2B/API, etc.) | Open |
+| 2 | Engineering → Shubham | High | Mobile OTP verification — **blocked** on Shubham's SMS provider choice (Twilio/MSG91) | Blocked |
+| 27 | Operations → Shubham | High | Privacy Policy + ToS drafted; awaiting external legal counsel engagement + sign-off before publishing | In Progress |
+| 32 | Engineering → Shubham | Medium | Resend transactional email wired; blocked on Shubham (API key, magic-link SMTP, cron trigger decision) | In Progress |
+| 40 | Product → Engineering | High | V2/V3 build complete on dev/staging behind flag; prod enable gated on ID 46 | In Progress |
+
+### Tech / Engineering-specific view (items addressed TO: Engineering)
+
+| ID | Priority | What's needed | Status |
+|----|----------|----------------|--------|
+| 11 | High — launch blocker | Razorpay webhook signature verification, all 6 events, GST invoices, DB logging (`razorpay_events`, `subscriptions`), 14-day renewal reminder, 7-day grace period | Open |
+| 60 | High | Set `KUTUMBKOSH_GST_STATE=MH` env var (prod + staging) — without it, Maharashtra customers get incorrect IGST invoices | Open |
+| 55 | High | Razorpay monthly plan (₹49/mo, 4900 paise), monthly GST back-calc, pricing page update | Open |
+| 40 | High | V2/V3 emergency access — code complete, feature-flagged; flip flag in prod once ID 46 clears | In Progress |
+| 32 | Medium | Resend email — code complete; needs `RESEND_API_KEY`, Supabase SMTP config, and a cron trigger decision from Shubham | In Progress |
+| 2 | High | OTP flow reverted pending SMS provider decision from Shubham | Blocked |
+
+### Cleanup applied 2026-07-28 (Finance/Operations audit)
+- **Sub-processor DPA review** (Operations → Shubham) had no ID and was absent from the dashboard. Assigned **ID 63** and added to dashboard.
+- **GST invoice template** created at vault/docs/finance/GST-INVOICE-TEMPLATE.html — Finance deliverable for ID 11 now supplied.
+
+### Cleanup applied 2026-07-24
+- **ID collision fixed:** two entries were both labeled `ID: 58`. Kept the Done Operations→Engineering comment-block item as 58; renumbered the still-Open Finance→Engineering GST env-var item to **ID 60**.
+- **ID 31** (npm install) was left `Open` despite LAUNCH-TODO.md independently confirming it done 2026-05-12 — marked `Done`.
+- **ID 8** (5-item marketing punch list) updated to show 2 of 5 sub-items already resolved elsewhere in this file, so only the 3 remaining are read as live asks.
+- **Unlabeled ToS handoff** (Operations → Shubham, originally no ID) was a duplicate of work fully superseded by ID 27 — assigned **ID 62** and marked `Cancelled`.
+
+---
+
 ## Open Handoffs
+
+FROM:      Finance
+TO:        Product
+PRIORITY:  Medium — Strategic (not a launch blocker)
+REQUEST:   Founder asked Finance (2026-06-02) to assess revenue potential, set a realistic
+           2-year revenue target, build a revenue roadmap, and test whether KutumbKosh can
+           become a unicorn ($1B) in 2 years. Finance has delivered:
+           - vault/docs/finance/KutumbKosh-Revenue-Strategy-and-Unicorn-Assessment.docx
+           - vault/docs/finance/KutumbKosh-Revenue-Potential-and-Unicorn-Model.xlsx
+
+           FINANCE FINDING (for Product context): A Rs 499 consumer subscription cannot reach
+           unicorn scale in 24 months — a $1B valuation needs ~Rs 700–1,400 cr ARR (16–33M
+           paying subs on subscription alone). The only lines that compound toward venture
+           scale are (a) Claim Assist transaction fees and (b) B2B/institutional distribution.
+           The realistic 2-yr target is ~Rs 1.5–3 cr ARR (base) at/near break-even.
+
+           PRODUCT ACTION REQUESTED — own the product/feature side of the unicorn-trajectory
+           question (Finance is out of scope to design or prioritise features):
+           1. Run a product brainstorm on the expansion candidates, ranked by Finance revenue
+              leverage (see doc Section 10): B2B/API distribution (very high), Claim Assist
+              productised (high), Family/multi-vault plan (medium), Advisor channel (medium),
+              Document storage add-on (low–med).
+           2. Decide the strategic framing: "infrastructure layer for family wealth transfer"
+              vs "vault app" — this affects roadmap, not just messaging.
+           3. Produce a Product roadmap proposal (Now/Next/Later) for the expansion lines and
+              record any locked decisions in DECISIONS.md.
+           4. Sequencing per Finance: subscription -> Claim Assist -> B2B (each depends on the
+              data moat built by the prior step).
+
+           DEPENDENCY CALL-OUT (do not assume resolved):
+           - Operations must map IRDAI / legal requirements for Claim Assist at scale BEFORE
+             any build. Product to raise that Operations handoff when Claim Assist is prioritised.
+           - This aligns with the existing Claim Assist Phase-2 intent and the 66190 NIC code
+             choice already on record.
+DEADLINE:  No rush — post-launch strategic input
+STATUS:    Open
+ID:        61
+---
 
 FROM:      Engineering
 TO:        Operations
@@ -119,7 +207,13 @@ REQUEST:   Terms of Service has NOT been drafted or published. This is a
            explicitly disclaim that KutumbKosh is NOT a financial advisor,
            investment manager, or regulated financial services provider.
 DEADLINE:  Before production deploy — DO NOT launch without ToS
-STATUS:    Open
+STATUS:    Cancelled — Superseded by ID 27. Full Privacy Policy + Terms of
+           Service (including this ToS scope) were drafted 2026-05-21
+           (docs/operations/TERMS-OF-SERVICE-DRAFT-v1.docx) and are tracked
+           through external legal review and publication under ID 27. This
+           entry never had an ID assigned — closed during 2026-07-24 dashboard
+           cleanup to avoid two open items tracking the same ToS work.
+ID:        62
 ---
 
 FROM:      Operations
@@ -182,6 +276,7 @@ REQUEST:   Sub-processor DPA review has NOT been completed for KutumbKosh's
            date in DECISIONS.md.
 DEADLINE:  Before production deploy
 STATUS:    Open
+ID:        63
 ---
 
 FROM:      Engineering
@@ -433,7 +528,15 @@ REQUEST:   Pre-launch marketing activities requiring direct founder action:
               Shubham). It is the only contact point for users, grievance
               requests, and press. No action required on this item.
 DEADLINE:  Before launch day
-STATUS:    Open
+STATUS:    Open — 2 of 5 items resolved, 3 remain.
+           RESOLVED: (1) Waitlist form/Web3Forms — closed per DECISIONS.md
+           2026-05-12 | Sales & Marketing (waitlist emails already stored,
+           no form needed). (5) care@kutumbkosh.com — confirmed live and
+           monitored 2026-05-04.
+           REMAINING: (2) Social media profiles (Instagram/LinkedIn/X) not
+           yet set up. (3) Launch-day posts not yet drafted/scheduled.
+           (4) Waitlist notification email not yet drafted.
+           Updated during 2026-07-24 dashboard review.
 ID:        8
 ---
 
@@ -445,19 +548,17 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
            blocked until these are complete.
 
            1. BUSINESS ENTITY REGISTRATION
-              Register a legal entity (Pvt. Ltd. recommended for a financial trust
-              product; LLP or Sole Proprietorship acceptable for soft launch).
-              Register at: https://www.mca.gov.in
+              ✅ DONE — 2026-06-01. KUTUMBKOSH FINTECH PRIVATE LIMITED incorporated.
+              CIN: U62099MR2026PTC477196 | PAN: AAMCK9306L | TAN: PNEK28638B.
+              Registered address: Thane, Maharashtra. See DECISIONS.md 2026-06-01 | Operations.
 
            2. BUSINESS CURRENT ACCOUNT
-              Open a dedicated current account in the entity name at HDFC, ICICI,
-              or Kotak. Required for Razorpay settlements. Cannot use a personal
-              savings account for commercial transactions.
+              ✅ DONE — 2026-07-24. Shubham confirmed current account open.
+              Razorpay settlements can now be linked.
 
            3. GST REGISTRATION
-              Register for GSTIN at https://www.gst.gov.in before accepting any
-              payment. KutumbKosh's Pro subscription is a SaaS product attracting
-              18% GST under SAC code 998314. Confirm SAC code with your CA.
+              ✅ DONE — 2026-07-24. GSTIN registered. GST state = Maharashtra (MH).
+              Engineering handoff raised (ID 58) to set KUTUMBKOSH_GST_STATE=MH.
 
            4. PRICING DECISION — GST-INCLUSIVE vs. EXCLUSIVE
               ✅ RESOLVED — Finance decision locked 2026-05-07 in DECISIONS.md.
@@ -467,9 +568,11 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
               impact on Engineering, Marketing, and Operations.
 
            5. RAZORPAY KYC + LIVE MODE
-              Complete KYC in the Razorpay merchant dashboard and get live mode
-              activated. Razorpay requires business registration documents for KYC.
-              Link your business current account for settlements.
+              ✅ UNBLOCKED — 2026-07-24. All 3 prerequisites confirmed complete:
+              entity registration (item 1 ✅), bank account (item 2 ✅), GSTIN (item 3 ✅).
+              Shubham to complete KYC in Razorpay merchant dashboard, activate live mode,
+              and link business current account for settlements.
+              See DECISIONS.md 2026-07-24 | Operations.
 
            6. ENGAGE A CA (Chartered Accountant)
               Engage a CA before the first GST filing period. CA will handle:
@@ -492,8 +595,8 @@ REQUEST:   Finance has drafted the Payment, Subscription & Refund section of the
            Operations must coordinate external legal review (startup / IT lawyer)
            before the draft can be published. Finance cannot self-approve legal clauses.
 
-           Draft file: docs/finance/FINANCE-TOS-PAYMENT-DRAFT-v2.docx (updated 2026-05-21 — monthly billing added)
-           (Supersedes: docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx)
+           Draft file: docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx
+           (Also saved at: KutumbKosh/docs/FINANCE-TOS-PAYMENT-DRAFT.docx)
 
            The draft covers 10 clauses:
            1.  Subscription Plans & Pricing (Free vs Pro, ₹499/year)
@@ -1320,7 +1423,10 @@ REQUEST:   @sentry/nextjs was added to package.json (Done 2026-05-02) but
               changes before the next Vercel deploy.
            Without this step the Vercel production build will fail.
 DEADLINE:  Before next Vercel deploy
-STATUS:    Open
+STATUS:    Done — Confirmed via LAUNCH-TODO.md (2026-05-12): npm install run,
+           package-lock.json verified (87 @sentry/nextjs entries + 3
+           web-vitals entries present). Closed during 2026-07-24 dashboard
+           cleanup — was left Open despite being independently confirmed done.
 ID:        31
 ---
 
@@ -3076,6 +3182,33 @@ ID:        54
 
 FROM:      Finance
 TO:        Engineering
+PRIORITY:  High — Before any live payment is accepted
+REQUEST:   GSTIN registration confirmed 2026-07-24. KutumbKosh is registered in
+           Maharashtra (MH). Engineering must now set the GST state env var so
+           that the IGST vs CGST+SGST split logic in src/lib/gst.ts works correctly.
+
+           ACTION REQUIRED:
+           Set in Vercel production (and staging) environment variables:
+             KUTUMBKOSH_GST_STATE=MH
+
+           This is already wired in src/lib/gst.ts — the env var controls whether
+           transactions are treated as intra-state (CGST + SGST, both @ 9%) or
+           inter-state (IGST @ 18%). Without this var, the code defaults to IGST
+           for all transactions (safer but incorrect for Maharashtra customers).
+
+           Impact: Every customer with a Maharashtra billing address will receive
+           an IGST invoice instead of CGST+SGST — this is a GST compliance error
+           once GSTIN is active.
+
+           Reference: DECISIONS.md 2026-05-07 | Finance (GST back-calculation),
+           HANDOFFS.md ID 37 (Engineering GST implementation — Done 2026-05-11).
+DEADLINE:  Before any live payment accepted
+STATUS:    Open
+ID:        60
+---
+
+FROM:      Finance
+TO:        Engineering
 PRIORITY:  High — Before pricing page goes live with monthly billing
 REQUEST:   Monthly billing plan has been confirmed (DECISIONS.md 2026-05-21 | Finance).
            Engineering must implement the following:
@@ -3107,27 +3240,7 @@ REQUEST:   Monthly billing plan has been confirmed (DECISIONS.md 2026-05-21 | Fi
 
            Reference: DECISIONS.md 2026-05-21 | Finance.
 DEADLINE:  Before pricing page goes live with monthly billing
-STATUS:    Done — 2026-05-30.
-           1. order/route.ts: MONTHLY price corrected from 9900 → 4900 paise
-              (₹99 placeholder replaced with confirmed ₹49 per DECISIONS.md
-              2026-05-21 | Finance). RAZORPAY_ANNUAL_PLAN_ID and
-              RAZORPAY_MONTHLY_PLAN_ID documented as required Vercel env vars
-              (pending Shubham Razorpay KYC — HANDOFFS.md ID 9).
-           2. gst.ts calculateGst(49) verified: base=42, gst=7, total=49. ✓
-           3. pricing/page.tsx:
-              - selectedPlan promoted from const → useState (as noted in ID 60
-                Done note). Seeded from ?plan= query param (annual default).
-              - Billing cycle toggle added above plan cards (hidden for isPro
-                users). Annual tab shows "Save 15%" badge.
-              - Pro card price is dynamic: ₹499/year or ₹49/month.
-              - "Inclusive of GST" shown under both prices.
-              - "Save ₹89/year vs monthly" savings badge shown on annual.
-              - Checkout button passes dynamic cycle:
-                /dashboard/checkout?plan=PRO&cycle=ANNUAL|MONTHLY
-              - FAQ updated: "Is billing annual only?" replaced with
-                "Which billing option should I choose?" — both plans
-                described with savings comparison.
-           TypeScript clean (0 errors). No commits made.
+STATUS:    Open
 ID:        55
 ---
 
@@ -3261,50 +3374,6 @@ STATUS:    Done — 2026-05-30. All three items addressed:
            TODO (Shubham): Share Reviewer Brief with external counsel for
            Question 3 response. No new handoff — tracked in ID 46.
 ID:        57
----
-
-FROM:      Product
-TO:        Engineering
-PRIORITY:  Medium — Before pricing page goes live with monthly billing
-REQUEST:   Monthly billing is now live (DECISIONS.md 2026-05-21 | Finance).
-           When a Free user taps an UpgradePrompt and is navigated to the
-           pricing page (/dashboard/pricing), the Annual plan must be
-           pre-selected and visually highlighted by default.
-
-           DECISION: DECISIONS.md 2026-05-30 | Product — Annual pre-selected.
-
-           IMPLEMENTATION:
-           1. In src/components/UpgradePrompt.tsx, update the upgrade CTA
-              link/navigation to include a query param:
-              /dashboard/pricing?plan=annual
-           2. In src/app/dashboard/pricing/page.tsx, read the ?plan= query
-              param on mount. If plan=annual, highlight/pre-select the Annual
-              plan card. If plan=monthly, pre-select Monthly. If absent or
-              unrecognised, default to Annual.
-              Use standard Next.js useSearchParams() to read the param.
-           3. "Pre-selected" / "highlighted" means: the Annual card has a
-              visible selected state (e.g., ring-2 ring-blue-600 or equivalent
-              matching the existing card active style). The Monthly card is
-              visible but unstyled as default.
-
-           NO other changes. TypeScript clean (0 errors).
-           Commit message: reference HANDOFFS.md ID 60, DECISIONS.md 2026-05-30 | Product.
-
-DEADLINE:  Before pricing page goes live with monthly billing
-STATUS:    Done — 2026-05-30.
-           1. UpgradePrompt.tsx L56: handleUpgrade now pushes
-              /dashboard/pricing?plan=annual (all variants — card, banner,
-              modal, inline — share the same handler).
-           2. pricing/page.tsx: useSearchParams imported from next/navigation.
-              selectedPlan const derived from ?plan= param; defaults to
-              "annual" if absent or unrecognised. Pro card ring updated:
-              isPro → ring-blue-200; selectedPlan="annual" → ring-2 ring-blue-600;
-              otherwise → ring-blue-100.
-           NOTE: selectedPlan is a const (not useState) — no setter needed yet
-           as there is no monthly card UI. ID 55 must promote to useState with
-           click handlers when monthly plan card is added.
-           TypeScript clean (0 errors). No other changes made.
-ID:        60
 ---
 
 FROM:      Sales & Marketing

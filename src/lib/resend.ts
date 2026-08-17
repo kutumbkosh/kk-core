@@ -130,6 +130,28 @@ export interface FailedPaymentParams {
   orderId?: string;
 }
 
+export interface InvoiceConfirmationParams {
+  /** Sequential invoice number e.g. KK-2026-0001 */
+  invoiceNumber: string;
+  /** Billing cycle */
+  cycle: "ANNUAL" | "MONTHLY";
+  /** GST-inclusive amount collected in INR */
+  collectedInr: number;
+  /** Base amount ex-GST in INR */
+  baseInr: number;
+  /** Total GST in INR */
+  gstInr: number;
+  /** IGST (inter-state) or CGST+SGST (intra-state) */
+  taxType: "IGST" | "CGST+SGST";
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
+  /** Razorpay payment ID for reference */
+  paymentId: string;
+  /** ISO date string — subscription period end */
+  periodEnd: string;
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-IN", {
     day: "numeric",
@@ -272,6 +294,74 @@ export const templates = {
           If the problem persists, write to us at
           <a href="mailto:care@kutumbkosh.com" style="color: #2563EB;">care@kutumbkosh.com</a>
           and we'll help you complete the upgrade.
+        </p>
+      `),
+    };
+  },
+
+  /**
+   * GST invoice email — sent on payment.captured and subscription.charged.
+   * Finance will supply a formal PDF template post-launch; this serves as the
+   * interim GST invoice per HANDOFFS.md ID 11.
+   * SAC code 998314, 18% GST, back-calculated from GST-inclusive price.
+   * DECISIONS.md 2026-05-07 | Finance
+   */
+  invoiceConfirmation(params: InvoiceConfirmationParams): Omit<EmailPayload, "to"> {
+    const { invoiceNumber, cycle, collectedInr, baseInr, gstInr, taxType, cgst, sgst, igst, paymentId, periodEnd } = params;
+    const cycleLabel = cycle === "ANNUAL" ? "Annual" : "Monthly";
+
+    const taxRows =
+      taxType === "CGST+SGST"
+        ? `
+          <tr>
+            <td style="color: #6B7280; padding: 4px 0;">CGST 9% (SAC 998314)</td>
+            <td style="color: #111827; font-weight: 600; text-align: right;">₹${cgst}</td>
+          </tr>
+          <tr>
+            <td style="color: #6B7280; padding: 4px 0;">SGST 9% (SAC 998314)</td>
+            <td style="color: #111827; font-weight: 600; text-align: right;">₹${sgst}</td>
+          </tr>`
+        : `
+          <tr>
+            <td style="color: #6B7280; padding: 4px 0;">IGST 18% (SAC 998314)</td>
+            <td style="color: #111827; font-weight: 600; text-align: right;">₹${igst}</td>
+          </tr>`;
+
+    return {
+      subject: `KutumbKosh — GST Invoice ${invoiceNumber}`,
+      html: emailWrapper(`
+        <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 4px;">
+          GST Invoice
+        </h2>
+        <p style="font-size: 13px; color: #9CA3AF; margin-top: 0; margin-bottom: 20px;">
+          Invoice No: ${invoiceNumber} &nbsp;·&nbsp; ${formatDate(new Date().toISOString())}
+        </p>
+        ${infoBox(`
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <tr>
+              <td style="color: #6B7280; padding: 4px 0; width: 60%;">Service</td>
+              <td style="color: #111827; font-weight: 600; text-align: right;">KutumbKosh Pro (${cycleLabel})</td>
+            </tr>
+            <tr>
+              <td style="color: #6B7280; padding: 4px 0;">Valid until</td>
+              <td style="color: #111827; font-weight: 600; text-align: right;">${formatDate(periodEnd)}</td>
+            </tr>
+            <tr style="border-top: 1px solid #DBEAFE; margin-top: 8px;">
+              <td style="color: #6B7280; padding: 8px 0 4px 0;">Base amount (ex-GST)</td>
+              <td style="color: #111827; font-weight: 600; text-align: right; padding-top: 8px;">₹${baseInr}</td>
+            </tr>
+            ${taxRows}
+            <tr style="border-top: 1px solid #DBEAFE;">
+              <td style="color: #111827; font-weight: 700; padding: 8px 0 4px 0;">Total (GST-inclusive)</td>
+              <td style="color: #111827; font-weight: 700; text-align: right; padding-top: 8px;">₹${collectedInr}</td>
+            </tr>
+          </table>
+        `)}
+        <p style="font-size: 12px; color: #9CA3AF; margin-top: 16px; line-height: 1.6;">
+          Payment reference: ${paymentId}<br />
+          Supplier: KUTUMBKOSH FINTECH PRIVATE LIMITED · GSTIN: (on file) · SAC: 998314<br />
+          This is a system-generated invoice. For a signed copy, write to
+          <a href="mailto:care@kutumbkosh.com" style="color: #2563EB;">care@kutumbkosh.com</a>.
         </p>
       `),
     };

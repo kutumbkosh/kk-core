@@ -428,4 +428,47 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 
 ---
 
+### 2026-06-01 | Operations — Founder Decision
+**Decision:** Company incorporation confirmed. Legal entity details locked for use across all KutumbKosh documents, contracts, and filings.
+
+| Field | Details |
+|---|---|
+| **Legal Entity Name** | KUTUMBKOSH FINTECH PRIVATE LIMITED |
+| **CIN** | U62099MR2026PTC477196 |
+| **PAN** | AAMCK9306L |
+| **TAN** | PNEK28638B |
+| **Registered Address** | Lokpuram Malhar CHS, Bld No G2, 107, Majiwade, Sandozbaugh, Thane – 400607, Maharashtra |
+| **Incorporation Date** | 2026 (MCA registered) |
+
+**Rationale:** Entity registration was a hard blocker for Privacy Policy publication, ToS publication, Razorpay KYC, GST registration, and business current account opening. All department documents requiring entity name and registered address can now be finalised.
+
+**Impact:**
+- Operations: Privacy Policy Section 2, Terms of Service Section 1 — entity name, CIN, PAN, TAN, and registered address placeholders now filled. GSTIN placeholder remains pending (ID 9, item 3). Documents updated 2026-06-01.
+- Finance: Business current account (ID 9, item 2) can now be opened in the entity name. Razorpay KYC (ID 9, item 5) can now be initiated using incorporation documents.
+- Legal: External Legal Reviewer Brief updated with entity details — ready to send to counsel.
+- Engineering: GST invoice template must use `KUTUMBKOSH FINTECH PRIVATE LIMITED` as the billed entity name once GSTIN is obtained.
+- DECISIONS.md 2026-05-21 | Operations: "Entity name and registered address" blocker is resolved. GSTIN blocker in ID 27 remains open pending GST registration.
+
+---
+
+### 2026-07-24 | Operations — Founder Decision
+**Decision:** GSTIN registration and business current account opening confirmed complete. All three entity-dependent prerequisites for Razorpay KYC are now met.
+
+| Item | Status |
+|---|---|
+| **GSTIN** | Registered — Maharashtra (MH). GSTIN number to be recorded by Shubham in entity records. |
+| **GST State** | Maharashtra (MH) — CGST (9%) + SGST (9%) for intra-state; IGST (18%) for inter-state |
+| **SAC Code** | 998314 — pending CA written confirmation (HANDOFFS.md ID 34) |
+| **Business Current Account** | Open in entity name: KUTUMBKOSH FINTECH PRIVATE LIMITED |
+| **Razorpay KYC** | Fully unblocked — Shubham to complete |
+
+**Rationale:** Entity registration (2026-06-01) was the first prerequisite. Bank account and GSTIN were the remaining two. All three are now confirmed, making Razorpay KYC + live mode activation the next hard blocker before any live payment can be accepted.
+
+**Impact:**
+- Finance: CGST/SGST split applies for Maharashtra customers; IGST for all others. Engineering must set KUTUMBKOSH_GST_STATE=MH in Vercel (HANDOFFS.md ID 58). Without this env var, Maharashtra customers receive incorrect IGST invoice — compliance error from first live payment.
+- Shubham (direct action): Complete Razorpay KYC + live mode activation, link business current account for settlements. See HANDOFFS.md ID 9, item 5 — now fully unblocked.
+- Finance/CA: Engage CA now that GST state is confirmed. First GSTR-1/GSTR-3B filing becomes due once first live payment is received. See HANDOFFS.md ID 9, item 6.
+
+---
+
 _Add new decisions above this line, following the format._
