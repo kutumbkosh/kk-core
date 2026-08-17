@@ -28,7 +28,7 @@ STATUS:    Open
 
 Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in the entry itself — search by ID below. Regenerate this block whenever handoffs change status.
 
-**Counts:** 12 Open · 4 In Progress / Blocked · 62 total handoffs raised (63 IDs issued — see cleanup note).
+**Counts:** 13 Open · 4 In Progress / Blocked · 63 total handoffs raised (64 IDs issued — see cleanup note).
 
 ### All departments — Open / In Progress / Blocked
 
@@ -45,6 +45,7 @@ Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in t
 | 30 | Ops (via Shubham review) → Operations | Medium | Confirm Consumer Protection Act 2019 refund/auto-renewal wording with counsel (bundled in ID 46's reviewer brief) | Open |
 | 34 | Shubham → Shubham (with CA) | High | Get CA's written confirmation on SAC code 998314 | Open |
 | 63 | Operations → Shubham | High | Sub-processor DPA review: accept Supabase, Vercel, Razorpay DPAs; document in DECISIONS.md | Open |
+| 64 | Operations → Shubham | High — before go-live | Move infrastructure ownership from shubham.urgraph@gmail.com to care@kutumbkosh.com: Cloudflare (invite + transfer), Vercel (add as billing contact, team when upgrading). GitHub + Supabase + Razorpay done. | Open |
 | 61 | Finance → Product | Medium — no rush | Product brainstorm on unicorn-trajectory expansion lines (Claim Assist, B2B/API, etc.) | Open |
 | 2 | Engineering → Shubham | High | Mobile OTP verification — **blocked** on Shubham's SMS provider choice (Twilio/MSG91) | Blocked |
 | 27 | Operations → Shubham | High | Privacy Policy + ToS drafted; awaiting external legal counsel engagement + sign-off before publishing | In Progress |
@@ -277,6 +278,46 @@ REQUEST:   Sub-processor DPA review has NOT been completed for KutumbKosh's
 DEADLINE:  Before production deploy
 STATUS:    Open
 ID:        63
+---
+
+FROM:      Operations
+TO:        Shubham (Founder — account actions required)
+PRIORITY:  High — Complete before production go-live
+REQUEST:   All KutumbKosh infrastructure must be owned by the business identity
+           (care@kutumbkosh.com), not the personal account (shubham.urgraph@gmail.com).
+           This is required for legal ownership, team access, and DPDPA accountability.
+
+           PROGRESS AS OF 2026-08-17:
+           ✅ GitHub — repo transferred to github.com/kutumbkosh/kk-core
+           ✅ Supabase — project transferred to KutumbKosh org under care@kutumbkosh.com
+           ✅ Razorpay — live account created under care@kutumbkosh.com
+           ✅ Domain (kutumbkosh.com) — already registered under care@kutumbkosh.com
+
+           REMAINING ACTIONS FOR SHUBHAM:
+
+           1. Cloudflare
+              - Create a Cloudflare account with care@kutumbkosh.com
+              - In shubham.urgraph@gmail.com Cloudflare account → kutumbkosh.com zone
+                → Manage → Members → invite care@kutumbkosh.com as Administrator
+              - Once accepted, make care@kutumbkosh.com the primary owner
+              - Remove or downgrade shubham.urgraph@gmail.com
+
+           2. Vercel
+              - Phone number conflict prevents creating a separate Vercel account
+                for care@kutumbkosh.com (Vercel limitation)
+              - Interim: add care@kutumbkosh.com as billing/notification email in
+                Vercel → Settings → Communications
+              - Long-term: when upgrading to Vercel Pro Team ($20/mo), create a
+                team under care@kutumbkosh.com and transfer the project there
+              - shubham.urgraph@gmail.com can remain as a team member for development
+
+           3. After migration, remove shubham.urgraph@gmail.com owner access from
+              GitHub org, Supabase org, and Cloudflare — keep only as a regular member
+              for dev access.
+
+DEADLINE:  Before production go-live
+STATUS:    Open
+ID:        64
 ---
 
 FROM:      Engineering
