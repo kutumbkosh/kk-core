@@ -34,8 +34,27 @@ export function parseFormError(err: unknown, context?: "save" | "delete" | "load
         return "This information is already saved. Please check your entries and try again.";
       case "23503":
         return "A linked record could not be found. Please refresh the page and try again.";
-      case "23502":
-        return "A required field is missing. Please fill in all required fields and try again.";
+      case "23502": {
+        // Extract column name from Postgres error message, e.g. 'null value in column "mobile_number"'
+        const colMatch = (e.message ?? "").match(/column "([^"]+)"/);
+        const col = colMatch?.[1];
+        const colLabels: Record<string, string> = {
+          full_name: "Full Name",
+          mobile_number: "Mobile Number",
+          date_of_birth: "Date of Birth",
+          kutumb_id: "Profile ID",
+          contact_name: "Emergency Contact Name",
+          contact_phone: "Emergency Contact Phone",
+          contact_email: "Emergency Contact Email",
+          institution_name: "Institution Name",
+          asset_type: "Asset Type",
+          nominee_name: "Nominee Name",
+        };
+        const label = col ? colLabels[col] : null;
+        return label
+          ? `"${label}" is required. Please fill it in and try again.`
+          : "A required field is missing. Please fill in all required fields and try again.";
+      }
       case "23514":
         return "One or more values are not valid. Please check your entries.";
 

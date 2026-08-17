@@ -88,9 +88,23 @@ export default function OnboardingProfile() {
 
       const mobile = normaliseMobile(form.mobile_number);
 
+      // Fetch existing kutumb_id — preserve it on UPDATE; generate if profile doesn't exist yet
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("kutumb_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      let kutumbId: string | null = existing?.kutumb_id ?? null;
+      if (!kutumbId) {
+        const { data: generatedId } = await supabase.rpc("generate_kutumb_id");
+        kutumbId = generatedId;
+      }
+
       // Save profile — mobile_verified stays false until OTP is implemented
       const { error: upsertError } = await supabase.from("profiles").upsert({
         id: user.id,
+        kutumb_id: kutumbId,
         full_name: form.full_name,
         email: user.email,
         mobile_number: mobile,

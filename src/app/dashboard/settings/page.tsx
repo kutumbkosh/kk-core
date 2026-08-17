@@ -114,7 +114,7 @@ export default function SettingsPage() {
 
     setSaving(false);
     if (updateError) {
-      setFormError("Unable to save your profile. Please try again.");
+      setFormError(parseFormError(updateError));
       return;
     }
     setSaved(true);

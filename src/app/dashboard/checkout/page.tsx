@@ -207,7 +207,7 @@ export default function CheckoutPage() {
             setSuccess(true);
           } catch (err) {
             setProcessing(false);
-            setError(err instanceof Error ? err.message : "Payment verification failed. Please contact support.");
+            setError(parseFormError(err));
           }
         },
         modal: {
