@@ -27,13 +27,13 @@ export default function PrivacyPolicyPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Privacy Policy</h1>
-        <p className="text-sm text-gray-400 mb-8">Last updated: March 31, 2026</p>
+        <p className="text-sm text-gray-400 mb-8">Last updated: August 17, 2026</p>
 
         <div className="prose prose-sm prose-gray max-w-none space-y-6">
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">1. Who we are</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by its founding team based in India. This Privacy Policy explains how we collect, use, store, and protect your personal data in accordance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
+              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by Kutumbkosh Fintech Private Limited (CIN: U62099MR2026PTC477196), a company incorporated under the Companies Act, 2013, with its registered office in Thane, Maharashtra, India. This Privacy Policy explains how we collect, use, store, and protect your personal data in accordance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
             </p>
           </section>
 
@@ -73,7 +73,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">5. Third-party services</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              We use the following third-party services, all of which maintain industry-standard security certifications: Supabase (database and authentication), Vercel (application hosting), and Razorpay (payment processing for Pro subscriptions). Razorpay handles all payment data directly — we never see or store your card numbers, UPI IDs, or banking credentials. Each third party processes data in accordance with their own privacy policies and is contractually bound to protect your data.
+              We use the following third-party services, all of which maintain industry-standard security certifications: Supabase (database and authentication), Vercel (application hosting), Razorpay (payment processing for Pro subscriptions), and Resend (transactional email delivery for account and subscription notifications). Razorpay handles all payment data directly — we never see or store your card numbers, UPI IDs, or banking credentials. Resend receives your email address solely to deliver transactional emails such as login links, subscription confirmations, and renewal reminders — it is not used for marketing without your consent. Each third party processes data in accordance with their own privacy policies and is contractually bound to protect your data.
             </p>
           </section>
 
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">11. Contact us</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              For privacy-related concerns or to exercise your data rights, contact us at <a href="mailto:privacy@kutumbkosh.in" className="text-blue-600 hover:underline">privacy@kutumbkosh.in</a>.
+              For privacy-related concerns or to exercise your data rights, contact us at <a href="mailto:care@kutumbkosh.com" className="text-blue-600 hover:underline">care@kutumbkosh.com</a>.
             </p>
           </section>
         </div>
