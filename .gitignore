@@ -48,4 +48,8 @@ next-env.d.ts
 project-knowledge/
 skills/
 .claude/
+docs/*
+.next
 
+TODOs
+LocalToDOs

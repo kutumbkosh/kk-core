@@ -13,6 +13,7 @@ import {
   VALUE_BAND_OPTIONS,
 } from "@/lib/asset-fields";
 import { validateInstitution, validateAccountId, validateNotes, validateMetadataText, validateMetadataSelect, validateMetadataTextarea, validateMetadataDate } from "@/lib/validations";
+import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import {
   ArrowLeft,
@@ -216,7 +217,7 @@ export default function AddAssetPage() {
       setStep("success");
     } catch (err) {
       console.error("Failed to save asset:", err);
-      setFormError("Something went wrong. Please try again.");
+      setFormError(parseFormError(err));
     } finally {
       setSaving(false);
     }
@@ -489,12 +490,14 @@ export default function AddAssetPage() {
                       />
                     ) : (
                       <input
-                        type={field.type === "date" ? "date" : "text"}
+                        type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"}
                         value={metadata[field.name] || ""}
                         onChange={(e) => handleMetadataChange(field.name, e.target.value)}
                         onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
                         placeholder={field.placeholder}
-                        maxLength={field.type === "date" ? undefined : 500}
+                        maxLength={field.type === "date" || field.type === "number" ? undefined : 500}
+                        min={field.type === "number" ? "0" : undefined}
+                        step={field.type === "number" ? "any" : undefined}
                         className={`input-field ${errClass}`}
                       />
                     )}

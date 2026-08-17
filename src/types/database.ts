@@ -17,6 +17,15 @@ export type AssetType =
 export type ValueBand = "<1L" | "1-5L" | "5-10L" | "10-50L" | "50L+";
 
 export type NomineeRelation =
+  | "spouse"
+  | "child"
+  | "parent"
+  | "sibling"
+  | "grandchild"
+  | "grandparent"
+  | "in_law"
+  | "other"
+  // Legacy uppercase values kept for backward compat with existing rows
   | "SPOUSE"
   | "CHILD"
   | "PARENT"
@@ -25,12 +34,21 @@ export type NomineeRelation =
 
 export type AccessStatus = "PENDING" | "ACTIVE" | "REVOKED";
 
+/** Emergency access mode — V1 = manual approval, V2 = inactivity timer, V3 = pre-authorized */
+export type AccessMode = "MANUAL" | "INACTIVITY" | "PRE_AUTHORIZED";
+
 export interface UserProfile {
   id: string;
   full_name: string;
   email: string | null;
   phone: string | null;
   dob: string | null;
+  // New mandatory-fields columns
+  mobile_number: string | null;
+  mobile_verified: boolean;
+  date_of_birth: string | null;
+  profile_complete: boolean;
+  kutumb_id: string | null;
   pan_number: string | null;
   onboarding_completed: boolean;
   created_at: string;
@@ -59,6 +77,9 @@ export interface Nominee {
   relation: NomineeRelation;
   dob: string | null;
   contact_number: string | null;
+  email: string | null;
+  guardian_name: string | null;
+  guardian_mobile: string | null;
   pan_number: string | null;
   photo_url: string | null;
   created_at: string;
@@ -86,6 +107,16 @@ export interface TrustedContact {
   activation_requested_at: string | null;
   activation_approved_at: string | null;
   created_at: string;
+  // V2/V3 fields — migration: 20260511_emergency_access_v2_v3.sql
+  access_mode: AccessMode;
+  inactivity_days: number;               // V2: 30 | 60 | 90 | 180
+  grace_period_days: number;             // V2: 14 | 21 | 30 (min 14 — Condition 1)
+  inactivity_trigger_fired_at: string | null;
+  inactivity_grace_ends_at: string | null;
+  v2_consent_at: string | null;
+  v3_consent_at: string | null;
+  v3_last_reconfirmed_at: string | null;
+  country_of_residence: string | null;   // S.16 compliance readiness — Condition 5
 }
 
 export interface EmergencyDossier {
@@ -116,15 +147,18 @@ export interface Subscription {
 }
 
 // Plan limits
-export const PLAN_LIMITS: Record<PlanType, { maxAssets: number; maxNominees: number; features: string[] }> = {
+export const PLAN_LIMITS: Record<PlanType, { maxAssets: number; maxNominees: number; maxTrustedContacts: number; features: string[] }> = {
   FREE: {
     maxAssets: 3,
     maxNominees: 2,
-    features: ["basic_reminders"],
+    maxTrustedContacts: 1,
+    // pdf_export is available on Free — DECISIONS.md 2026-05-12 | Product
+    features: ["basic_reminders", "pdf_export"],
   },
   PRO: {
     maxAssets: Infinity,
     maxNominees: Infinity,
+    maxTrustedContacts: 2,
     features: ["basic_reminders", "all_reminders", "emergency_access", "pdf_export", "share_percentages", "priority_support"],
   },
 };

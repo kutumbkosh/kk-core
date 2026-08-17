@@ -82,7 +82,7 @@ export default function AuthVerifyPage() {
         <div className="mt-10 flex items-center justify-center gap-3 text-xs text-gray-300">
           <span>256-bit SSL</span>
           <span>&middot;</span>
-          <span>DPDPA 2023</span>
+          <span>Privacy first</span>
           <span>&middot;</span>
           <span>kutumbkosh.com</span>
         </div>

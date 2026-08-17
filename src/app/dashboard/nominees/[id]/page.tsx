@@ -5,7 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Nominee, NomineeRelation, Asset, AssetNomineeMapping } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
+import { RELATIONSHIP_OPTIONS } from "@/lib/relationship-options";
 import { validateFullName, validatePhone, validatePAN, validateDOB, validateRelation, validateSharePercentage } from "@/lib/validations";
+import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import {
   ArrowLeft,
@@ -38,13 +40,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string; style?: 
   Building2, Wallet, HandCoins, CreditCard, Lock, Home,
 };
 
-const RELATION_OPTIONS: { value: NomineeRelation; label: string }[] = [
-  { value: "SPOUSE", label: "Spouse" },
-  { value: "CHILD", label: "Child" },
-  { value: "PARENT", label: "Parent" },
-  { value: "SIBLING", label: "Sibling" },
-  { value: "OTHER", label: "Other" },
-];
+// Build a display label map handling both new (lowercase) and legacy (uppercase) DB values
+const RELATION_DISPLAY: Record<string, string> = {
+  ...Object.fromEntries(RELATIONSHIP_OPTIONS.map((o) => [o.value, o.label])),
+  SPOUSE: "Spouse", CHILD: "Child", PARENT: "Parent", SIBLING: "Sibling", OTHER: "Other",
+};
 
 export default function NomineeDetailPage() {
   const router = useRouter();
@@ -75,20 +75,27 @@ export default function NomineeDetailPage() {
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [linkError, setLinkError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [unlinkError, setUnlinkError] = useState("");
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [nomineeRes, assetsRes, mappingsRes, allMappingsRes] = await Promise.all([
+    const [nomineeRes, assetsRes, mappingsRes] = await Promise.all([
       supabase.from("nominees").select("*").eq("id", nomineeId).eq("user_id", user.id).single(),
       supabase.from("assets").select("*").eq("user_id", user.id).order("institution_name"),
       supabase.from("asset_nominee_mappings").select("*").eq("nominee_id", nomineeId),
-      supabase.from("asset_nominee_mappings").select("*"),
     ]);
 
     if (!nomineeRes.data) { router.push("/dashboard/nominees"); return; }
+
+    // Scope allMappings to user's own asset IDs for share-calculation
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const allMappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     const n = nomineeRes.data as Nominee;
     setNominee(n);
@@ -157,7 +164,7 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Something went wrong.");
+      setFormError(parseFormError(err));
     } finally {
       setSaving(false);
     }
@@ -166,6 +173,7 @@ export default function NomineeDetailPage() {
   const handleDelete = async () => {
     if (!nominee) return;
     setDeleting(true);
+    setDeleteError("");
     try {
       const supabase = createClient();
       // Delete mappings first, then nominee
@@ -175,7 +183,7 @@ export default function NomineeDetailPage() {
       router.push("/dashboard/nominees");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete.");
+      setDeleteError(parseFormError(err, "delete"));
       setDeleting(false);
     }
   };
@@ -205,13 +213,14 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Link failed:", err);
-      alert("Failed to link asset. The total share for an asset cannot exceed 100%.");
+      setLinkError(parseFormError(err));
     } finally {
       setLinkSaving(false);
     }
   };
 
   const handleUnlinkAsset = async (mappingId: string) => {
+    setUnlinkError("");
     try {
       const supabase = createClient();
       const { error } = await supabase.from("asset_nominee_mappings").delete().eq("id", mappingId);
@@ -219,7 +228,7 @@ export default function NomineeDetailPage() {
       await loadData();
     } catch (err) {
       console.error("Unlink failed:", err);
-      alert("Failed to unlink asset.");
+      setUnlinkError(parseFormError(err, "delete"));
     }
   };
 
@@ -262,7 +271,7 @@ export default function NomineeDetailPage() {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-gray-900 truncate">{nominee.full_name}</h1>
-              <p className="text-xs text-gray-500">{nominee.relation}</p>
+              <p className="text-xs text-gray-500">{RELATION_DISPLAY[nominee.relation] ?? nominee.relation}</p>
             </div>
           </div>
           {!editing && (
@@ -284,9 +293,9 @@ export default function NomineeDetailPage() {
             </div>
             <div>
               <label className="label">Relationship <span className="text-red-500">*</span></label>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                {RELATION_OPTIONS.map((opt) => (
-                  <button key={opt.value} type="button" onClick={() => { setRelation(opt.value); setTouched(prev => ({ ...prev, relation: true })); setErrors(prev => ({ ...prev, relation: null })); }} className={`px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all ${relation === opt.value ? "border-vault-dark bg-blue-50 text-vault-dark" : "border-gray-200 text-gray-600"}`}>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {RELATIONSHIP_OPTIONS.map((opt) => (
+                  <button key={opt.value} type="button" onClick={() => { setRelation(opt.value as NomineeRelation); setTouched(prev => ({ ...prev, relation: true })); setErrors(prev => ({ ...prev, relation: null })); }} className={`px-3 py-2 rounded-xl text-sm font-medium border-2 transition-all ${relation === opt.value || relation.toLowerCase() === opt.value ? "border-vault-dark bg-blue-50 text-vault-dark" : "border-gray-200 text-gray-600"}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -335,7 +344,7 @@ export default function NomineeDetailPage() {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">{nominee.full_name}</h2>
                   <span className="text-sm bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full">
-                    {nominee.relation}
+                    {RELATION_DISPLAY[nominee.relation] ?? nominee.relation}
                   </span>
                 </div>
               </div>
@@ -365,6 +374,9 @@ export default function NomineeDetailPage() {
             </div>
 
             {/* Linked Assets */}
+            {unlinkError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{unlinkError}</div>
+            )}
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -430,12 +442,17 @@ export default function NomineeDetailPage() {
               <h3 className="font-semibold text-gray-900 mb-2">Danger Zone</h3>
               <p className="text-sm text-gray-500 mb-4">This will also remove all asset-nominee links for {nominee.full_name}.</p>
               {showDeleteConfirm ? (
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-red-600 font-medium flex-1">Are you sure?</p>
-                  <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
-                    {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
-                  </button>
-                  <button onClick={() => setShowDeleteConfirm(false)} className="btn-ghost text-sm">Cancel</button>
+                <div className="space-y-3">
+                  {deleteError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{deleteError}</div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm text-red-600 font-medium flex-1">Are you sure?</p>
+                    <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50">
+                      {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
+                    </button>
+                    <button onClick={() => { setShowDeleteConfirm(false); setDeleteError(""); }} className="btn-ghost text-sm">Cancel</button>
+                  </div>
                 </div>
               ) : (
                 <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-red-600 font-medium hover:text-red-700">

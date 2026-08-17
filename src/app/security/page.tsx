@@ -79,7 +79,7 @@ const securityFeatures = [
     icon: ShieldCheck,
     title: "Designed with Privacy in Mind",
     description:
-      "KutumbKosh is built with India's Digital Personal Data Protection Act (DPDPA) 2023 in mind. We collect only what's necessary, and you can delete your data at any time.",
+      "KutumbKosh is designed with India's Digital Personal Data Protection Act (DPDPA) 2023 in mind. We collect only what's necessary, you can delete your data at any time, and formal compliance verification is in progress.",
     color: "text-green-600",
     bg: "bg-green-50",
   },
@@ -233,26 +233,21 @@ export default function SecurityPage() {
             Internal access controls
           </h2>
           <p className="text-sm text-gray-500 text-center mb-6">
-            How we govern our own team&apos;s access to your data.
+            How we protect your data from within.
           </p>
-          <div className="max-w-xl mx-auto p-5 rounded-xl border border-gray-200 bg-gray-50">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                <EyeOff className="w-5 h-5 text-blue-600" />
+          <div className="max-w-xl mx-auto p-5 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
+            {[
+              "No team member has routine access to your vault contents",
+              "Access to production user data requires explicit founder approval",
+              "Every admin database operation is logged with timestamp and reason",
+              "The service role key (which bypasses row-level security) is restricted to a single, audited function: account deletion",
+              "All admin access events are retained in an audit log for review",
+            ].map((point) => (
+              <div key={point} className="flex items-start gap-3">
+                <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-gray-700">{point}</p>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-2">
-                  Zero-routine-access policy
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  KutumbKosh operates a zero-routine-access policy — no team member has
-                  standard access to user vault contents. All internal data access is
-                  governed by a formal Internal Access Policy, logged, and auditable.
-                  The Supabase service role key is restricted to a single server-side
-                  operation (account deletion) and is never accessible client-side.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

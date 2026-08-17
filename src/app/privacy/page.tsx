@@ -27,13 +27,13 @@ export default function PrivacyPolicyPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Privacy Policy</h1>
-        <p className="text-sm text-gray-400 mb-8">Last updated: March 31, 2026</p>
+        <p className="text-sm text-gray-400 mb-8">Last updated: August 17, 2026</p>
 
         <div className="prose prose-sm prose-gray max-w-none space-y-6">
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">1. Who we are</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by its founding team based in India. This Privacy Policy explains how we collect, use, store, and protect your personal data in compliance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
+              KutumbKosh (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is a financial information management platform that helps Indian families organize, track, and secure their financial asset information and nominee details. KutumbKosh is operated by Kutumbkosh Fintech Private Limited (CIN: U62099MR2026PTC477196), a company incorporated under the Companies Act, 2013, with its registered office in Thane, Maharashtra, India. This Privacy Policy explains how we collect, use, store, and protect your personal data in accordance with the Digital Personal Data Protection Act, 2023 (DPDPA) and applicable Indian laws.
             </p>
           </section>
 
@@ -73,14 +73,14 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">5. Third-party services</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              We use the following third-party services, all of which maintain industry-standard security certifications: Supabase (database and authentication), Vercel (application hosting), and Razorpay (payment processing for Pro subscriptions). Razorpay handles all payment data directly — we never see or store your card numbers, UPI IDs, or banking credentials. Each third party processes data in accordance with their own privacy policies and is contractually bound to protect your data.
+              We use the following third-party services, all of which maintain industry-standard security certifications: Supabase (database and authentication), Vercel (application hosting), Razorpay (payment processing for Pro subscriptions), and Resend (transactional email delivery for account and subscription notifications). Razorpay handles all payment data directly — we never see or store your card numbers, UPI IDs, or banking credentials. Resend receives your email address solely to deliver transactional emails such as login links, subscription confirmations, and renewal reminders — it is not used for marketing without your consent. Each third party processes data in accordance with their own privacy policies and is contractually bound to protect your data.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">6. Your rights under DPDPA</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Under the Digital Personal Data Protection Act, 2023, you have the right to access all personal data we hold about you, correct inaccurate data at any time through your Settings page, delete your account and all associated data permanently, withdraw consent for data processing (which may require account deletion), and receive information about how your data is being processed. To exercise any of these rights, contact us at privacy@kutumbkosh.in or use the account deletion feature in Settings.
+              Under the Digital Personal Data Protection Act, 2023, you have the right to access all personal data we hold about you, correct inaccurate data at any time through your Settings page, delete your account and all associated data permanently, withdraw consent for data processing (which may require account deletion), and receive information about how your data is being processed. To exercise any of these rights, contact us at care@kutumbkosh.com or use the account deletion feature in Settings.
             </p>
           </section>
 
@@ -113,37 +113,18 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">11. Grievance Officer</h2>
-            <p className="text-sm text-gray-600 leading-relaxed mb-3">
-              In accordance with Section 13 of the Digital Personal Data Protection Act, 2023, KutumbKosh has appointed a Grievance Officer to address any concerns you may have about how your personal data is handled.
-            </p>
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-1.5">
-              <p className="text-sm text-gray-800 font-semibold">Grievance Officer</p>
-              <p className="text-sm text-gray-600">Shubham, Founder — KutumbKosh</p>
-              <p className="text-sm text-gray-600">
-                Email:{" "}
-                <a href="mailto:care@kutumbkosh.com" className="text-blue-600 hover:underline">
-                  care@kutumbkosh.com
-                </a>
-              </p>
-              <p className="text-sm text-gray-600">
-                Grievance form:{" "}
-                <a href="/grievance" className="text-blue-600 hover:underline">
-                  kutumbkosh.com/grievance
-                </a>
-              </p>
-            </div>
-            <p className="text-sm text-gray-600 leading-relaxed mt-3">
-              We will acknowledge your grievance within 48 hours and resolve it within 30 days of receipt. If your concern is not resolved to your satisfaction, you may approach the Data Protection Board of India (DPBI) once it becomes operational.
+            <h2 className="text-lg font-bold text-gray-900 mb-2">11. Contact us</h2>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              For privacy-related concerns or to exercise your data rights, contact us at <a href="mailto:care@kutumbkosh.com" className="text-blue-600 hover:underline">care@kutumbkosh.com</a>.
             </p>
           </section>
         </div>
 
         {/* Footer links */}
         <div className="border-t border-gray-100 mt-10 pt-6 flex items-center justify-center gap-6 text-xs text-gray-400">
-          <a href="/grievance" className="hover:text-gray-600 transition-colors">Grievance</a>
-          <a href="/security" className="hover:text-gray-600 transition-colors">Trust & Security</a>
+          <a href="/security" className="hover:text-gray-600 transition-colors">Trust &amp; Security</a>
           <a href="/terms" className="hover:text-gray-600 transition-colors">Terms of Service</a>
+          <a href="/grievance" className="hover:text-gray-600 transition-colors">Grievance Officer</a>
         </div>
       </main>
     </div>

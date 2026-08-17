@@ -27,10 +27,22 @@ import {
   Bell,
   Settings,
   Download,
+  Hash,
+  Copy,
+  Check,
 } from "lucide-react";
 import type { UserProfile, Asset, Nominee, TrustedContact } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
 import EmptyStateIllustration from "@/components/illustrations/EmptyStateIllustration";
+
+const RELATION_LABELS: Record<string, string> = {
+  spouse: "Spouse", child: "Child", parent: "Parent", sibling: "Sibling",
+  grandchild: "Grandchild", grandparent: "Grandparent", in_law: "In-Law", other: "Other",
+};
+
+const ACCESS_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending", ACTIVE: "Active", REVOKED: "Revoked",
+};
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   Landmark, PiggyBank, TrendingUp, Shield, BarChart3,
@@ -46,6 +58,7 @@ export default function DashboardPage() {
   const [contacts, setContacts] = useState<TrustedContact[]>([]);
   const [mappings, setMappings] = useState<Array<{ asset_id: string; nominee_id: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [kkIdCopied, setKkIdCopied] = useState(false);
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -60,7 +73,7 @@ export default function DashboardPage() {
       supabase.from("profiles").select("*").eq("id", user.id).single(),
       supabase.from("assets").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("nominees").select("*").eq("user_id", user.id),
-      supabase.from("trusted_contacts").select("*").eq("user_id", user.id),
+      supabase.from("trusted_contacts").select("*").eq("user_id", user.id).is("deleted_at", null),
       supabase.from("asset_nominee_mappings").select("asset_id, nominee_id"),
     ]);
 
@@ -82,6 +95,13 @@ export default function DashboardPage() {
     router.push("/");
   };
 
+  const handleCopyKKID = () => {
+    if (!profile?.kutumb_id) return;
+    navigator.clipboard.writeText(profile.kutumb_id);
+    setKkIdCopied(true);
+    setTimeout(() => setKkIdCopied(false), 1500);
+  };
+
   const totalAssets = assets.length;
   const assetsWithNominee = mappings.length > 0 ? new Set(mappings.map(m => m.asset_id)).size : 0;
   const nomineeCoverage = totalAssets > 0 ? Math.round((assetsWithNominee / totalAssets) * 100) : 0;
@@ -96,7 +116,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-sm text-gray-500">Loading your vault...</p>
         </div>
       </div>
@@ -144,7 +164,23 @@ export default function DashboardPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 Welcome{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h2>
-              <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+                {profile?.kutumb_id && (
+                  <button
+                    onClick={handleCopyKKID}
+                    className="flex items-center gap-1 text-[10px] font-mono text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Copy your Kutumb ID"
+                  >
+                    <Hash className="w-2.5 h-2.5" />
+                    {profile.kutumb_id}
+                    {kkIdCopied
+                      ? <Check className="w-2.5 h-2.5 text-green-500" />
+                      : <Copy className="w-2.5 h-2.5" />
+                    }
+                  </button>
+                )}
+              </div>
             </div>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/70 rounded-lg border border-blue-100">
               <Crown className="w-3.5 h-3.5 text-blue-600" />
@@ -169,7 +205,23 @@ export default function DashboardPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 Welcome{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h2>
-              <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-xs text-gray-500">Your KutumbKosh overview</p>
+                {profile?.kutumb_id && (
+                  <button
+                    onClick={handleCopyKKID}
+                    className="flex items-center gap-1 text-[10px] font-mono text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Copy your Kutumb ID"
+                  >
+                    <Hash className="w-2.5 h-2.5" />
+                    {profile.kutumb_id}
+                    {kkIdCopied
+                      ? <Check className="w-2.5 h-2.5 text-green-500" />
+                      : <Copy className="w-2.5 h-2.5" />
+                    }
+                  </button>
+                )}
+              </div>
             </div>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200">
               <Shield className="w-3.5 h-3.5 text-gray-400" />
@@ -361,7 +413,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{nominee.full_name}</p>
-                        <p className="text-xs text-gray-500">{nominee.relation}</p>
+                        <p className="text-xs text-gray-500">{RELATION_LABELS[nominee.relation] || nominee.relation}</p>
                       </div>
                       <ChevronRight className="w-3 h-3 text-gray-300" />
                     </div>
@@ -372,9 +424,22 @@ export default function DashboardPage() {
 
             {/* Trusted Contacts */}
             <div className="card p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Trusted Contacts</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Trusted Contacts</h3>
+                <button onClick={() => router.push("/dashboard/emergency")} className="text-xs text-vault-accent font-medium hover:underline">
+                  Manage
+                </button>
+              </div>
               {contacts.length === 0 ? (
-                <p className="text-xs text-gray-500">No trusted contacts set up.</p>
+                <div className="flex flex-col items-start gap-1.5">
+                  <p className="text-xs text-gray-500">No trusted contacts set up yet.</p>
+                  <button
+                    onClick={() => router.push("/dashboard/emergency")}
+                    className="text-xs text-vault-accent font-medium hover:underline"
+                  >
+                    + Add a trusted contact
+                  </button>
+                </div>
               ) : (
                 <div className="space-y-1.5">
                   {contacts.map((contact) => (
@@ -384,14 +449,14 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{contact.contact_name}</p>
-                        <p className="text-xs text-gray-500">{contact.relation}</p>
+                        <p className="text-xs text-gray-500">{RELATION_LABELS[contact.relation] || contact.relation}</p>
                       </div>
                       <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
                         contact.access_status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" :
                         contact.access_status === "REVOKED" ? "bg-red-50 text-red-700" :
                         "bg-gray-100 text-gray-600"
                       }`}>
-                        {contact.access_status}
+                        {ACCESS_STATUS_LABELS[contact.access_status] || contact.access_status}
                       </span>
                     </div>
                   ))}

@@ -49,6 +49,11 @@ CREATE TABLE IF NOT EXISTS public.referrals (
 
 ALTER TABLE public.referrals ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "Users can mark own referral as converted"
+  ON public.referrals FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
 CREATE INDEX IF NOT EXISTS idx_referrals_partner ON public.referrals(partner_id);
 CREATE INDEX IF NOT EXISTS idx_referrals_user ON public.referrals(user_id);
 CREATE INDEX IF NOT EXISTS idx_referrals_code ON public.referrals(referral_code);

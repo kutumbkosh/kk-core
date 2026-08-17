@@ -27,13 +27,13 @@ export default function TermsOfServicePage() {
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Terms of Service</h1>
-        <p className="text-sm text-gray-400 mb-8">Last updated: March 31, 2026</p>
+        <p className="text-sm text-gray-400 mb-8">Last updated: August 17, 2026</p>
 
         <div className="prose prose-sm prose-gray max-w-none space-y-6">
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">1. Acceptance of terms</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              By accessing or using KutumbKosh (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree with any part of these Terms, you must not use the Service. These Terms constitute a legally binding agreement between you and KutumbKosh.
+              By accessing or using KutumbKosh (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree with any part of these Terms, you must not use the Service. These Terms constitute a legally binding agreement between you and Kutumbkosh Fintech Private Limited (CIN: U62099MR2026PTC477196), a company incorporated under the Companies Act, 2013, with its registered office in Thane, Maharashtra, India (&quot;KutumbKosh&quot;, &quot;we&quot;, &quot;our&quot;, &quot;us&quot;).
             </p>
           </section>
 
@@ -117,7 +117,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">13. Governing law & disputes</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              These Terms are governed by the laws of India. Any disputes arising from or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the courts in Bengaluru, Karnataka, India.
+              These Terms are governed by the laws of India. Any disputes arising from or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the competent courts in Thane, Maharashtra, India.
             </p>
           </section>
 
@@ -131,7 +131,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">15. Contact</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              For questions about these Terms, contact us at <a href="mailto:legal@kutumbkosh.in" className="text-blue-600 hover:underline">legal@kutumbkosh.in</a>.
+              For questions about these Terms, contact us at <a href="mailto:care@kutumbkosh.com" className="text-blue-600 hover:underline">care@kutumbkosh.com</a>.
             </p>
           </section>
         </div>

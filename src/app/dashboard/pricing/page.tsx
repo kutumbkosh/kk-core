@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   ArrowLeft,
@@ -16,28 +17,31 @@ import {
   Bell,
   Percent,
   Headphones,
-  Infinity,
 } from "lucide-react";
 
 const features = [
   { name: "Assets", free: "Up to 3", pro: "Unlimited", icon: FileText },
   { name: "Nominees", free: "Up to 2", pro: "Unlimited", icon: Users },
   { name: "Asset-nominee linking", free: "Basic", pro: "With share %", icon: Percent },
-  { name: "Smart reminders", free: "Nominee gaps only", pro: "All types (expiry, maturity, review)", icon: Bell },
-  { name: "Emergency access", free: false, pro: true, icon: AlertTriangle },
-  { name: "PDF export", free: false, pro: true, icon: Download },
-  { name: "Trusted contacts & dossier", free: false, pro: true, icon: Shield },
+  { name: "Smart reminders", free: "Annual vault review", pro: "Insurance expiry, FD maturity & more", icon: Bell },
+  { name: "Trusted contacts", free: "1 contact", pro: "Up to 2 contacts", icon: Shield },
+  { name: "Emergency access", free: "Manual approval", pro: "Manual, automatic & pre-authorised", icon: AlertTriangle },
+  { name: "Vault Dossier PDF", free: "Up to 3 assets", pro: "Full vault", icon: Download },
   { name: "Priority support", free: false, pro: true, icon: Headphones },
 ];
 
 export default function PricingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { plan, isPro, loading } = useSubscription();
+  // Billing cycle toggle — pre-seeded from ?plan= query param (ID 60). Default: annual.
+  const initialCycle = searchParams.get("plan") === "monthly" ? "monthly" : "annual";
+  const [selectedPlan, setSelectedPlan] = useState<"annual" | "monthly">(initialCycle);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -57,6 +61,37 @@ export default function PricingPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Billing cycle toggle — HANDOFFS.md ID 55 */}
+        {!isPro && (
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 gap-1">
+              <button
+                onClick={() => setSelectedPlan("annual")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  selectedPlan === "annual"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Annual
+                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-md">
+                  Save 15%
+                </span>
+              </button>
+              <button
+                onClick={() => setSelectedPlan("monthly")}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  selectedPlan === "monthly"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Plan cards */}
         <div className="grid md:grid-cols-2 gap-5 mb-10">
           {/* Free plan */}
@@ -103,7 +138,7 @@ export default function PricingPage() {
           </div>
 
           {/* Pro plan */}
-          <div className={`card p-6 relative ${isPro ? "border-blue-300 ring-2 ring-blue-200" : "border-blue-200 ring-2 ring-blue-100"}`}>
+          <div className={`card p-6 relative ${isPro ? "border-blue-300 ring-2 ring-blue-200" : "border-blue-400 ring-2 ring-blue-600"}`}>
             {/* Popular badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="px-3 py-1 bg-vault-accent text-white text-xs font-bold rounded-full shadow-sm">
@@ -119,11 +154,27 @@ export default function PricingPage() {
                 <p className="text-xs text-gray-500">Full protection</p>
               </div>
             </div>
-            <div className="mb-1">
-              <span className="text-3xl font-extrabold text-gray-900">&#8377;499</span>
-              <span className="text-sm text-gray-500 ml-1">/year</span>
+
+            {/* Dynamic price based on selected billing cycle */}
+            {selectedPlan === "annual" ? (
+              <div className="mb-1">
+                <span className="text-3xl font-extrabold text-gray-900">&#8377;499</span>
+                <span className="text-sm text-gray-500 ml-1">/year</span>
+              </div>
+            ) : (
+              <div className="mb-1">
+                <span className="text-3xl font-extrabold text-gray-900">&#8377;49</span>
+                <span className="text-sm text-gray-500 ml-1">/month</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 mb-5">
+              <p className="text-xs text-gray-400">Inclusive of GST</p>
+              {selectedPlan === "annual" && (
+                <span className="text-xs text-green-700 font-semibold bg-green-50 px-1.5 py-0.5 rounded">
+                  Save &#8377;89/year vs monthly
+                </span>
+              )}
             </div>
-            <p className="text-xs text-gray-400 mb-5">or &#8377;79/month</p>
 
             {isPro ? (
               <div className="w-full py-2.5 rounded-lg bg-blue-50 text-blue-600 text-sm font-semibold text-center mb-5 flex items-center justify-center gap-1.5">
@@ -131,7 +182,7 @@ export default function PricingPage() {
               </div>
             ) : (
               <button
-                onClick={() => router.push("/dashboard/checkout?plan=PRO&cycle=ANNUAL")}
+                onClick={() => router.push(`/dashboard/checkout?plan=PRO&cycle=${selectedPlan.toUpperCase()}`)}
                 className="w-full btn-primary mb-5"
               >
                 <Zap className="w-4 h-4 mr-1.5" /> Upgrade to Pro
@@ -234,7 +285,7 @@ export default function PricingPage() {
             { q: "Can I try Pro features before paying?", a: "All features are visible in the app. You can see exactly what you\u2019ll get before upgrading. We also offer a full refund within 7 days if you\u2019re not satisfied." },
             { q: "What happens to my data if I cancel?", a: "Your data stays safe. You\u2019ll keep access to your first 3 assets and 2 nominees on the free plan. Nothing is deleted." },
             { q: "Is my payment information secure?", a: "Payments are processed securely through Razorpay, India\u2019s leading payment gateway. We never store your card details." },
-            { q: "Can I switch between monthly and annual?", a: "Yes, you can switch anytime from your subscription settings. Annual saves you 49% compared to monthly." },
+            { q: "Which billing option should I choose?", a: "Annual billing (₹499/year) saves you ₹89 compared to monthly — that's 15% off. Monthly billing (₹49/month) is available if you prefer flexibility. Both are GST-inclusive. Annual is the best value for long-term family protection." },
           ].map((item) => (
             <div key={item.q} className="card p-4">
               <p className="text-sm font-semibold text-gray-900 mb-1">{item.q}</p>

@@ -28,16 +28,24 @@ export default function SubscriptionPage() {
   const { plan, subscription, isPro, daysRemaining, loading, refresh } = useSubscription();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
 
   const handleCancel = async () => {
     if (!subscription) return;
     setCancelling(true);
+    setCancelError("");
 
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("subscriptions")
       .update({ status: "CANCELLED", updated_at: new Date().toISOString() })
       .eq("id", subscription.id);
+
+    if (error) {
+      setCancelling(false);
+      setCancelError("Unable to cancel your subscription. Please try again or contact care@kutumbkosh.com");
+      return;
+    }
 
     await refresh();
     setCancelling(false);
@@ -47,7 +55,7 @@ export default function SubscriptionPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -131,7 +139,7 @@ export default function SubscriptionPage() {
 
           {!isPro && (
             <button onClick={() => router.push("/dashboard/pricing")} className="btn-primary w-full mt-2">
-              <Zap className="w-4 h-4 mr-1.5" /> Upgrade to Pro &mdash; &#8377;499/year
+              <Zap className="w-4 h-4 mr-1.5" /> Upgrade to Pro &mdash; from &#8377;49/month or &#8377;499/year
             </button>
           )}
         </div>
@@ -236,9 +244,14 @@ export default function SubscriptionPage() {
               <div className="text-sm text-gray-500 text-center mb-6">
                 Your data is safe &mdash; you&apos;ll keep your first 3 assets and 2 nominees on the free plan.
               </div>
+              {cancelError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 mb-4">
+                  {cancelError}
+                </div>
+              )}
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowCancelConfirm(false)}
+                  onClick={() => { setShowCancelConfirm(false); setCancelError(""); }}
                   className="flex-1 py-2.5 px-4 bg-vault-accent text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
                 >
                   Keep Pro

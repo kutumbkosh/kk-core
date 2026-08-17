@@ -1,0 +1,474 @@
+# KutumbKosh — Decision Log
+
+A record of key decisions made across all departments. This prevents contradictions between departments and gives every AI session the "why" behind choices already made.
+
+## Format
+
+Each entry has:
+- **Date** — when the decision was made
+- **Department** — who made it
+- **Decision** — what was decided (be specific)
+- **Rationale** — why (brief)
+- **Impact** — which other departments are affected
+
+---
+
+## Decisions
+
+### 2026-04-28 | Legal
+**Decision:** Do not claim "DPDPA 2023 Compliant" anywhere in the product or marketing.
+**Rationale:** Formal legal verification has not been done. Risk of misrepresentation.
+**Impact:** Marketing (landing page copy), Engineering (remove any compliance badges from UI), Product (no compliance claims in feature descriptions).
+
+---
+
+### 2026-04-28 | Engineering
+**Decision:** Use Supabase 256-bit AES encryption at rest + TLS in transit as the stated security posture.
+**Rationale:** This is factually accurate — Supabase provides this by default. Safe to claim publicly.
+**Impact:** Marketing (can use this claim in copy), Legal (approved security language).
+
+---
+
+### 2026-04-28 | Finance
+**Decision:** Pro tier priced at ₹499/year.
+**Rationale:** Annual billing simplicity, accessible price point for Indian middle-class families. No monthly billing option at launch.
+**Impact:** Engineering (Razorpay order creation uses annual amount), Marketing (pricing copy), Product (upgrade prompts reference ₹499/year).
+**⚠ SUPERSEDED (partial):** The "No monthly billing option at launch" clause is superseded by DECISIONS.md 2026-05-21 | Finance. ₹499/year remains the annual plan price and is unchanged.
+
+---
+
+### 2026-04-28 | Operations
+**Decision:** Department coordination via HANDOFFS.md (async) + DECISIONS.md (shared context).
+**Rationale:** Solo founder managing all departments via AI — a lightweight file-based system beats any heavyweight tool.
+**Impact:** All departments (read HANDOFFS.md at the start of every session).
+
+---
+
+### 2026-04-28 | Legal
+**Decision:** Shubham (Founder) is appointed as the Grievance Officer under DPDPA 2023 S.13. Contact: care@kutumbkosh.com. Response SLA: 48-hour acknowledgement, 30-day resolution.
+**Rationale:** DPDPA S.13 requires a named Grievance Officer. As sole founder, Shubham is the only viable appointee at this stage.
+**Impact:** Engineering (publish /grievance page and link from /privacy footer), Marketing (include grievance contact in any user-facing communications).
+
+---
+
+### 2026-04-28 | Legal
+**Decision:** KutumbKosh operates a zero-routine-access policy — no team member has standard access to user vault contents. Formally documented in Internal Access Policy v1.0.
+**Rationale:** DPDPA 2023 purpose limitation and accountability obligations. Also required to truthfully claim "we cannot view your data."
+**Impact:** Engineering (service role key restricted to account deletion only; admin_access_log table added; audit logging on all admin DB functions), Operations (any support request touching vault data requires founder approval and must be logged).
+
+---
+
+### 2026-04-28 | Legal
+**Decision:** Supabase service role key is approved for use in exactly one location: `src/app/api/account/delete/route.ts`. Any new use requires explicit founder approval and must be documented in the Internal Access Policy before deployment.
+**Rationale:** Service role key bypasses RLS — unrestricted use would invalidate the zero-access policy.
+**Impact:** Engineering (no new uses of the service role key without Legal/Founder sign-off).
+
+---
+
+### 2026-04-30 | Legal
+**Decision:** Full DPDPA compliance language scan completed across all src/, coming-soon/, and supabase/ files. 9 violations found across 6 files (page.tsx ×2, auth/verify/page.tsx, onboarding/page.tsx, privacy/page.tsx ×2, confirm-signup.html ×2, magic-link.html). All raised to Engineering via HANDOFFS.md with exact replacement text.
+**Rationale:** Prior Engineering fix only addressed coming-soon/index.html and security/page.tsx. Email templates, login page, onboarding, and privacy policy contained unchecked violations.
+**Impact:** Engineering (fix 9 instances per HANDOFFS.md); Operations (after code fix, Supabase email templates must be manually re-uploaded in Dashboard for Dev, Staging, and Production separately — code changes alone do not update what Supabase sends).
+
+---
+
+### 2026-04-30 | Security
+**Decision:** Security launch readiness audit completed. Go/No-Go verdict: NO-GO. Three Engineering blockers found before production deploy is safe.
+**Rationale:** Systematic scan of API auth, RLS coverage, secrets, security headers, and error handling. Critical finding: prior session's code changes to admin-views.sql and schema.sql were never saved to disk. The open HANDOFF directing Shubham to run SQL in production references files that still contain wrong content (admin@kutumbkosh.com as admin, no audit logging, no admin_access_log table). Running those files in production as-is would be a security regression.
+**Impact:** Engineering (three new HANDOFFS raised — see HANDOFFS.md Security section); Shubham (existing SQL handoff blocked until Engineering confirms fixes); all departments (production deploy date pushed until blockers resolved).
+
+---
+
+### 2026-05-01 | Security
+**Decision:** Re-verification audit completed. Go/No-Go verdict: GO — cleared for production deploy (with two Shubham action items below).
+**Rationale:** All three Engineering blockers confirmed fixed in code: (1) admin-views.sql uses shubham.git@gmail.com in is_admin(), log_admin_access() function added, PERFORM audit calls in admin_overview_metrics() and admin_user_list(); (2) schema.sql has admin_access_log table + RLS + indexes; (3) vercel.json host pattern is .*\.vercel\.app with "noindex, nofollow". Also confirmed: referrals RLS UPDATE policy added, robots.txt correct, sitemap.ts present, layout.tsx has full SEO meta + OG + Twitter + canonical. One open item: public/og-image.png does not exist yet — Marketing must create and deploy before launch to enable WhatsApp/social sharing previews.
+**Impact:** Shubham — two pre-production actions required: (1) run Production SQL migrations (admin_access_log table + admin-views.sql) in Supabase Production SQL editor; (2) set up Google Search Console. Marketing — og-image.png (1200×630px) must be created before launch.
+
+---
+
+### 2026-05-01 | Marketing
+**Decision:** Pre-launch marketing audit completed. coming-soon/index.html SEO/OG tags were not updated by the prior Engineering handoff — only app/layout.tsx was updated. Two new handoffs raised by Marketing: Engineering to fix coming-soon page OG/Twitter/meta; Shubham to action waitlist, social profiles, launch posts, and email verification.
+**Rationale:** The coming-soon page is the live public URL. Missing og:image and Twitter Card tags means WhatsApp shares (primary word-of-mouth channel) show no preview image. og:title "Coming Soon" will appear on every WhatsApp share, weakening brand recognition pre-launch.
+**Impact:** Engineering (fix coming-soon/index.html before launch day); Shubham (five marketing action items before launch day — see HANDOFFS.md).
+
+---
+
+### 2026-05-02 | Tech
+**Decision:** Sentry (error monitoring) stores data in US/EU. Under DPDPA 2023 S.16, cross-border transfer of personal data is subject to restrictions once transfer rules are notified by the Indian government. Until a self-hosted India-region alternative is in place, Sentry is approved for use **only** with mandatory pseudonymisation applied at source in `sentry.client.config.ts` and `sentry.server.config.ts`:
+- User context (`user.id`, `user.email`, `user.ip_address`) deleted from all events before transmission
+- UUIDs in request URLs replaced with `[id]` (e.g. `/assets/abc-uuid` → `/assets/[id]`)
+- Cookies and `Authorization`/`Cookie` headers stripped from request context
+- All fetch/XHR breadcrumbs dropped (may contain auth tokens)
+- Sentry Replay masks all text, inputs, and media — no vault content ever captured
+
+Sentry is restricted to **dev and staging only** until Operations formally clears it for production under DPDPA S.16.
+
+**Rationale:** DPDPA 2023 S.16 cross-border transfer rules not yet notified — no hard legal blocker today. However system-rules.md Rule 12 requires third-party tools to comply with DPDPA in spirit. Pseudonymisation ensures no user-identifiable data leaves India via Sentry. Full remediation (self-hosted in India) is the long-term goal and is tracked in HANDOFFS.md.
+**Impact:** Engineering (sentry configs updated with pseudonymisation — both client and server); Operations (open handoff: formal DPDPA S.16 assessment required before production enable); Shubham (do not set `NEXT_PUBLIC_SENTRY_DSN` in Vercel **production** env vars until Operations clears this — dev/staging env vars are fine).
+
+---
+
+### 2026-05-02 | Product
+**Decision:** "How KutumbKosh Works" infographic — 6-step linear flow (Option A), landing page first, in-app onboarding deferred to post-launch.
+**Step content locked:**
+1. Create your vault — "Set up your profile in minutes"
+2. Add every asset — "Bank accounts, insurance, FDs, property and more"
+3. Link your nominees — "Assign the right person to each asset"
+4. Add a trusted contact — "Someone you trust to act on your behalf"
+5. Export your vault dossier — "A complete record your family can refer to anytime"
+6. Your family is never left guessing — "If the unexpected happens, your trusted contact gets access — instantly"
+**Format:** Static illustrated steps (horizontal/vertical flow). Animated or scroll-triggered deferred to post-launch.
+**Rationale:** Landing page is live and has no product explainer — this directly impacts waitlist conversion. Linear 6-step flow is mobile-friendly and scannable. Emergency access scenario included as step 6 to communicate the product's key differentiator. Step 6 headline uses positive framing per brand voice rules (no fear-based language).
+**Impact:** Marketing (design the 6-step visual using brand colours and icon set — see HANDOFFS.md); Tech (implement HTML/CSS section in coming-soon/index.html and src/app/page.tsx — see HANDOFFS.md); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-02 | Sales & Marketing
+**Decision:** Pre-launch Sales & Marketing task audit completed. Pending items identified and prioritised. Three items actioned this session:
+1. "How KutumbKosh Works" 6-step infographic designed and delivered to docs/marketing/how-it-works-infographic.html. Copy is locked per DECISIONS.md 2026-05-02 (Product). Tech handoff written in HANDOFFS.md.
+2. coming-soon/index.html OG/Twitter/meta tags — verified correct (lines 6–19 confirmed). DECISIONS.md 2026-05-01 gap closed; duplicate STATUS line in HANDOFFS.md removed.
+3. Shubham 5-item marketing handoff — confirmed present and correctly written in HANDOFFS.md (Open). Department label corrected from "Marketing" to "Sales & Marketing" per system-rules.md.
+**Rationale:** Rule 2 (mandatory context load), Rule 7 (definition of done), Rule 10 (file updates before session end) all applied. No work done outside Sales & Marketing scope.
+**Impact:** Tech (implement infographic in coming-soon/index.html and src/app/page.tsx — see HANDOFFS.md); Shubham (5 marketing pre-launch actions remain open — see HANDOFFS.md).
+
+---
+
+### 2026-05-04 | Product
+**Decision:** Three UX issues identified and approved for fix on the Emergency Access dashboard page (src/app/dashboard/emergency/page.tsx):
+1. **Soft delete for trusted contacts** — Add `deleted_at` timestamptz column to `trusted_contacts` table. All queries must filter `.is("deleted_at", null)`. UI must offer a "Remove" button with inline confirmation. Hard delete is not permitted (preserves audit trail, consistent with zero-routine-access policy).
+2. **Warning badge for incomplete contact records** — If a trusted contact record has both `contact_phone` and `contact_email` null/empty, show an amber "⚠ Missing contact info" badge on that card in the dashboard. This is a safeguard for records created before mandatory field enforcement; it does not replace form-level mandatory validation in onboarding.
+3. **Always-visible labeled action buttons** — Replace `RefreshCw` icon + `opacity-0 group-hover:opacity-100` pattern with always-visible pill buttons: "Approve" (CheckCircle2, green) for PENDING, "Revoke Access" (ShieldOff, red) for ACTIVE, "Restore Access" (ShieldCheck, blue) for REVOKED. Hover-only patterns are broken on mobile and must be removed entirely.
+**Rationale:** Delete is standard expected behaviour for any list UI; its absence is a usability gap. Silent "No contact info" fallback masked a data quality risk affecting emergency reachability. Hover-only buttons are inaccessible on touch devices.
+**Impact:** Engineering (three changes to emergency/page.tsx + DB migration for deleted_at — see HANDOFFS.md).
+
+---
+
+### 2026-05-01 | Operations
+**Decision:** Operations legal risk assessment completed using risk-severity matrix. Four risks identified. Sentry cross-border transfer cleared for production (YELLOW/9 after pseudonymisation mitigations — anonymous data, S.16 rules not yet notified). Three new HANDOFFS raised: (1) Terms of Service — CRITICAL/RED must exist before launch; (2) Supabase email template re-upload — HIGH, blocking wrong DPDPA language from being sent; (3) Sub-processor DPA review — HIGH/ORANGE for Supabase, Vercel, Razorpay.
+**Rationale:** No ToS at launch = no liability protection, no governing law, no disclaimer of financial advice. This is a RED risk (25). Sub-processor DPAs are required under DPDPA 2023 for Data Fiduciaries. Email template re-upload is a direct violation of the 2026-04-28 Legal decision prohibiting DPDPA compliance claims.
+**Impact:** Shubham (three direct action items); Engineering (ToS acceptance checkbox + /terms page once ToS is drafted); Legal (ToS draft).
+
+---
+
+### 2026-05-07 | Finance
+**Decision:** ₹499/year Pro pricing is **GST-inclusive**. The user pays ₹499 total — no additional GST is charged at checkout. KutumbKosh collects ₹499, remits ₹76 GST, and retains ₹423 net revenue per Pro subscriber per year.
+**GST breakdown per transaction:** Base value = ₹423.73 (₹499 × 100/118), GST @ 18% = ₹76.27 (₹499 × 18/118). Round to ₹423 base + ₹76 GST = ₹499 on the GST invoice. SAC code 998314 applies. IGST for out-of-state customers; CGST + SGST for same-state customers — confirm KutumbKosh's state of registration with CA at time of GSTIN registration.
+**Rationale:** (1) The original ₹499 pricing decision (2026-04-28) was made on the basis of accessibility for Indian middle-class families — GST-exclusive would make the effective checkout price ₹589, directly contradicting that intent. (2) Consumer Protection (E-Commerce) Rules 2020 require displaying the total price inclusive of all applicable taxes on consumer-facing platforms. (3) Indian consumer SaaS convention is GST-inclusive display — a ₹499 + 18% GST format creates checkout confusion for the target demographic. (4) Pricing page simplicity: one number, no surprises for the user.
+**Impact:** Engineering (Razorpay order amount must be set to ₹49900 paise — the full ₹499 inclusive amount; GST invoice generated on payment.captured must back-calculate base and GST, not add GST on top of ₹499); Marketing (pricing page shows ₹499/year with a "GST inclusive" label — do NOT show ₹499 + GST); Finance (reconciliation uses ₹76 GST per Pro transaction — do not use ₹499 × 18% = ₹89.82, which is the GST-exclusive formula); Operations (pass this decision to the external legal reviewer for ToS Clause 3 — the GST-inclusive confirmation must appear in the published Terms of Service).
+
+---
+
+### 2026-05-07 | Legal + Operations
+**Decision:** DPDPA 2023 compliance assessment completed for emergency access V2 (inactivity timer auto-grant) and V3 (pre-authorized access). Both mechanisms are CONDITIONALLY CLEARED for Engineering to build, subject to 7 mandatory conditions.
+
+**V2 Clearance — Inactivity Timer Auto-Grant:**
+Upfront consent configuration satisfies DPDPA S.6 provided: (1) owner takes explicit affirmative action to set up the trigger; (2) the consent screen uses the locked copy in HANDOFFS.md ID 36; (3) grace period minimum is 14 days; (4) grace period notification is sent via both email AND in-app; (5) trusted contact is notified at designation with the locked copy in ID 36; (6) trusted contact's country of residence is captured (optional field) for future S.16 readiness. Purpose limitation is satisfied (emergency access is a core stated KutumbKosh purpose — must be listed in the Privacy Policy). S.16 cross-border transfer rules are not yet notified and present no hard legal blocker today.
+
+**V3 Clearance — Pre-Authorized Access:**
+Explicit pre-authorization satisfies DPDPA S.6 — cleaner consent basis than V2. Owner's ability to revoke at any time satisfies S.6(6) withdrawal requirement. Required: (1) V3 consent screen uses the locked copy in HANDOFFS.md ID 36; (2) trusted contact receives immediate notification email (locked copy in ID 36); (3) Engineering implements annual re-confirmation nudge for owner (KutumbKosh policy, not DPDPA mandate).
+
+**External Legal Review:** Strongly recommended before production go-live of either feature, given that both mechanisms involve automated sharing of financial SPDI (IT SPDI Rules 2011) with a third party. Build may proceed; go-live requires external sign-off.
+
+**Rationale:** Both mechanisms are defensible under DPDPA 2023 as conditional/pre-authorized consent models, provided the implementation follows the locked consent language and notification requirements. The weakest legal point in V2 is that auto-grant occurs by inaction (silence), which requires the explicit upfront setup and multi-channel grace period notification to be legally sound.
+**Impact:** Product (may now raise Engineering handoff for V2 and V3 — all 7 conditions in HANDOFFS.md ID 36 must be engineering requirements); Engineering (build per conditions); Operations (ensure Privacy Policy draft in HANDOFFS.md ID 27 lists emergency access as an explicit data processing purpose); Legal (engage external legal reviewer before production go-live of V2/V3).
+
+---
+
+### 2026-05-07 | Product
+**Decision:** Emergency access V2 (inactivity timer auto-grant) and V3 (pre-authorized access) are confirmed for implementation before public launch. V1 manual-only access is insufficient to deliver the core product promise ("your family is never left guessing" — infographic step 6). Both V2 and V3 are required for the product to honestly support that claim.
+**Scope locked:**
+- V2: Configurable inactivity timer (owner selects window: 30/60/90/180 days). System notifies trusted contact when timer fires. Owner receives grace period (minimum 14 days, owner selects up to 30 days) to deny. If no denial, access is auto-granted.
+- V3: Owner explicitly pre-authorizes a trusted contact for immediate, open-ended vault access. Access remains active until owner revokes. Annual re-confirmation nudge from system.
+- Access level for both V2 and V3: summary view only (asset types, institution names, nominee names — no account numbers, no passwords). This matches the existing stated design; per-contact tiered access levels are deferred post-launch.
+- All 7 Operations conditions (HANDOFFS.md ID 36 / DECISIONS.md 2026-05-07 Legal+Operations) are mandatory engineering requirements — not optional enhancements.
+- External legal review is required before either feature goes live in production. Build may proceed immediately.
+**Rationale:** Users will not pay ₹499/year for a promise. The inactivity trigger is the mechanism that makes the emergency promise real — without it, the product is a financial organizer, not an emergency vault. Operations has conditionally cleared both mechanisms under DPDPA 2023.
+**Impact:** Engineering (full V2+V3 build — see HANDOFFS.md ID 37); Operations (ensure Privacy Policy lists emergency access as an explicit data processing purpose per HANDOFFS.md ID 27; engage external legal reviewer before go-live); Legal (external review required before V2/V3 production deploy).
+
+---
+
+### 2026-05-07 | Sales & Marketing
+**Decision:** Pricing copy locked for all channels. Violations in src/app/dashboard/pricing/page.tsx identified and escalated to Tech via HANDOFFS.md ID 40.
+**Copy locked:**
+- Pricing page Pro card: `₹499` (large bold) | `/year` (muted) | `Inclusive of GST` (text-xs text-gray-400, new line below /year)
+- All other channels (social, WhatsApp, email, ads): `₹499/year` — no GST qualifier
+- Launch-day headline: "Protect your family's financial legacy for ₹499/year."
+- Single source of truth at docs/marketing/pricing-copy-lock.md
+**Prohibited phrases (all channels, all future sessions):** `₹499 + GST`, `₹499 + 18% GST`, `₹589`, `₹499 + taxes`, `starting at ₹499`, `₹79/month`, `Annual saves you X% compared to monthly.`
+**Violations found in pricing/page.tsx (Tech to fix — HANDOFFS.md ID 40):**
+1. Line 126: `or ₹79/month` — monthly billing does not exist at launch (contradicts DECISIONS.md 2026-04-28 Finance)
+2. Lines 122–125: Missing `Inclusive of GST` label below price (required per Consumer Protection (E-Commerce) Rules 2020)
+3. Line 237 FAQ: "Can I switch between monthly and annual?" references non-existent monthly billing
+**Rationale:** Consumer Protection (E-Commerce) Rules 2020 require total price inclusive of taxes to be displayed. ₹79/month reference and monthly FAQ create false user expectations — no monthly billing exists at launch per DECISIONS.md 2026-04-28 Finance. Locking copy now prevents violations spreading across GTM assets.
+**Impact:** Tech (three fixes in pricing/page.tsx — see HANDOFFS.md ID 40 for exact code changes); Shubham (review pricing-copy-lock.md before any future pricing copy is created — it supersedes all prior pricing references).
+
+---
+
+### 2026-05-12 | Product
+**Decision:** Free vs Pro feature tier map locked. This resolves HANDOFFS.md ID 23 and unblocks pricing page, upgrade prompts, Engineering feature gates, and Sales & Marketing copy.
+
+**REMINDERS:**
+- Free tier: One reminder type — annual "vault review" nudge (prompt to review and update assets, nominees, and trusted contacts). Asset-agnostic; no expiry dates or maturity tracking required.
+- Pro tier: All reminder types — insurance expiry (configurable lead time: 30/60/90 days before expiry), FD maturity (configurable), vault review nudge (same as Free), plus any future reminder types added post-launch.
+- Rationale: "Basic reminders" in the project brief maps to the vault review nudge. Asset-specific reminders (insurance, FD) require knowing financial details and are the complexity that justifies Pro.
+
+**EMERGENCY ACCESS (TRUSTED CONTACTS):**
+- Free tier: Add up to 1 trusted contact. Manual approval mode only — owner must actively approve each access request in real time.
+- Pro tier: Up to 2 trusted contacts. All three access modes available — Manual, V2 (inactivity timer with configurable window and grace period), V3 (pre-authorized instant access).
+- Rationale: Free users get basic emergency protection. V2 and V3 automation — which works even when the owner cannot respond — is the meaningful Pro differentiator. This is the core reason to pay.
+
+**VAULT DOSSIER PDF:**
+- Free tier: Full PDF export. Identical template to Pro. Includes Kutumb ID in header, nominee summary, and emergency instructions page — no feature gating within the PDF. Content is naturally limited to the assets the Free user has added (max 3 assets).
+- Pro tier: Full PDF with all assets (unlimited). Same template.
+- Rationale: Watering down the Free PDF weakens the product's first impression and undermines the family-protection promise. The 3-asset natural limit is sufficient differentiation without artificial gating.
+
+**Impact:** Engineering (update useSubscription hook feature gates per tier map above — see new handoff); Sales & Marketing (update pricing page and comparison table — see new handoff); Operations (ensure Privacy Policy reflects emergency access as a processing purpose for both Free and Pro users).
+
+---
+
+### 2026-05-12 | Product
+**Decision:** Emergency access Step 6 infographic copy ("your trusted contact gets access — instantly") is confirmed as correct and requires no change. HANDOFFS.md ID 24 is resolved.
+- V3 (pre-authorized access): "instantly" is literally accurate — the trusted contact can access the vault the moment the owner saves the setting.
+- V2 (inactivity timer): not instant in time, but fully automatic — no owner intervention required when the timer fires and grace period expires. The copy communicates ease and certainty of access, not literal speed. It is defensible.
+- The "post-launch spec for automated emergency access flow" requested in ID 24 point 3 is superseded by HANDOFFS.md ID 40 (full V2+V3 Engineering spec).
+**Rationale:** ID 24 was raised when implementation was manual-only. V2+V3 confirmed for launch (DECISIONS.md 2026-05-07 | Product) resolves the over-promise concern.
+**Impact:** No copy changes required. Sales & Marketing copy for Step 6 stands as locked in DECISIONS.md 2026-05-02 | Product.
+
+---
+
+### 2026-05-12 | Product — Founder Decision
+**Decision:** `nominee_gap` and `draft_asset` alerts are shown to ALL users (Free and Pro). They are NOT gated on subscription tier.
+**Rationale:** These are UX safety / data-quality alerts, not scheduled reminder types. A Free user with an asset missing a nominee must be told — suppressing it would let them believe their vault is correctly set up when it is not. This directly undermines the product promise. The Free tier restriction ("vault review nudge only") applies only to the scheduled reminder types (insurance_expiry, fd_maturity, review_nudge). `nominee_gap` and `draft_asset` are reactive, asset-level alerts that serve every user regardless of tier.
+**Impact:** Engineering (HANDOFFS.md ID 44, M4 — decision confirmed, hold lifted; current behaviour of showing these alerts to all users is correct — no code change required).
+
+---
+
+### 2026-05-12 | Product — Founder Decision
+**Decision:** Vault review nudge trigger threshold is set to **180 days** (client-side check) for launch. Option 2 (server-side scheduled annual email via Resend + cron) is deferred post-launch.
+**Rationale:** 30-day trigger is too noisy and does not match the "annual vault review" label. 180 days balances usefulness with low noise. The client-side implementation (checking last asset updated_at on the Reminders page) is sufficient for launch — no cron infrastructure needed. Post-launch, this will be replaced with a proper annual email via Resend.
+**Implementation:** Change `daysSinceUpdate > 30` to `daysSinceUpdate > 180` in `src/app/dashboard/reminders/page.tsx` line ~178. No other changes required for launch.
+**Impact:** Engineering (HANDOFFS.md ID 44, M1 — hold lifted; apply 180-day threshold).
+
+---
+
+### 2026-05-12 | Sales & Marketing
+**Decision:** Pricing page tier feature copy finalised and locked per Product's tier map (DECISIONS.md 2026-05-12 | Product). Four factual errors corrected in the `features` array. Three UpgradePrompt copy blocks written.
+**Changes locked:**
+- "Smart reminders" Free: `"Annual vault review"` (was: "Nominee gaps only")
+- "Smart reminders" Pro: `"Insurance expiry, FD maturity & more"` (was: "All types (expiry, maturity, review)")
+- "Trusted contacts & dossier" renamed to `"Trusted contacts"`: Free `"1 contact"`, Pro `"Up to 2 contacts"` (was: both false — incorrectly implied no Free access)
+- "Emergency access": Free `"Manual approval"`, Pro `"Manual, automatic & pre-authorised"` (was: Free false — incorrectly implied no Free access)
+- "PDF export" renamed to `"Vault Dossier PDF"`: Free `"Up to 3 assets"`, Pro `"Full vault"` (was: both false — incorrectly implied no Free access)
+**UpgradePrompt copy locked (three blocks):**
+- `emergency_access_v2v3` (new): title "Automatic access is a Pro feature" / desc "With Pro, your trusted contact can get access automatically — no need for you to approve it in the moment."
+- `emergency_contact_limit` (new): title "Add more trusted contacts with Pro" / desc "Your free plan includes 1 trusted contact. Upgrade to Pro to add a second and configure how they access your vault."
+- `all_reminders` (fix): desc updated to remove "vault review nudges" (now a Free feature) — new desc: "Get timely alerts for insurance policy expiry and FD maturity dates. Available with KutumbKosh Pro."
+**Rationale:** Pricing page was showing Free users as having NO emergency access, NO trusted contacts, and NO vault PDF — all three are incorrect per the locked tier map. These errors would cause immediate user confusion post-launch. UpgradePrompt errors were similarly factually wrong.
+**Impact:** Engineering (implement features array fix via HANDOFFS.md ID 50; implement UpgradePrompt fixes via HANDOFFS.md ID 48 — both before launch).
+
+---
+
+### 2026-05-12 | Product
+**Decision:** FAQ strategy for KutumbKosh — three-part approach locked for launch.
+
+**Part 1 — Landing page collapsible FAQ section (LAUNCH requirement):**
+A collapsible FAQ section is added to the coming-soon landing page (`coming-soon/index.html`) and the main app landing page (`src/app/page.tsx`). 5–7 questions only. Focus: trust and conversion — security posture, data privacy, password safety, pricing, and the nominee vs trusted contact distinction. Target audience: prospective users who have not yet signed up.
+
+**Part 2 — In-app contextual explainer cards (LAUNCH requirement):**
+Two specific locations get plain-language explainer cards using the existing "What is this?" card pattern from the emergency access page:
+- Nominees section: a card clarifying the nominee vs trusted contact distinction. A nominee is a legal beneficiary linked to a specific asset. A trusted contact gets emergency read access to the whole vault. These are different people for different purposes. This is the highest-priority confusion point.
+- Emergency access page: already has the "What is this?" summary card — no change needed.
+
+**Part 3 — Dedicated /faq page (DEFERRED post-launch):**
+No standalone /faq page at launch. Post-launch, once real support questions arrive at care@kutumbkosh.com, the FAQ page will be built from actual user data rather than assumptions. SEO benefit is negligible before organic traffic exists.
+
+**Rationale:** A dedicated /faq page serves neither prospective users nor active users particularly well at launch. Landing page FAQs answer the hesitation that kills conversions. In-app cards answer confusion at the exact moment it occurs. Both are high ROI. Building a /faq page now means writing answers to imagined questions.
+
+**Impact:** Sales & Marketing (draft FAQ copy and in-app card copy — see HANDOFFS.md ID 47); Engineering (implement landing page section and in-app card — see HANDOFFS.md ID 49); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-12 | Sales & Marketing
+**Decision:** Landing page FAQ copy and in-app nominee vs trusted contact explainer card finalised and locked. Web3Forms waitlist form decision closed.
+**FAQ copy locked** (docs/marketing/faq-copy.md — 7 Q&As + in-app card):
+- Approved security claim: "256-bit encryption — the same standard used by banks"
+- Approved privacy claim: "designed with Indian data privacy standards in mind" (not "DPDPA Compliant")
+- Approved zero-access claim: "no KutumbKosh employee has routine access to the contents of your vault"
+- Nominee vs trusted contact distinction: nominee = legal beneficiary registered with institution; trusted contact = vault summary viewer in emergency, cannot claim assets
+- Pricing FAQ: Free (3 assets, 1 trusted contact, manual access, vault review reminder); Pro (₹499/year GST inclusive, unlimited assets, 2 trusted contacts, automatic access, all reminders, full PDF)
+**Web3Forms decision:** Waitlist emails are already being stored per Shubham's confirmation. No email capture form addition required on coming-soon page. Waitlist notification email (launch-day) is now unblocked.
+**Rationale:** FAQ copy unblocks Engineering (ID 49 can now proceed). Web3Forms decision removes a pending item that was blocking the waitlist email draft.
+**Impact:** Engineering (proceed with FAQ implementation per HANDOFFS.md ID 49 — copy is at docs/marketing/faq-copy.md); Sales & Marketing (waitlist notification email now unblocked — next S&M item to draft).
+
+---
+
+### 2026-05-14 | Product
+**Decision:** "Access Someone's Vault" entry point moves to a dedicated public page `/emergency/request`. It is removed from `/dashboard/emergency` entirely.
+
+**What changes:**
+- A new public page `/emergency/request` is created (no login required). It contains: Kutumb ID input field, a "Request Access" button, and a plain-language explanation of what happens next.
+- The V2 inactivity trigger email links directly to `/emergency/request` (not `/dashboard/emergency`).
+- A "Request access to someone's vault" secondary link is added to the login page for manual discovery.
+- The "Access Someone's Vault" card is removed from `/dashboard/emergency`. That page is exclusively for the vault owner's settings.
+- The alert() placeholder ("Emergency access requests are coming soon") is replaced as part of this build — Engineering does NOT fix it inline on the current page separately. Fix is bundled with the page move.
+
+**What does NOT change:**
+- The `/dashboard/emergency` page scope: trusted contact management, V2/V3 mode configuration, owner-side controls. No change.
+- The Kutumb ID format or lookup logic.
+- The access status flow (PENDING → APPROVED/DENIED) — unchanged.
+
+**Rationale:** A trusted contact in an emergency is not a vault owner. They have no reason to navigate `/dashboard/emergency` and may not have a KutumbKosh account. The V2/V3 email link must land them directly on an actionable page. A public `/emergency/request` URL is also shareable — vault owners can send it to contacts who weren't already registered. Keeping the card on the owner page created dual-audience confusion on a high-stakes flow.
+
+**Impact:** Engineering (implement `/emergency/request` public page, update V2 email template link, add login page link, remove card from `/dashboard/emergency` — see HANDOFFS.md ID 53); LAUNCH-TODO.md updated.
+
+---
+
+### 2026-05-21 | Finance
+**Decision:** Monthly billing plan added. ₹49/month, GST-inclusive. This supersedes the "No monthly billing at launch" clause from DECISIONS.md 2026-04-28 | Finance.
+
+**Monthly plan pricing:**
+- User pays ₹49/month total — no additional GST at checkout.
+- GST back-calculation (same formula as annual): Base = ₹49 × 100/118 = ₹41.53 → round to ₹42. GST = ₹49 × 18/118 = ₹7.47 → round to ₹7. Total = ₹49. SAC code 998314 applies.
+- Razorpay monthly plan amount = 4900 paise.
+- Annual effective cost at ₹49/month = ₹588/year. Annual plan = ₹499/year. Savings = ₹89/year ≈ 15%.
+
+**Pricing page display:**
+- Monthly: ₹49/month — "Inclusive of GST"
+- Annual: ₹499/year — "Inclusive of GST" + "Save 15% vs monthly" (or equivalent savings messaging)
+- Savings messaging IS permitted — it was previously prohibited because monthly billing did not exist; that prohibition is now void.
+
+**What changes from prior locked decisions:**
+- DECISIONS.md 2026-05-07 | Sales & Marketing: prohibited phrase "Annual saves you X% compared to monthly" is **no longer prohibited** — savings comparison messaging is now required on the pricing page. docs/marketing/pricing-copy-lock.md must be updated by Sales & Marketing to reflect this.
+- HANDOFFS.md ID 41 (Done): removed "or ₹79/month" from pricing page. Engineering must now add ₹49/month option — this is a net new pricing page change, not a revert of ID 41.
+
+**GST/invoice impact for monthly billing:**
+- 12 GST invoices per subscriber per year (vs 1 for annual). Each invoice: ₹7 GST, ₹42 base.
+- IGST vs CGST+SGST split logic applies — same dynamic rule as annual (based on KutumbKosh registered state vs customer billing state).
+- CA reconciliation burden is 12× higher per monthly subscriber. Finance recommends annual as default and promoted option at all times.
+
+**Rationale:** Monthly billing reduces the barrier to trial for price-sensitive users. ₹49/month (₹588 annual effective) at 15% premium over annual creates a natural nudge toward annual. Annual remains the better unit economics option for both the user and KutumbKosh.
+
+**Impact:** Engineering (new Razorpay monthly plan at 4900 paise/month; monthly GST back-calculation; update pricing page — see HANDOFFS.md ID 55); Sales & Marketing (update pricing page copy, savings messaging, update pricing-copy-lock.md — see HANDOFFS.md ID 56); Operations (ToS Clause 1 must be amended to add monthly subscription plan — see HANDOFFS.md ID 57).
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Cookie consent banner is NOT legally required for KutumbKosh's current technology stack under Indian law (IT Act 2000, IT (SPDI) Rules 2011, DPDPA 2023). This permanently closes HANDOFFS.md ID 28.
+
+**Stack assessment:**
+1. **Cloudflare Web Analytics** — explicitly cookieless; no cookies are set at any point on the coming-soon landing page. Zero consent obligation.
+2. **Supabase auth/session cookies** — strictly necessary cookies set only after the user actively logs in. These are technically required for the service to function. No separate consent needed; the user's act of signing up and logging in constitutes the relevant consent.
+3. **Razorpay checkout cookies** — set only when the user actively initiates a payment. Cookies are technically necessary to complete that user-initiated transaction. No separate banner needed.
+
+**Legal basis:** India does not have a cookie-specific law equivalent to the EU ePrivacy Directive. The DPDPA 2023 requires consent for processing personal data but does not mandate a "cookie consent banner" as a separate UI control. The IT (SPDI) Rules 2011 contain no cookie-banner requirement. No Indian regulatory guidance requires a banner for strictly-necessary or transaction-initiated cookies.
+
+**Required follow-up (not a blocker):** The Privacy Policy draft (HANDOFFS.md ID 27) must include a "Cookies" section that transparently describes these three cookie types and their purpose. This satisfies DPDPA transparency obligations and is sufficient without a banner. Operations to include this section when drafting the Privacy Policy.
+
+**Rationale:** All three cookie sources are either cookieless, strictly necessary, or triggered by explicit user action. A banner would add friction without legal obligation and is not consistent with KutumbKosh's goal of a simple, trust-first user experience.
+
+**Impact:** Engineering (no cookie banner implementation required — do not build one without a new Operations decision); Operations (include Cookies section in Privacy Policy draft — ID 27); LAUNCH-TODO.md cookie consent item can be closed.
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Compliance-sensitive files registry created at `vault/operations/compliance-sensitive-files.md`. This closes HANDOFFS.md ID 26.
+
+**Registry scope:** Five files identified as compliance-sensitive: `coming-soon/index.html`, `src/app/privacy/page.tsx`, Supabase email templates (`confirm-signup.html`, `magic-link.html`), `src/app/auth/verify/page.tsx`, `src/app/onboarding/page.tsx`.
+
+**Mandatory pre-upload checklist:** Written for `coming-soon/index.html` — 8-step checklist must be completed before every Cloudflare Pages upload. Key checks: zero results for "DPDPA 2023 Compliant", exactly one result for approved phrase "designed with DPDPA 2023 in mind".
+
+**Comment block:** A compliance header comment block has been written and must be added to `coming-soon/index.html` by Engineering (HANDOFFS.md ID 58). The block embeds the DPDPA language rules directly in the file so any editor sees them immediately on opening.
+
+**Rationale:** The file was reverted twice (2026-04-30 and 2026-05-01). A checklist and in-file comment block are the lowest-overhead controls that prevent a third revert without adding deployment complexity.
+
+**Impact:** Engineering (add comment block to `coming-soon/index.html` — HANDOFFS.md ID 58); Shubham (complete pre-upload checklist before every Cloudflare Pages upload — checklist at `vault/operations/compliance-sensitive-files.md`).
+
+---
+
+### 2026-05-21 | Operations
+**Decision:** Privacy Policy (DRAFT v1.0), Terms of Service (DRAFT v1.0), and External Legal Reviewer Brief created and saved to `docs/operations/`. This advances HANDOFFS.md ID 27 to In Progress. Documents are NOT approved for publication — external legal review is required.
+
+**Privacy Policy scope:** Full DPDPA 2023-aligned policy. Covers 9 processing purposes (emergency access listed explicitly per ID 36 condition), SPDI classification of financial data under IT Rules 2011, Supabase India-region storage, retention schedule, user rights (DPDPA S.11–14), 6 sub-processors, cookies disclosure (per ID 28), grievance mechanism (Shubham, 48h/30d), zero-access policy.
+
+**Terms of Service scope:** 24-section integrated document. Part A (S.1–14): general terms drafted by Operations — account eligibility (18+, India, one account), acceptable use, IP, no financial advice disclaimer, liability cap (12-month fees paid), governing law (India), jurisdiction (Thane, Maharashtra), arbitration (Arbitration & Conciliation Act 1996, seat Thane). Part B (S.15–24): Finance payment draft v0.1 integrated. Clause 15 amended for monthly billing (₹49/month GST-inclusive) per ID 57.
+
+**Reviewer Brief scope:** 4 questions for external counsel: Consumer Protection Act 2019 refund/auto-renewal compliance; GST back-calculation confirmation; RBI e-NACH monthly billing disclosure; DPDPA V2/V3 emergency access production clearance.
+
+**Remaining placeholders in documents (must be resolved before publication):** Entity name and registered address (Privacy Policy S.2 — requires incorporation); GSTIN (ToS S.17 — requires GST registration per ID 9); Effective date (both documents — set at publication).
+
+**Impact:** Shubham (review documents, engage external legal counsel — IDs 10, 30, 39, 46, 57 questions all bundled into Reviewer Brief); Engineering (after counsel sign-off, raise handoff to implement approved text in /privacy and /terms routes).
+
+---
+
+### 2026-05-30 | Sales & Marketing
+**Decision:** Pricing copy lock updated for monthly billing. HANDOFFS.md ID 56 is now Done.
+
+**Changes to docs/marketing/pricing-copy-lock.md:**
+- Both plan cards specified for the pricing page: ₹49/month (Inclusive of GST) and ₹499/year (Inclusive of GST + "Save 15% vs monthly"). Annual is the default/prominent option.
+- Prohibited phrase "Annual saves you X% compared to monthly" **removed** — it is now permitted with the correct figure. Approved forms: `Save 15% vs monthly` or `Save ₹89/year vs monthly`.
+- Monthly price display format added as approved copy: `₹49/month — Inclusive of GST`.
+- UpgradePrompt CTA channel row added: `from ₹49/month or ₹499/year`.
+- All-channel anchor remains `₹499/year` — monthly pricing is a pricing page detail, not a GTM headline.
+- Tech implementation reference table updated: ID 55 (Engineering, Open), ID 59 (Engineering, Open — new handoff).
+
+**New handoff raised:** HANDOFFS.md ID 59 (S&M → Engineering) — update UpgradePrompt.tsx CTA button label from `₹499/year` to `from ₹49/month or ₹499/year` (line 120 only; no other changes).
+
+**Rationale:** DECISIONS.md 2026-05-21 | Finance confirmed monthly billing and voided the savings comparison prohibition. All S&M copy must now reflect both billing options while keeping annual as the prominent default.
+
+**Impact:** Engineering (implement UpgradePrompt CTA fix — HANDOFFS.md ID 59; implement pricing page monthly plan — HANDOFFS.md ID 55 from Finance); all future S&M sessions (use updated pricing-copy-lock.md as single source of truth).
+
+---
+
+### 2026-05-30 | Product
+**Decision:** When a Free user taps an upgrade prompt and lands on the pricing page, the **Annual plan (₹499/year)** is pre-selected and visually highlighted by default.
+
+**Rationale:** Finance recommends Annual as the default at all times (DECISIONS.md 2026-05-21 | Finance). Pre-selecting Annual in the upgrade flow is consistent with that guidance, supports better unit economics, and ensures the savings message ("Save 15% vs monthly") is immediately visible to users arriving from an upgrade prompt. Monthly remains visible and selectable — it is not hidden.
+
+**Impact:** Engineering (add `?plan=annual` query param or equivalent pre-selection logic to the pricing page when navigating from UpgradePrompt — see HANDOFFS.md ID 60).
+
+---
+
+### 2026-06-01 | Operations — Founder Decision
+**Decision:** Company incorporation confirmed. Legal entity details locked for use across all KutumbKosh documents, contracts, and filings.
+
+| Field | Details |
+|---|---|
+| **Legal Entity Name** | KUTUMBKOSH FINTECH PRIVATE LIMITED |
+| **CIN** | U62099MR2026PTC477196 |
+| **PAN** | AAMCK9306L |
+| **TAN** | PNEK28638B |
+| **Registered Address** | Lokpuram Malhar CHS, Bld No G2, 107, Majiwade, Sandozbaugh, Thane – 400607, Maharashtra |
+| **Incorporation Date** | 2026 (MCA registered) |
+
+**Rationale:** Entity registration was a hard blocker for Privacy Policy publication, ToS publication, Razorpay KYC, GST registration, and business current account opening. All department documents requiring entity name and registered address can now be finalised.
+
+**Impact:**
+- Operations: Privacy Policy Section 2, Terms of Service Section 1 — entity name, CIN, PAN, TAN, and registered address placeholders now filled. GSTIN placeholder remains pending (ID 9, item 3). Documents updated 2026-06-01.
+- Finance: Business current account (ID 9, item 2) can now be opened in the entity name. Razorpay KYC (ID 9, item 5) can now be initiated using incorporation documents.
+- Legal: External Legal Reviewer Brief updated with entity details — ready to send to counsel.
+- Engineering: GST invoice template must use `KUTUMBKOSH FINTECH PRIVATE LIMITED` as the billed entity name once GSTIN is obtained.
+- DECISIONS.md 2026-05-21 | Operations: "Entity name and registered address" blocker is resolved. GSTIN blocker in ID 27 remains open pending GST registration.
+
+---
+
+### 2026-07-24 | Operations — Founder Decision
+**Decision:** GSTIN registration and business current account opening confirmed complete. All three entity-dependent prerequisites for Razorpay KYC are now met.
+
+| Item | Status |
+|---|---|
+| **GSTIN** | Registered — Maharashtra (MH). GSTIN number to be recorded by Shubham in entity records. |
+| **GST State** | Maharashtra (MH) — CGST (9%) + SGST (9%) for intra-state; IGST (18%) for inter-state |
+| **SAC Code** | 998314 — pending CA written confirmation (HANDOFFS.md ID 34) |
+| **Business Current Account** | Open in entity name: KUTUMBKOSH FINTECH PRIVATE LIMITED |
+| **Razorpay KYC** | Fully unblocked — Shubham to complete |
+
+**Rationale:** Entity registration (2026-06-01) was the first prerequisite. Bank account and GSTIN were the remaining two. All three are now confirmed, making Razorpay KYC + live mode activation the next hard blocker before any live payment can be accepted.
+
+**Impact:**
+- Finance: CGST/SGST split applies for Maharashtra customers; IGST for all others. Engineering must set KUTUMBKOSH_GST_STATE=MH in Vercel (HANDOFFS.md ID 58). Without this env var, Maharashtra customers receive incorrect IGST invoice — compliance error from first live payment.
+- Shubham (direct action): Complete Razorpay KYC + live mode activation, link business current account for settlements. See HANDOFFS.md ID 9, item 5 — now fully unblocked.
+- Finance/CA: Engage CA now that GST state is confirmed. First GSTR-1/GSTR-3B filing becomes due once first live payment is received. See HANDOFFS.md ID 9, item 6.
+
+---
+
+_Add new decisions above this line, following the format._

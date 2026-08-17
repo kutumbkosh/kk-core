@@ -16,10 +16,17 @@ export const INSTITUTION_SUGGESTIONS: Partial<Record<AssetType, string[]>> = {
     "State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank",
     "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Union Bank", "IndusInd Bank",
     "Yes Bank", "IDBI Bank", "Federal Bank", "Bank of India", "Indian Bank",
+    "IDFC First Bank", "Bandhan Bank", "RBL Bank",
+    "AU Small Finance Bank", "Jana Small Finance Bank", "Ujjivan Small Finance Bank",
+    "Equitas Small Finance Bank", "ESAF Small Finance Bank", "Suryoday Small Finance Bank",
+    "South Indian Bank", "Karur Vysya Bank", "Dhanlaxmi Bank", "Jammu & Kashmir Bank",
+    "Nainital Bank", "City Union Bank",
   ],
   FIXED_DEPOSIT: [
     "State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank",
     "Punjab National Bank", "Bank of Baroda", "Post Office", "Bajaj Finance", "Shriram Finance",
+    "IDFC First Bank", "AU Small Finance Bank", "Jana Small Finance Bank",
+    "Ujjivan Small Finance Bank", "Mahindra Finance", "Muthoot Finance",
   ],
   MUTUAL_FUND: [
     "SBI Mutual Fund", "HDFC AMC", "ICICI Prudential", "Axis AMC", "Kotak AMC",
@@ -70,7 +77,7 @@ export const ASSET_TYPE_FIELDS: Record<AssetType, FieldConfig[]> = {
       { value: "tax_saver", label: "Tax Saver FD" },
     ]},
     { name: "maturity_date", label: "Maturity Date", type: "date" },
-    { name: "interest_rate", label: "Interest Rate (%)", type: "text", placeholder: "e.g. 7.5" },
+    { name: "interest_rate", label: "Interest Rate (%)", type: "number", placeholder: "e.g. 7.5" },
     { name: "auto_renew", label: "Auto Renewal?", type: "select", options: [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },
@@ -85,7 +92,7 @@ export const ASSET_TYPE_FIELDS: Record<AssetType, FieldConfig[]> = {
       { value: "lumpsum", label: "Lump Sum" },
       { value: "both", label: "Both" },
     ]},
-    { name: "sip_amount", label: "SIP Amount (if applicable)", type: "text", placeholder: "e.g. 5000" },
+    { name: "sip_amount", label: "SIP Amount (if applicable)", type: "number", placeholder: "e.g. 5000" },
   ],
   INSURANCE: [
     { name: "policy_type", label: "Policy Type", type: "select", required: true, options: [
@@ -100,7 +107,7 @@ export const ASSET_TYPE_FIELDS: Record<AssetType, FieldConfig[]> = {
     ]},
     { name: "policy_number", label: "Policy Number (last 4 digits)", type: "text", placeholder: "e.g. 1234" },
     { name: "sum_assured", label: "Sum Assured / Cover Amount", type: "text", placeholder: "e.g. 1 Crore" },
-    { name: "premium_amount", label: "Premium Amount", type: "text", placeholder: "e.g. 15000" },
+    { name: "premium_amount", label: "Premium Amount (₹)", type: "number", placeholder: "e.g. 15000" },
     { name: "premium_frequency", label: "Premium Frequency", type: "select", options: [
       { value: "monthly", label: "Monthly" },
       { value: "quarterly", label: "Quarterly" },
@@ -143,7 +150,7 @@ export const ASSET_TYPE_FIELDS: Record<AssetType, FieldConfig[]> = {
       { value: "other", label: "Other" },
     ]},
     { name: "loan_account", label: "Loan Account (last 4)", type: "text", placeholder: "e.g. 9012" },
-    { name: "emi_amount", label: "EMI Amount", type: "text", placeholder: "e.g. 25000" },
+    { name: "emi_amount", label: "EMI Amount (₹)", type: "number", placeholder: "e.g. 25000" },
     { name: "outstanding_amount", label: "Approx Outstanding", type: "text", placeholder: "e.g. 15 Lakhs" },
     { name: "end_date", label: "Loan End Date", type: "date" },
   ],
@@ -157,7 +164,7 @@ export const ASSET_TYPE_FIELDS: Record<AssetType, FieldConfig[]> = {
     ]},
     { name: "card_name", label: "Card Name", type: "text", placeholder: "e.g. Regalia, Infinia" },
     { name: "credit_limit", label: "Credit Limit", type: "text", placeholder: "e.g. 3 Lakhs" },
-    { name: "annual_fee", label: "Annual Fee", type: "text", placeholder: "e.g. 2500" },
+    { name: "annual_fee", label: "Annual Fee (₹)", type: "number", placeholder: "e.g. 2500" },
   ],
   LOCKER: [
     { name: "locker_number", label: "Locker Number", type: "text", placeholder: "Optional" },

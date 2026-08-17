@@ -168,14 +168,14 @@ export default function RemindersPage() {
     }
   });
 
-  // 5. General review nudge if no activity in 30+ days (Pro only)
-  if (hasAllReminders && assets.length > 0) {
+  // 5. General review nudge if no activity in 180+ days (Free + Pro — DECISIONS.md 2026-05-12)
+  if (canUseFeature("basic_reminders") && assets.length > 0) {
     const lastUpdated = assets.reduce((latest, a) => {
       const d = new Date(a.updated_at);
       return d > latest ? d : latest;
     }, new Date(0));
     const daysSinceUpdate = Math.ceil((Date.now() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysSinceUpdate > 30) {
+    if (daysSinceUpdate > 180) {
       reminders.push({
         id: "review-nudge",
         type: "review_nudge",
@@ -217,7 +217,7 @@ export default function RemindersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -268,7 +268,7 @@ export default function RemindersPage() {
                 onClick={() => reminder.actionHref && router.push(reminder.actionHref)}
               >
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${reminder.iconBg}`}>
-                  <reminder.icon className={`w-4.5 h-4.5 ${reminder.iconColor}`} />
+                  <reminder.icon className={`w-5 h-5 ${reminder.iconColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900">{reminder.title}</p>

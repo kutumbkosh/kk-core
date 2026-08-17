@@ -1,14 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  KUTUMBKOSH — COMPLIANCE-SENSITIVE FILE                             ║
+  ║  Do NOT upload to Cloudflare Pages without completing the           ║
+  ║  pre-upload checklist in:                                           ║
+  ║  vault/operations/compliance-sensitive-files.md                     ║
+  ║                                                                     ║
+  ║  DPDPA LANGUAGE RULES (DECISIONS.md 2026-04-28 | Legal):           ║
+  ║  ✗ FORBIDDEN: "DPDPA 2023 Compliant" or "DPDPA compliant"         ║
+  ║  ✓ APPROVED:  "designed with DPDPA 2023 in mind"                  ║
+  ║  ✓ APPROVED:  "designed with Indian data privacy standards in mind" ║
+  ║                                                                     ║
+  ║  Compliance-sensitive line (approx.):                               ║
+  ║  Feature card ~line 1336 — DPDPA privacy claim                     ║
+  ║  Approved text: "Built for India, designed with DPDPA 2023 in      ║
+  ║  mind. 256-bit encryption. Zero data sharing with third parties."   ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KutumbKosh — Your Family's Financial Vault</title>
-  <meta name="description" content="India's first secure digital vault for family financial records. Organize, protect, and pass on your financial legacy." />
-  <meta property="og:title" content="KutumbKosh — Coming Soon" />
-  <meta property="og:description" content="Your family's most important financial details — secured, organized, and always accessible when it matters most." />
+  <meta name="description" content="Organize, protect, and pass on your family's financial legacy. Track bank accounts, insurance, FDs, PPF, and all nominees — in one secure vault." />
+  <meta property="og:title" content="KutumbKosh — Your Family's Financial Vault" />
+  <meta property="og:description" content="Organize, protect, and pass on your family's financial legacy. Track bank accounts, insurance, FDs, PPF, and all nominees — in one secure vault." />
+  <meta property="og:image" content="https://kutumbkosh.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://kutumbkosh.com" />
+  <meta property="og:locale" content="en_IN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="KutumbKosh — Your Family's Financial Vault" />
+  <meta name="twitter:description" content="Organize, protect, and pass on your family's financial legacy. Track bank accounts, insurance, FDs, PPF, and all nominees — in one secure vault." />
+  <meta name="twitter:image" content="https://kutumbkosh.com/og-image.png" />
+  <link rel="canonical" href="https://kutumbkosh.com" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is my data safe with KutumbKosh?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your data is protected with 256-bit encryption — the same standard used by banks. Everything in your vault is encrypted at rest, and all connections are secured in transit. We've also built our platform with Indian data privacy standards in mind, so your family's financial information is always in safe hands."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you store passwords or full account numbers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. KutumbKosh is a record-keeping tool, not a password manager. We store asset names, institution names, and the last 4 digits of an account if you choose to add them. We never ask for, or store, passwords, PINs, or full account numbers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the difference between a nominee and a trusted contact?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A nominee is the person legally entitled to inherit a specific asset — your bank, insurer, or fund holds that record, and KutumbKosh helps you document it in one place. A trusted contact is someone you trust to see your vault summary in an emergency, so they know what assets exist and who to contact. They cannot claim any asset — they can only see the summary. They can be the same person, or completely different people."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does KutumbKosh cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The free plan lets you add up to 3 assets, 1 trusted contact, and set up manual emergency access — at no cost, forever. KutumbKosh Pro is ₹499/year (GST inclusive) and gives you unlimited assets, up to 2 trusted contacts, automatic emergency access settings, all reminder types, and a full Vault Dossier PDF."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to my data if I delete my account?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your data is permanently deleted when you close your account. We do not retain any copies of your vault contents after deletion. Your family's financial records belong to you — and when you choose to leave, they leave with you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can anyone at KutumbKosh read my vault?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. We operate a zero-access policy — no KutumbKosh employee has routine access to the contents of your vault. Your data is visible only to you, and to anyone you explicitly choose to share access with."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does emergency access work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You decide who can see your vault and under what conditions. Your trusted contact can request access in an emergency, and you control whether that happens automatically after a waiting period or only with your approval. They see a vault summary — asset types, institution names, and nominee details. No passwords, no full account numbers."
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -651,6 +742,134 @@
     .step h3 { font-size: 1.05rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.5rem; }
     .step p { font-size: 0.85rem; color: var(--gray-500); line-height: 1.6; max-width: 260px; margin: 0 auto; }
 
+
+
+    /* ── How It Works (6-step, Marketing design) ── */
+    .hiw-section {
+      padding: 5rem 1.5rem;
+      background: #ffffff;
+      position: relative;
+    }
+    .hiw-eyebrow {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .hiw-heading {
+      text-align: center;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+    .hiw-subheading {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--gray-500);
+      max-width: 520px;
+      margin: 0 auto 3.5rem;
+      line-height: 1.6;
+    }
+    .hiw-steps {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0;
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hiw-steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: calc(100% / 12);
+      right: calc(100% / 12);
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue-light) 0%, var(--blue) 50%, var(--blue-light) 100%);
+      z-index: 0;
+    }
+    .hiw-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .hiw-step-badge {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: white;
+      border: 2.5px solid var(--blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+    .hiw-step:hover .hiw-step-badge {
+      border-color: var(--blue);
+      box-shadow: 0 6px 24px rgba(37,99,235,0.18);
+    }
+    .hiw-step:last-child .hiw-step-badge {
+      border-color: #BBF7D0;
+      background: #F0FDF4;
+    }
+    .hiw-step-badge-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hiw-step-number {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 24px;
+      height: 24px;
+      background: var(--blue);
+      color: white;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+    .hiw-step:last-child .hiw-step-number { background: var(--green); }
+    .hiw-step-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--blue);
+    }
+    .hiw-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-900);
+      text-align: center;
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .hiw-step-subtitle {
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--gray-500);
+      text-align: center;
+      line-height: 1.5;
+    }
+
     /* ── Trust ── */
     .trust-section {
       padding: 6rem 1.5rem;
@@ -765,6 +984,12 @@
       .features-grid { grid-template-columns: 1fr; }
       .steps { grid-template-columns: 1fr; gap: 2.5rem; }
       .steps::before { display: none; }
+      .hiw-steps { grid-template-columns: 1fr; gap: 0; }
+      .hiw-steps::before { top: 0; bottom: 0; left: 39px; right: auto; width: 2px; height: auto; background: linear-gradient(180deg, var(--blue-light) 0%, var(--blue) 50%, var(--blue-light) 100%); }
+      .hiw-step { flex-direction: row; align-items: flex-start; gap: 20px; padding: 0 0 36px 0; text-align: left; }
+      .hiw-step-badge { flex-shrink: 0; margin-bottom: 0; }
+      .hiw-step-title, .hiw-step-subtitle { text-align: left; }
+      .hiw-step-text { padding-top: 10px; }
       .trust-grid { grid-template-columns: 1fr; }
       .features-section, .how-section, .trust-section, .cta-section { padding: 4rem 1.2rem; }
       .mock-dashboard { min-height: auto; }
@@ -774,6 +999,55 @@
       .hero-title { font-size: 2.2rem; }
       .section-heading { font-size: 1.6rem; }
       .mock-asset-row { padding: 0.5rem; }
+    }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 6rem 1.5rem;
+      background: white;
+      position: relative;
+    }
+    .faq-list {
+      max-width: 700px;
+      margin: 2.5rem auto 0;
+    }
+    .faq-list details {
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .faq-list details:first-child {
+      border-top: 1px solid var(--gray-200);
+    }
+    .faq-list summary {
+      padding: 1.2rem 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      list-style: none;
+      user-select: none;
+    }
+    .faq-list summary::-webkit-details-marker { display: none; }
+    .faq-list summary::after {
+      content: '+';
+      color: var(--blue);
+      font-size: 1.5rem;
+      font-weight: 300;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .faq-list details[open] > summary::after { content: '\2212'; }
+    .faq-answer {
+      padding-bottom: 1.2rem;
+      font-size: 0.88rem;
+      color: var(--gray-500);
+      line-height: 1.75;
+    }
+    @media (max-width: 768px) {
+      .faq-section { padding: 4rem 1.2rem; }
     }
   </style>
 </head>
@@ -905,6 +1179,130 @@
     </div>
   </section>
 
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="hiw-section">
+    <div style="max-width:1100px;margin:0 auto;">
+      <p class="hiw-eyebrow reveal">Simple by design</p>
+      <h2 class="hiw-heading reveal">How KutumbKosh Works</h2>
+      <p class="hiw-subheading reveal">Set up once. Your family stays informed — always.</p>
+
+      <div class="hiw-steps">
+
+        <div class="hiw-step reveal">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">1</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 4 L30 9 L30 20 C30 27 18 32 18 32 C18 32 6 27 6 20 L6 9 Z"/>
+                <circle cx="18" cy="18" r="4"/>
+                <line x1="18" y1="22" x2="18" y2="26"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Create your vault</p>
+            <p class="hiw-step-subtitle">Set up your profile in minutes</p>
+          </div>
+        </div>
+
+        <div class="hiw-step reveal reveal-delay-1">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">2</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="8" y="10" width="16" height="20" rx="2"/>
+                <path d="M12 10 V8 C12 6.9 12.9 6 14 6 H24 C25.1 6 26 6.9 26 8 V24 C26 25.1 25.1 26 24 26 H24"/>
+                <line x1="12" y1="17" x2="20" y2="17"/>
+                <line x1="12" y1="21" x2="18" y2="21"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Add every asset</p>
+            <p class="hiw-step-subtitle">Bank accounts, insurance, FDs, property and more</p>
+          </div>
+        </div>
+
+        <div class="hiw-step reveal reveal-delay-2">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">3</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="13" cy="12" r="4"/>
+                <path d="M5 28 C5 23 8.6 20 13 20"/>
+                <rect x="20" y="20" width="6" height="6" rx="1.5"/>
+                <rect x="26" y="14" width="6" height="6" rx="1.5"/>
+                <line x1="23" y1="23" x2="29" y2="17"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Link your nominees</p>
+            <p class="hiw-step-subtitle">Assign the right person to each asset</p>
+          </div>
+        </div>
+
+        <div class="hiw-step reveal reveal-delay-3">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">4</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="16" cy="12" r="5"/>
+                <path d="M6 30 C6 24 10.5 20 16 20"/>
+                <circle cx="26" cy="24" r="6"/>
+                <path d="M23 24 L25 26 L29 22"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Add a trusted contact</p>
+            <p class="hiw-step-subtitle">Someone you trust to act on your behalf</p>
+          </div>
+        </div>
+
+        <div class="hiw-step reveal reveal-delay-4">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">5</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="8" y="4" width="20" height="26" rx="2"/>
+                <line x1="13" y1="12" x2="23" y2="12"/>
+                <line x1="13" y1="17" x2="23" y2="17"/>
+                <line x1="13" y1="22" x2="19" y2="22"/>
+                <path d="M22 24 L22 32 M19 29 L22 32 L25 29"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Export your vault dossier</p>
+            <p class="hiw-step-subtitle">A complete record your family can refer to anytime</p>
+          </div>
+        </div>
+
+        <div class="hiw-step reveal reveal-delay-4">
+          <div class="hiw-step-badge">
+            <div class="hiw-step-badge-inner">
+              <div class="hiw-step-number">6</div>
+              <svg class="hiw-step-icon" viewBox="0 0 36 36" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="10" r="4"/>
+                <circle cx="24" cy="10" r="4"/>
+                <circle cx="18" cy="14" r="3"/>
+                <path d="M4 30 C4 24 7.6 21 12 21"/>
+                <path d="M32 30 C32 24 28.4 21 24 21"/>
+                <path d="M11 30 C11 26 14 24 18 24 C22 24 25 26 25 30"/>
+              </svg>
+            </div>
+          </div>
+          <div class="hiw-step-text">
+            <p class="hiw-step-title">Your family is never left guessing</p>
+            <p class="hiw-step-subtitle">If the unexpected happens, your trusted contact gets access — instantly</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ FEATURES ═══ -->
   <section class="features-section">
     <div class="section-inner">
@@ -952,39 +1350,13 @@
           <div class="feature-icon-wrap fi-teal">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <h3>Built for Privacy</h3>
+          <h3>Designed with Privacy in Mind</h3>
           <p>Built for India, designed with DPDPA 2023 in mind. 256-bit encryption. Zero data sharing with third parties.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══ HOW IT WORKS ═══ -->
-  <section class="how-section">
-    <div class="section-inner" style="text-align:center;">
-      <div class="section-badge reveal" style="justify-content:center;">How it works</div>
-      <h2 class="section-heading reveal" style="margin-left:auto;margin-right:auto;">Set up your vault in<br/>under 10 minutes</h2>
-      <p class="section-desc reveal" style="margin-left:auto;margin-right:auto;">No paperwork. No KYC. Just log in and start adding.</p>
-
-      <div class="steps">
-        <div class="step reveal">
-          <div class="step-num">1</div>
-          <h3>Add Your Assets</h3>
-          <p>Bank accounts, insurance, mutual funds, PPF, property — add what matters to your family.</p>
-        </div>
-        <div class="step reveal reveal-delay-1">
-          <div class="step-num">2</div>
-          <h3>Link Nominees</h3>
-          <p>Assign your spouse, children, or parents as nominees to each asset. Everyone knows their share.</p>
-        </div>
-        <div class="step reveal reveal-delay-2">
-          <div class="step-num">3</div>
-          <h3>Stay Protected</h3>
-          <p>Smart reminders keep your vault current. Generate a dossier PDF your family can access anytime.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ═══ TRUST ═══ -->
   <section class="trust-section">
@@ -1006,7 +1378,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <h4>Indian Privacy Standards</h4>
-          <p>Designed with India's Digital Personal Data Protection Act (DPDPA 2023) in mind. Formal compliance verification is in progress.</p>
+          <p>Designed with India's Digital Personal Data Protection Act in mind.</p>
         </div>
         <div class="trust-card reveal reveal-delay-2">
           <div class="trust-icon">
@@ -1016,6 +1388,44 @@
           <p>We never sell, share, or monetize your data. Period.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="faq-section">
+    <div class="section-inner" style="text-align:center;">
+      <div class="section-badge reveal" style="justify-content:center;">Common questions</div>
+      <h2 class="section-heading reveal" style="margin-left:auto;margin-right:auto;">Everything you need to know</h2>
+    </div>
+    <div class="faq-list">
+      <details class="reveal">
+        <summary>Is my data safe with KutumbKosh?</summary>
+        <p class="faq-answer">Your data is protected with 256-bit encryption &mdash; the same standard used by banks. Everything in your vault is encrypted at rest, and all connections are secured in transit. We&rsquo;ve also built our platform with Indian data privacy standards in mind, so your family&rsquo;s financial information is always in safe hands.</p>
+      </details>
+      <details class="reveal">
+        <summary>Do you store passwords or full account numbers?</summary>
+        <p class="faq-answer">No. KutumbKosh is a record-keeping tool, not a password manager. We store asset names, institution names, and the last 4 digits of an account if you choose to add them. We never ask for, or store, passwords, PINs, or full account numbers.</p>
+      </details>
+      <details class="reveal">
+        <summary>What&rsquo;s the difference between a nominee and a trusted contact?</summary>
+        <p class="faq-answer">A nominee is the person legally entitled to inherit a specific asset &mdash; your bank, insurer, or fund holds that record, and KutumbKosh helps you document it in one place. A trusted contact is someone you trust to see your vault summary in an emergency, so they know what assets exist and who to contact. They cannot claim any asset &mdash; they can only see the summary. They can be the same person, or completely different people.</p>
+      </details>
+      <details class="reveal">
+        <summary>What does KutumbKosh cost?</summary>
+        <p class="faq-answer">The free plan lets you add up to 3 assets, 1 trusted contact, and set up manual emergency access &mdash; at no cost, forever. KutumbKosh Pro is &#8377;499/year (GST inclusive) and gives you unlimited assets, up to 2 trusted contacts, automatic emergency access settings, all reminder types, and a full Vault Dossier PDF.</p>
+      </details>
+      <details class="reveal">
+        <summary>What happens to my data if I delete my account?</summary>
+        <p class="faq-answer">Your data is permanently deleted when you close your account. We do not retain any copies of your vault contents after deletion. Your family&rsquo;s financial records belong to you &mdash; and when you choose to leave, they leave with you.</p>
+      </details>
+      <details class="reveal">
+        <summary>Can anyone at KutumbKosh read my vault?</summary>
+        <p class="faq-answer">No. We operate a zero-access policy &mdash; no KutumbKosh employee has routine access to the contents of your vault. Your data is visible only to you, and to anyone you explicitly choose to share access with.</p>
+      </details>
+      <details class="reveal">
+        <summary>How does emergency access work?</summary>
+        <p class="faq-answer">You decide who can see your vault and under what conditions. Your trusted contact can request access in an emergency, and you control whether that happens automatically after a waiting period or only with your approval. They see a vault summary &mdash; asset types, institution names, and nominee details. No passwords, no full account numbers.</p>
+      </details>
     </div>
   </section>
 
@@ -1044,8 +1454,6 @@
     <div class="footer-links">
       <a href="mailto:care@kutumbkosh.com">care@kutumbkosh.com</a>
       <a href="https://kutumbkosh.com">kutumbkosh.com</a>
-      <a href="https://app.kutumbkosh.com/privacy">Privacy Policy</a>
-      <a href="https://app.kutumbkosh.com/grievance">Grievance Officer</a>
     </div>
     <div class="copyright">&copy; 2026 KutumbKosh. All rights reserved.</div>
   </footer>

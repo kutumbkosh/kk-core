@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/types/database";
 import { validateFullName, validatePhone, validatePAN, validateDOB } from "@/lib/validations";
 import FieldError from "@/components/FieldError";
+import { parseFormError } from "@/lib/errors";
 import {
   ArrowLeft,
   User,
@@ -24,6 +25,8 @@ import {
   Crown,
   Download,
   Bell,
+  Copy,
+  Check as CheckIcon,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -35,6 +38,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -54,8 +58,8 @@ export default function SettingsPage() {
     if (data) {
       setProfile(data);
       setFullName(data.full_name || "");
-      setPhone(data.phone || "");
-      setDob(data.dob || "");
+      setPhone(data.mobile_number || "");
+      setDob(data.date_of_birth || "");
       setPan(data.pan_number || "");
     }
     setLoading(false);
@@ -100,15 +104,19 @@ export default function SettingsPage() {
     setSaved(false);
 
     const supabase = createClient();
-    await supabase.from("profiles").update({
-      full_name: fullName.trim(),
-      phone: phone.trim() || null,
-      dob: dob || null,
-      pan_number: pan.trim().toUpperCase() || null,
-      updated_at: new Date().toISOString(),
+    const { error: updateError } = await supabase.from("profiles").update({
+      full_name:      fullName.trim(),
+      mobile_number:  phone.trim() || null,
+      date_of_birth:  dob || null,
+      pan_number:     pan.trim().toUpperCase() || null,
+      updated_at:     new Date().toISOString(),
     }).eq("id", profile.id);
 
     setSaving(false);
+    if (updateError) {
+      setFormError("Unable to save your profile. Please try again.");
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -131,7 +139,7 @@ export default function SettingsPage() {
       router.push("/");
     } catch (err) {
       setDeleting(false);
-      setDeleteError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setDeleteError(parseFormError(err, "delete"));
     }
   };
 
@@ -144,7 +152,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -171,6 +179,36 @@ export default function SettingsPage() {
           </h2>
 
           <div className="space-y-4">
+            {/* Kutumb ID (read-only, immutable) */}
+            {profile?.kutumb_id && (
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Your Kutumb ID</label>
+                <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg border border-blue-200">
+                  <Shield className="w-4 h-4 text-vault-accent flex-shrink-0" />
+                  <span className="text-sm font-mono font-semibold text-vault-dark flex-1 tracking-wide">
+                    {profile.kutumb_id}
+                  </span>
+                  <button
+                    type="button"
+                    title="Quote this ID when contacting support"
+                    onClick={() => {
+                      navigator.clipboard.writeText(profile.kutumb_id!);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="p-1.5 rounded hover:bg-blue-100 transition-colors flex items-center gap-1 text-xs text-vault-accent font-medium"
+                  >
+                    {copied ? (
+                      <><CheckIcon className="w-3.5 h-3.5 text-green-600" /><span className="text-green-600">Copied</span></>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" />Copy</>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Quote this ID when contacting support at care@kutumbkosh.com</p>
+              </div>
+            )}
+
             {/* Email (read-only) */}
             <div>
               <label className="text-xs font-medium text-gray-500 mb-1 block">Email</label>
@@ -336,15 +374,13 @@ export default function SettingsPage() {
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               <h3 className="text-base font-bold text-gray-900 text-center mb-2">Delete your account?</h3>
-              <p className="text-sm text-gray-500 text-center mb-3">
-                The following will be permanently deleted:
-              </p>
+              <p className="text-sm text-gray-500 text-center mb-3">The following will be permanently deleted:</p>
               <ul className="text-sm text-gray-500 text-left mb-4 space-y-1 bg-red-50 rounded-lg p-3 border border-red-100">
-                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">•</span>Your profile and account</li>
-                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">•</span>All assets and documents</li>
-                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">•</span>All nominees and their links</li>
-                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">•</span>Trusted contacts and emergency instructions</li>
-                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">•</span>Subscription data</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Your profile and account</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />All assets and documents</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />All nominees and their links</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Trusted contacts and emergency instructions</li>
+                <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />Subscription data</li>
               </ul>
               <p className="text-xs text-gray-400 text-center mb-6">This action cannot be undone. A confirmation email will be sent to your address.</p>
               {deleteError && (

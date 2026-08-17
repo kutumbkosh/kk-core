@@ -16,8 +16,8 @@ BEGIN
     WHERE id = auth.uid()
     AND email IN (
       'shubham.git@gmail.com'
-      -- Add more admin emails only after formal access review.
-      -- See INTERNAL-ACCESS-POLICY.md Section 5 before adding any email here.
+      -- Add more admin emails as needed, e.g.:
+      -- ,'another-admin@kutumbkosh.com'
     )
   );
 END;
@@ -25,17 +25,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- ============================================================
--- 1b. ADMIN AUDIT LOGGER (internal helper)
--- Call this at the top of every admin function to create a paper trail.
+-- 1b. ADMIN AUDIT LOGGING HELPER
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.log_admin_access(fn_name TEXT, ctx JSONB DEFAULT '{}')
 RETURNS VOID AS $$
-DECLARE
-  caller_email TEXT;
 BEGIN
-  SELECT email INTO caller_email FROM auth.users WHERE id = auth.uid();
   INSERT INTO public.admin_access_log (admin_email, function_name, context)
-  VALUES (COALESCE(caller_email, 'unknown'), fn_name, ctx);
+  VALUES (
+    (SELECT email FROM auth.users WHERE id = auth.uid()),
+    fn_name,
+    ctx
+  );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -51,6 +51,7 @@ BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
+
   PERFORM public.log_admin_access('admin_overview_metrics');
 
   SELECT json_build_object(
@@ -190,12 +191,9 @@ BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
-  -- Log every user list access — this exposes individual user profiles
-  PERFORM public.log_admin_access('admin_user_list', jsonb_build_object(
-    'search_query', search_query,
-    'page_num', page_num,
-    'plan_filter', plan_filter
-  ));
+
+  PERFORM public.log_admin_access('admin_user_list',
+    jsonb_build_object('search', search_query, 'plan', plan_filter, 'page', page_num));
 
   offset_val := (page_num - 1) * page_size;
 

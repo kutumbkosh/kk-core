@@ -14,6 +14,7 @@ interface SubscriptionState {
   canUseFeature: (feature: string) => boolean;
   isAtAssetLimit: (currentCount: number) => boolean;
   isAtNomineeLimit: (currentCount: number) => boolean;
+  isAtTrustedContactLimit: (currentCount: number) => boolean;
   daysRemaining: number | null;
   refresh: () => Promise<void>;
 }
@@ -57,6 +58,7 @@ export function useSubscription(): SubscriptionState {
   const canUseFeature = (feature: string) => limits.features.includes(feature);
   const isAtAssetLimit = (currentCount: number) => currentCount >= limits.maxAssets;
   const isAtNomineeLimit = (currentCount: number) => currentCount >= limits.maxNominees;
+  const isAtTrustedContactLimit = (currentCount: number) => currentCount >= limits.maxTrustedContacts;
 
   const daysRemaining = subscription?.current_period_end
     ? Math.max(0, Math.ceil((new Date(subscription.current_period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -71,6 +73,7 @@ export function useSubscription(): SubscriptionState {
     canUseFeature,
     isAtAssetLimit,
     isAtNomineeLimit,
+    isAtTrustedContactLimit,
     daysRemaining,
     refresh: loadSubscription,
   };

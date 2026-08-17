@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Shield,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 import NomineesIllustration from "@/components/illustrations/NomineesIllustration";
 
@@ -26,11 +27,15 @@ export default function NomineesPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [nomineesRes, assetsRes, mappingsRes] = await Promise.all([
+    const [nomineesRes, assetsRes] = await Promise.all([
       supabase.from("nominees").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("assets").select("*").eq("user_id", user.id),
-      supabase.from("asset_nominee_mappings").select("*"),
     ]);
+
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setNominees(nomineesRes.data || []);
     setAssets(assetsRes.data || []);
@@ -80,6 +85,25 @@ export default function NomineesPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-6">
+        {/* Nominee vs trusted contact explainer */}
+        <div className="card flex items-start gap-4 p-5 mb-6">
+          <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Users className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-gray-900 mb-1">
+              What&apos;s the difference between a nominee and a trusted contact?
+            </h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              A nominee is the person who legally inherits a specific asset — registered directly
+              with your bank, insurer, or fund. A trusted contact is someone who can see your
+              full vault summary if you&apos;re ever unreachable, so they know exactly what exists
+              and who to contact. They cannot claim any assets — only view the summary.
+              These can be the same person, or entirely different people.
+            </p>
+          </div>
+        </div>
+
         {/* Coverage alert */}
         {assetsWithoutNominee > 0 && (
           <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">

@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Asset, Nominee, AssetNomineeMapping, EmergencyDossier } from "@/types/database";
+import type { Asset, Nominee, AssetNomineeMapping, EmergencyDossier, UserProfile } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
-import { useSubscription } from "@/hooks/useSubscription";
-import UpgradePrompt from "@/components/UpgradePrompt";
 import {
   ArrowLeft,
   Download,
@@ -35,20 +33,23 @@ const ASSET_TYPE_SYMBOLS: Record<string, string> = {
 };
 
 const RELATION_LABELS: Record<string, string> = {
-  SPOUSE: "Spouse",
-  CHILD: "Child",
-  PARENT: "Parent",
-  SIBLING: "Sibling",
-  OTHER: "Other",
+  spouse: "Spouse",
+  child: "Child",
+  parent: "Parent",
+  sibling: "Sibling",
+  grandchild: "Grandchild",
+  grandparent: "Grandparent",
+  in_law: "In-Law",
+  other: "Other",
 };
 
 export default function ExportPage() {
   const router = useRouter();
-  const { canUseFeature, isPro, loading: subLoading } = useSubscription();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [nominees, setNominees] = useState<Nominee[]>([]);
   const [mappings, setMappings] = useState<AssetNomineeMapping[]>([]);
   const [dossier, setDossier] = useState<EmergencyDossier | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -57,17 +58,23 @@ export default function ExportPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/"); return; }
 
-    const [assetsRes, nomineesRes, mappingsRes, dossierRes] = await Promise.all([
+    const [assetsRes, nomineesRes, dossierRes, profileRes] = await Promise.all([
       supabase.from("assets").select("*").eq("user_id", user.id).eq("is_draft", false).order("asset_type"),
       supabase.from("nominees").select("*").eq("user_id", user.id),
-      supabase.from("asset_nominee_mappings").select("*"),
       supabase.from("emergency_dossiers").select("*").eq("user_id", user.id).single(),
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
     ]);
+
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("*").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setAssets(assetsRes.data || []);
     setNominees(nomineesRes.data || []);
     setMappings(mappingsRes.data || []);
     setDossier(dossierRes.data);
+    setProfile(profileRes.data);
     setLoading(false);
   }, [router]);
 
@@ -99,7 +106,7 @@ export default function ExportPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -134,10 +141,16 @@ export default function ExportPage() {
             <div style={{ width: "44px", height: "44px", backgroundColor: "#2563EB", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <span style={{ fontSize: "20px", color: "white" }}>🛡️</span>
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#111827", margin: 0, lineHeight: 1.3 }}>KutumbKosh Vault Summary</h1>
               <p style={{ fontSize: "12px", color: "#6b7280", margin: "2px 0 0" }}>Generated on {dateStr} &bull; Confidential Document</p>
             </div>
+            {profile?.kutumb_id && (
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <p style={{ fontSize: "10px", color: "#9ca3af", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>Vault ID</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#1e40af", margin: 0, fontFamily: "monospace", letterSpacing: "0.08em" }}>{profile.kutumb_id}</p>
+              </div>
+            )}
           </div>
 
           {/* ─── OVERVIEW STATS ─── */}
@@ -377,15 +390,8 @@ export default function ExportPage() {
           </div>
         </div>
 
-        {/* Pro gate */}
-        {!isPro && !subLoading && (
-          <div className="mb-6">
-            <UpgradePrompt feature="pdf_export" variant="card" />
-          </div>
-        )}
-
-        {/* Export options */}
-        <div className={`space-y-3 mb-6 ${!isPro ? "opacity-50 pointer-events-none" : ""}`}>
+        {/* Export options — available on Free and Pro (DECISIONS.md 2026-05-12 | Product) */}
+        <div className="space-y-3 mb-6">
           <button
             onClick={handlePrint}
             className="card w-full flex items-center gap-4 p-5 hover:shadow-card-hover transition-all text-left"
