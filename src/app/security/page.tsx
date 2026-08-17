@@ -263,10 +263,10 @@ export default function SecurityPage() {
                 We take security reports seriously. If you&apos;ve found a
                 security issue, please email us at{" "}
                 <a
-                  href="mailto:security@kutumbkosh.in"
+                  href="mailto:care@kutumbkosh.com"
                   className="text-blue-600 font-medium hover:underline"
                 >
-                  security@kutumbkosh.in
+                  care@kutumbkosh.com
                 </a>{" "}
                 and we&apos;ll respond within 24 hours. We appreciate
                 responsible disclosure and will acknowledge your contribution.
@@ -312,7 +312,7 @@ export default function SecurityPage() {
             Grievance Officer
           </a>
           <a
-            href="mailto:security@kutumbkosh.in"
+            href="mailto:care@kutumbkosh.com"
             className="hover:text-gray-600 transition-colors"
           >
             Report a Vulnerability

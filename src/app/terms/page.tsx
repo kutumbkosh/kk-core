@@ -54,7 +54,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-2">4. Your account</h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              You are responsible for maintaining the security of your email account used for authentication. KutumbKosh uses passwordless magic link authentication. You must not share your login links with anyone. You are responsible for all activity that occurs under your account. Notify us immediately if you suspect unauthorized access at security@kutumbkosh.in.
+              You are responsible for maintaining the security of your email account used for authentication. KutumbKosh uses passwordless magic link authentication. You must not share your login links with anyone. You are responsible for all activity that occurs under your account. Notify us immediately if you suspect unauthorized access at care@kutumbkosh.com.
             </p>
           </section>
 
