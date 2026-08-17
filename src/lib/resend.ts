@@ -21,6 +21,8 @@ export interface EmailPayload {
   to: string;
   subject: string;
   html: string;
+  /** Optional file attachments (base64-encoded content) */
+  attachments?: { filename: string; content: string }[];
 }
 
 export interface SendEmailResult {
@@ -53,6 +55,7 @@ export async function sendEmail(payload: EmailPayload): Promise<SendEmailResult>
         to: [payload.to],
         subject: payload.subject,
         html: payload.html,
+        ...(payload.attachments?.length ? { attachments: payload.attachments } : {}),
       }),
     });
 
@@ -112,6 +115,8 @@ export interface SubscriptionConfirmationParams {
   amount: number;
   /** ISO date string for period end */
   periodEnd: string;
+  /** User's first name for personalisation */
+  userName?: string;
 }
 
 export interface RenewalReminderParams {
@@ -167,49 +172,93 @@ export const templates = {
    * Sent immediately after a successful Pro subscription payment.
    */
   subscriptionConfirmation(params: SubscriptionConfirmationParams): Omit<EmailPayload, "to"> {
-    const { plan, cycle, amount, periodEnd } = params;
+    const { plan, cycle, amount, periodEnd, userName } = params;
     const cycleLabel = cycle === "ANNUAL" ? "Annual" : "Monthly";
+    const firstName = userName?.split(" ")[0] ?? "there";
 
     return {
-      subject: "Welcome to KutumbKosh Pro — your vault is ready",
+      subject: `Welcome to KutumbKosh Pro, ${firstName}! Your vault is all set.`,
       html: emailWrapper(`
-        <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 8px;">
-          You're now on ${plan} 🎉
+        <h2 style="font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 8px;">
+          You&apos;re in. Welcome to Pro! 🎉
         </h2>
-        <p style="font-size: 14px; color: #6B7280; line-height: 1.6; margin-bottom: 0;">
-          Thank you for upgrading. Your family's financial vault now has no limits.
-          Here's a summary of your subscription:
+        <p style="font-size: 15px; color: #374151; line-height: 1.7; margin-bottom: 4px;">
+          Hi ${firstName},
         </p>
-        ${infoBox(`
+        <p style="font-size: 14px; color: #6B7280; line-height: 1.7; margin-top: 4px;">
+          Thank you for upgrading to KutumbKosh Pro. Your family's financial vault is now
+          fully unlocked — every asset, every reminder, every member of your family, covered.
+        </p>
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px 20px; margin: 20px 0;">
+          <p style="font-size: 13px; font-weight: 700; color: #15803D; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.05em;">
+            What&apos;s now unlocked for you
+          </p>
           <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
             <tr>
-              <td style="color: #6B7280; padding: 4px 0; width: 50%;">Plan</td>
+              <td style="padding: 5px 0; color: #374151;">
+                <span style="color: #16A34A; font-weight: 700; margin-right: 8px;">✓</span>
+                Unlimited asset entries
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; color: #374151;">
+                <span style="color: #16A34A; font-weight: 700; margin-right: 8px;">✓</span>
+                All reminders — FD maturity, insurance renewal, nominee updates
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; color: #374151;">
+                <span style="color: #16A34A; font-weight: 700; margin-right: 8px;">✓</span>
+                Full vault PDF export — shareable with family or your lawyer
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0; color: #374151;">
+                <span style="color: #16A34A; font-weight: 700; margin-right: 8px;">✓</span>
+                Priority support from our team
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        ${infoBox(`
+          <p style="font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 10px 0;">
+            Subscription details
+          </p>
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <tr>
+              <td style="color: #6B7280; padding: 4px 0; width: 55%;">Plan</td>
               <td style="color: #111827; font-weight: 600; text-align: right;">KutumbKosh ${plan}</td>
             </tr>
             <tr>
-              <td style="color: #6B7280; padding: 4px 0;">Billing cycle</td>
+              <td style="color: #6B7280; padding: 4px 0;">Billing</td>
               <td style="color: #111827; font-weight: 600; text-align: right;">${cycleLabel}</td>
             </tr>
             <tr>
               <td style="color: #6B7280; padding: 4px 0;">Amount paid</td>
-              <td style="color: #111827; font-weight: 600; text-align: right;">₹${amount}</td>
+              <td style="color: #111827; font-weight: 600; text-align: right;">₹${amount} (GST inclusive)</td>
             </tr>
             <tr>
-              <td style="color: #6B7280; padding: 4px 0;">Valid until</td>
+              <td style="color: #6B7280; padding: 4px 0;">Active until</td>
               <td style="color: #111827; font-weight: 600; text-align: right;">${formatDate(periodEnd)}</td>
             </tr>
           </table>
         `)}
-        <p style="font-size: 14px; color: #6B7280; line-height: 1.6; margin-top: 16px;">
-          You now have unlimited asset tracking, all reminder types, priority support,
-          and can export a full vault dossier PDF at any time.
-          <a href="https://kutumbkosh.com/dashboard" style="color: #2563EB; text-decoration: none; font-weight: 600;">
-            Open your vault &rarr;
+
+        <div style="margin: 24px 0;">
+          <a href="https://kutumbkosh.com/dashboard"
+             style="display: inline-block; background: #2563EB; color: white; font-size: 14px; font-weight: 600;
+                    padding: 13px 28px; border-radius: 8px; text-decoration: none; letter-spacing: 0.01em;">
+            Open my vault &rarr;
           </a>
-        </p>
-        <p style="font-size: 12px; color: #9CA3AF; margin-top: 16px;">
-          This is a payment confirmation for your records. No invoice is attached —
-          if you need a GST invoice, reply to this email and we'll send one within 24 hours.
+        </div>
+
+        <p style="font-size: 13px; color: #9CA3AF; line-height: 1.7; margin-top: 8px;">
+          A GST invoice will be sent in a separate email shortly. If you have any questions
+          about your subscription, write to us at
+          <a href="mailto:care@kutumbkosh.com" style="color: #2563EB; text-decoration: none;">care@kutumbkosh.com</a>
+          — we&apos;re happy to help.
         </p>
       `),
     };

@@ -88,6 +88,13 @@ export async function POST(request: Request) {
 
     // Send subscription confirmation email — fire-and-forget, never blocks response
     if (user.email) {
+      // Fetch name for personalisation — non-critical, ignore errors
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
       sendEmail({
         to: user.email,
         ...templates.subscriptionConfirmation({
@@ -95,6 +102,7 @@ export async function POST(request: Request) {
           cycle: cycle === "ANNUAL" ? "ANNUAL" : "MONTHLY",
           amount: amountPaidInr,
           periodEnd: periodEnd.toISOString(),
+          userName: profile?.full_name ?? undefined,
         }),
       }).catch(() => {});
     }
