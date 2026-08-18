@@ -28,6 +28,7 @@ import {
   Settings,
   Download,
   Hash,
+  HelpCircle,
   Copy,
   Check,
 } from "lucide-react";
@@ -145,6 +146,9 @@ export default function DashboardPage() {
             )}
             <button onClick={() => router.push("/dashboard/reminders")} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" title="Reminders">
               <Bell className="w-4 h-4" />
+            </button>
+            <button onClick={() => router.push("/contact")} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" title="Help & Feedback">
+              <HelpCircle className="w-4 h-4" />
             </button>
             <button onClick={() => router.push("/dashboard/settings")} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors" title="Settings">
               <Settings className="w-4 h-4" />

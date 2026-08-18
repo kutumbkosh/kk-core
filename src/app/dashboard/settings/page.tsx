@@ -27,6 +27,7 @@ import {
   Bell,
   Copy,
   Check as CheckIcon,
+  MessageSquare,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -411,6 +412,21 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        {/* Help & Feedback */}
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Need help?</p>
+            <p className="text-xs text-gray-500 mt-0.5">Questions, bugs, or feedback — we read every message.</p>
+          </div>
+          <button
+            onClick={() => router.push("/contact")}
+            className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Contact us
+          </button>
+        </div>
 
         {/* Footer info */}
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
