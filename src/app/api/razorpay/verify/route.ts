@@ -104,7 +104,13 @@ export async function POST(request: Request) {
           periodEnd: periodEnd.toISOString(),
           userName: profile?.full_name ?? undefined,
         }),
-      }).catch(() => {});
+      }).then((result) => {
+        if (!result.ok) {
+          console.error("[Razorpay] Subscription confirmation email failed:", result.error);
+        } else {
+          console.log("[Razorpay] Subscription confirmation email sent to:", user.email);
+        }
+      });
     }
 
     return NextResponse.json({ success: true });
