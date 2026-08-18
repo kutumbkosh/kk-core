@@ -14,6 +14,10 @@ export async function GET(request: Request) {
     const supabase = createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
+    if (error) {
+      console.error("[Auth] exchangeCodeForSession failed:", error.message, error.status);
+    }
+
     if (!error) {
       // Check if user has completed onboarding
       const {
