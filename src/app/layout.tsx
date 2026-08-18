@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   description: OG_DESCRIPTION,
   manifest: "/manifest.json",
   themeColor: "#2563EB",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
   alternates: {
     canonical: "https://kutumbkosh.com",
   },
