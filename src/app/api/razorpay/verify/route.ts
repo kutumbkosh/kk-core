@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       .eq("user_id", user.id)
       .is("converted_at", null);
 
-    // Send subscription confirmation email — fire-and-forget, never blocks response
+    // Send subscription confirmation email — awaited so Vercel doesn't kill it before it fires
     if (user.email) {
       // Fetch name for personalisation — non-critical, ignore errors
       const { data: profile } = await supabase
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         .eq("id", user.id)
         .maybeSingle();
 
-      sendEmail({
+      const emailResult = await sendEmail({
         to: user.email,
         ...templates.subscriptionConfirmation({
           plan: "PRO",
@@ -104,13 +104,12 @@ export async function POST(request: Request) {
           periodEnd: periodEnd.toISOString(),
           userName: profile?.full_name ?? undefined,
         }),
-      }).then((result) => {
-        if (!result.ok) {
-          console.error("[Razorpay] Subscription confirmation email failed:", result.error);
-        } else {
-          console.log("[Razorpay] Subscription confirmation email sent to:", user.email);
-        }
       });
+      if (!emailResult.ok) {
+        console.error("[Razorpay] Subscription confirmation email failed:", emailResult.error);
+      } else {
+        console.log("[Razorpay] Subscription confirmation email sent to:", user.email);
+      }
     }
 
     return NextResponse.json({ success: true });
