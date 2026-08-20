@@ -458,7 +458,7 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 |---|---|
 | **GSTIN** | Registered — Maharashtra (MH). GSTIN number to be recorded by Shubham in entity records. |
 | **GST State** | Maharashtra (MH) — CGST (9%) + SGST (9%) for intra-state; IGST (18%) for inter-state |
-| **SAC Code** | 998314 — pending CA written confirmation (HANDOFFS.md ID 34) |
+| **SAC Code** | 998314 — ✅ CA confirmed 2026-08-18 (HANDOFFS.md ID 34 — Done) |
 | **Business Current Account** | Open in entity name: KUTUMBKOSH FINTECH PRIVATE LIMITED |
 | **Razorpay KYC** | Fully unblocked — Shubham to complete |
 
@@ -468,6 +468,60 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 - Finance: CGST/SGST split applies for Maharashtra customers; IGST for all others. Engineering must set KUTUMBKOSH_GST_STATE=MH in Vercel (HANDOFFS.md ID 58). Without this env var, Maharashtra customers receive incorrect IGST invoice — compliance error from first live payment.
 - Shubham (direct action): Complete Razorpay KYC + live mode activation, link business current account for settlements. See HANDOFFS.md ID 9, item 5 — now fully unblocked.
 - Finance/CA: Engage CA now that GST state is confirmed. First GSTR-1/GSTR-3B filing becomes due once first live payment is received. See HANDOFFS.md ID 9, item 6.
+
+---
+
+### 2026-08-18 | Sales & Marketing
+**Decision:** Design audit completed. Critical logo inconsistency identified across app icon assets. HANDOFFS.md ID 65 raised.
+
+**Finding:** `public/og-image.png` (the social/WhatsApp share card) correctly uses a shield + lock mark as the brand logo. All app icon files (`icon-512.png`, `icon-192.png`, `apple-touch-icon.png`, `icon.png`, `favicon.ico`) use a plain "KK" text mark on blue — a completely different visual identity. This creates brand confusion for users who encounter the product via WhatsApp previews and then look for the app on their homescreen.
+
+**Decision locked:** The shield + lock mark from `public/og-image.png` is the canonical brand mark. All icon files must use it. "KK" text mark is deprecated for all icon assets.
+
+**Approved design spec (for all new icons):**
+- Background: `#2563EB` (brand primary blue), rounded corners
+- Mark: white shield + lock keyhole from `og-image.png`
+- At ≤32px (favicon): simplified solid shield silhouette only — no interior detail
+- At 32–512px: full shield + lock mark
+
+**Impact:** Shubham (design/commission new icon files per HANDOFFS.md ID 65 spec); Engineering (replace 5 files in `public/` once Shubham provides assets — see HANDOFFS.md ID 65); `public/og-image.png` is correct and must NOT be changed.
+
+---
+
+### 2026-08-18 | Finance — Founder Decision
+**Decision:** SAC code 998314 confirmed with CA. Production launched. Razorpay live mode active. CA engaged for GST filings.
+
+| Item | Status | Detail |
+|---|---|---|
+| **SAC code 998314** | Confirmed | CA has confirmed 998314 (Information Technology Services — SaaS) is correct for KutumbKosh's Pro subscription digital vault annual/monthly SaaS product. HANDOFFS.md ID 34 closed. |
+| **Razorpay KYC + live mode** | Done | KYC complete, live mode activated, business current account linked for settlements. Razorpay live keys active. HANDOFFS.md ID 9 item 5 closed. |
+| **CA engagement** | Done | CA engaged; handles GSTR-1, GSTR-3B, advance tax, and annual ITR filing. HANDOFFS.md ID 9 item 6 closed. |
+| **Production deploy** | Done | Vercel production deployed. Production Supabase environment set up. All DB migrations run (20260502, admin-views.sql, 20260504, 20260505, 20260511). KUTUMBKOSH_GST_STATE=MH set in Vercel. |
+| **Privacy Policy + ToS** | Published | /privacy and /terms live in production. External legal review (HANDOFFS.md ID 46) remains open for V2/V3 emergency access clearance — V2/V3 kept disabled in production. |
+
+**Rationale:** Soft launch to close group. All hard production blockers resolved. V2/V3 emergency access remains behind feature flag pending external legal review. Payments infrastructure live (Razorpay KYC done) but Razorpay monthly subscription plan (HANDOFFS.md ID 55) and full webhook infrastructure (ID 11) still pending before accepting payments at scale.
+
+**Impact:**
+- Finance/CA: First GSTR-1/GSTR-3B filing due after first live payment received. CA has context.
+- Engineering: Create Razorpay monthly subscription plan in merchant dashboard and set `RAZORPAY_MONTHLY_PLAN_ID` in Vercel (remaining item in HANDOFFS.md ID 55). Full webhook infra (ID 11) still open.
+- Operations: Sub-processor DPA review (ID 63) and Cloudflare/Vercel ownership transfer (ID 64) remain open.
+
+---
+
+### 2026-08-20 | Operations — Sub-processor DPA Review (ID 63)
+**Decision:** Reviewed DPA availability for all three sub-processors. Formal DPA signing not possible on current free/Hobby plans. Documented gap with plan to formalize at first commercial milestone. HANDOFFS.md ID 63 closed.
+
+| Sub-processor | Plan | DPA Status | Action Taken |
+|---|---|---|---|
+| **Supabase** | Free tier | DPA available to paid plans only | Reviewed ToS and Privacy Policy. Data region: ap-south-1 (Mumbai) — to be confirmed in Supabase Dashboard → Project Settings → General. Formal DPA to be signed upon upgrade to Pro at first revenue milestone. |
+| **Vercel** | Hobby (free) | DPA restricted to Pro/Enterprise plans | Reviewed ToS and Privacy Policy. Standard terms prohibit data sale and provide breach notification. Formal DPA to be incorporated upon upgrade to Pro. |
+| **Razorpay** | Standard merchant | Merchant agreement is the data processing contract | RBI-regulated, PCI DSS Level 1 certified Indian payment gateway. Merchant agreement constitutes the data processing agreement. No further DPA required. |
+
+**Rationale:** DPDPA 2023's Data Protection Board is not yet constituted; enforcement mechanisms not yet operational. For soft-launch to a closed group, existing ToS/Privacy Policies provide adequate baseline protections. Formal DPAs will be executed when upgrading to paid plans at first sustained revenue.
+
+**Committed action:** On Supabase Pro upgrade → sign DPA at supabase.com/legal/dpa. On Vercel Pro upgrade → DPA auto-incorporates; email privacy@vercel.com to subscribe to subprocessor change notifications.
+
+**Impact:** ID 63 closed. No engineering changes required.
 
 ---
 

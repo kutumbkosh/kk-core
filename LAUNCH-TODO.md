@@ -3,8 +3,8 @@
 ## Legal & Compliance
 - [ ] Verify DPDPA 2023 compliance — consult a legal advisor, draft a formal privacy policy, set up consent mechanisms, and data deletion flows.
   - [x] Landing page copy softened — "DPDPA Compliant" replaced in coming-soon/index.html and security/page.tsx per DECISIONS.md
-- [ ] Draft and publish Privacy Policy page
-- [ ] Draft and publish Terms of Service page — IN PROGRESS: Finance has drafted Payment, Subscription & Refund section (docs/FINANCE-TOS-PAYMENT-DRAFT.docx). Operations to coordinate external legal review before publish. Full ToS still needs drafting (Operations scope).
+- [x] Draft and publish Privacy Policy page — Done 2026-08-18. Published at /privacy in production. DPDPA-aligned draft v1 (docs/operations/PRIVACY-POLICY-DRAFT-v1.docx) published. External legal review (ID 46) still open for future V2/V3 clearance.
+- [x] Draft and publish Terms of Service page — Done 2026-08-18. Published at /terms in production. Full integrated ToS (docs/operations/TERMS-OF-SERVICE-DRAFT-v1.docx, 24 sections) published. External legal review (ID 46) still open.
 - [ ] Add cookie consent banner (if applicable)
 
 ## Landing Page
@@ -26,16 +26,17 @@
 - [ ] Mobile responsiveness check across devices
 
 ## Infrastructure
-- [ ] Vercel production deployment (currently staging only)
-- [ ] Set up production Supabase environment (separate from staging)
-- [ ] Configure production environment variables on Vercel
-- [ ] Run DB migration in production Supabase SQL Editor: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql (mandatory fields + Kutumb ID columns + generate_kutumb_id function + updated handle_new_user trigger). BLOCKED until production Supabase environment is set up.
+- [x] Vercel production deployment — Done 2026-08-18. Confirmed by Shubham.
+- [x] Set up production Supabase environment (separate from staging) — Done 2026-08-18. Confirmed by Shubham.
+- [x] Configure production environment variables on Vercel — Done 2026-08-18. Confirmed by Shubham (Supabase URL/keys, RESEND_API_KEY, KUTUMBKOSH_GST_STATE=MH, NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=false, and others set).
+- [x] Run DB migration in production Supabase SQL Editor: supabase/migrations/20260502_mandatory_fields_and_kutumb_id.sql — Done 2026-08-18. Confirmed by Shubham.
 - [x] Run DB migration in staging + production Supabase SQL Editor: supabase/migrations/20260504_relation_other.sql (adds relation_other TEXT column to nominees and trusted_contacts — required for "Other" relationship bug fix shipped 2026-05-04). Done 2026-05-05 — Shubham confirmed.
 - [x] Run DB migration in staging + production Supabase SQL Editor: supabase/migrations/20260505_trusted_contacts_soft_delete.sql (adds deleted_at TIMESTAMPTZ column + RLS UPDATE policy + partial index to trusted_contacts — required for soft delete on Emergency Access page, shipped 2026-05-05). Done 2026-05-05 — Shubham confirmed.
 - [x] Set up error monitoring (Sentry or similar) — Done 2026-05-01. sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts, src/instrumentation.ts created. next.config.mjs wrapped with withSentryConfig (tunnelRoute /monitoring, hideSourceMaps, disableLogger). @sentry/nextjs added to package.json. PENDING: Shubham to run npm install, create Sentry account, set NEXT_PUBLIC_SENTRY_DSN + SENTRY_AUTH_TOKEN in Vercel.
 - [x] Set up analytics (Cloudflare Web Analytics) — Done 2026-05-01. src/components/CloudflareAnalytics.tsx created (production-only, cookieless, free). layout.tsx updated. CSP updated: static.cloudflareinsights.com in script-src, cloudflareinsights.com in connect-src. PENDING: Shubham to go to Cloudflare Dashboard → Web Analytics → Add kutumbkosh.com → set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel production.
 
 ## Branding & Marketing
+- [ ] Fix app icon inconsistency — HANDOFFS.md ID 65. All icon files (icon-512.png, icon-192.png, apple-touch-icon.png, icon.png, favicon.ico) currently show "KK" text mark; must be replaced with the shield + lock mark from og-image.png before launch. Shubham to design/commission → Engineering to replace files in public/.
 - [ ] Finalize social media profiles — set up @KutumbKosh (or best available handle) on Instagram, LinkedIn, and Twitter/X before launch day
 - [x] og-image.png created — Done 2026-05-01. public/og-image.png (1200×630px, 51KB) confirmed present in repo. Shubham to commit, deploy, and validate preview at https://www.opengraph.xyz or via WhatsApp before marking launch complete.
 - [x] Pricing copy locked — Done 2026-05-07. Sales & Marketing spec at docs/marketing/pricing-copy-lock.md. Three violations found in src/app/dashboard/pricing/page.tsx (line 126: "or ₹79/month"; missing "Inclusive of GST" label; line 237 monthly billing FAQ). Engineering fixed all three (HANDOFFS.md ID 41 Done 2026-05-12).
@@ -57,19 +58,20 @@
 - [x] Open a business current account in entity name — Done 2026-07-24. Confirmed by Shubham.
 - [x] Register for GSTIN at https://www.gst.gov.in — Done 2026-07-24. Confirmed by Shubham. GST state = Maharashtra (MH). Engineering to set KUTUMBKOSH_GST_STATE env var (HANDOFFS.md ID 58).
 - [x] Confirm pricing decision in writing: ₹499/year GST-inclusive — locked in DECISIONS.md 2026-05-07. pricing/page.tsx violations fixed 2026-05-12 (HANDOFFS.md ID #41).
-- [ ] Complete Razorpay KYC + live mode activation; link business current account for settlements
-- [ ] Engage a CA for GSTR-1, GSTR-3B, advance tax, and annual ITR filing
+- [x] Complete Razorpay KYC + live mode activation; link business current account for settlements — Done 2026-08-18. Confirmed by Shubham. Razorpay live keys active.
+- [x] Engage a CA for GSTR-1, GSTR-3B, advance tax, and annual ITR filing — Done 2026-08-18. CA engaged; CA handles GST filings.
 
 ## Legal & Compliance (Additional Items)
-- [ ] Draft full Privacy Policy (data collected, purpose, storage, retention, user rights, grievance, DPDPA alignment) — publish at /privacy before first production user
-- [ ] Draft full Terms of Service non-payment sections — Finance drafted Payment/Subscription/Refund section; Operations to draft remainder and coordinate external legal review before publish
+- [x] Draft full Privacy Policy — Done 2026-08-18. Published at /privacy. See Legal & Compliance section above.
+- [x] Draft full Terms of Service non-payment sections — Done 2026-08-18. Published at /terms. See Legal & Compliance section above.
 - [ ] Determine if cookie consent banner is legally required for current stack; if yes, raise Engineering handoff to implement
 - [x] Confirm /grievance page exists at /grievance and is linked from /privacy footer (per DECISIONS.md 2026-04-28) — Verified 2026-05-12. src/app/grievance/page.tsx exists; footer links confirmed present.
 - [ ] Operations: obtain formal DPDPA S.16 clearance for Sentry before setting NEXT_PUBLIC_SENTRY_DSN in Vercel production
 
 ## Infrastructure (Pending Shubham Actions)
 - [x] Run `npm install` in vault/ — Done. package-lock.json confirmed: 87 @sentry/nextjs entries + 3 web-vitals entries present (verified 2026-05-12).
-- [ ] Configure Resend transactional email — set RESEND_API_KEY in Vercel production for branded magic link, subscription, and renewal emails
+- [x] Set RESEND_API_KEY in Vercel production — Done 2026-08-18. Confirmed by Shubham (set as part of production env vars).
+- [x] Configure Supabase magic-link SMTP to use Resend — Done 2026-08-20. Shubham confirmed Supabase SMTP configured with Resend credentials (smtp.resend.com, port 465, user: resend).
 - [ ] Set NEXT_PUBLIC_SENTRY_DSN + SENTRY_AUTH_TOKEN in Vercel after Sentry account created and Operations DPDPA S.16 clearance received
 - [ ] Set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel production after Cloudflare Web Analytics beacon token obtained
 
