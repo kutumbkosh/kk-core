@@ -7,6 +7,18 @@ const nextConfig = {
     // Required for Sentry's server-side instrumentation in Next.js 14.
     instrumentationHook: true,
   },
+  async redirects() {
+    return [
+      // Canonical domain: redirect www → non-www (permanent)
+      // Both www and non-www point to Vercel via Cloudflare DNS — handle here.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.kutumbkosh.com" }],
+        destination: "https://kutumbkosh.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
