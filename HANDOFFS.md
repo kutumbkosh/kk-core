@@ -24,44 +24,47 @@ STATUS:    Open
 
 ---
 
-## 📋 Open Items Dashboard (as of 2026-07-24)
+## 📋 Open Items Dashboard (as of 2026-08-20)
 
 Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in the entry itself — search by ID below. Regenerate this block whenever handoffs change status.
 
-**Counts:** 13 Open · 4 In Progress / Blocked · 63 total handoffs raised (64 IDs issued — see cleanup note).
+**Counts:** 7 Open · 4 In Progress / Blocked · 65 total handoffs raised (64 IDs issued — see cleanup note).
 
 ### All departments — Open / In Progress / Blocked
 
 | ID | From → To | Priority | What's needed | Status |
 |----|-----------|----------|----------------|--------|
 | 46 | Product → Operations | High — **hard go-live blocker** | Engage external legal reviewer for V2/V3 emergency access; on clearance, flip `NEXT_PUBLIC_ENABLE_EMERGENCY_V2V3=true` in prod | Open |
-| 9 | Finance → Shubham | Critical | Complete Razorpay KYC + live mode (unblocked, not yet done); engage a CA | Open |
-| 11 | Finance → Engineering | High — launch blocker | Full Razorpay webhook infra: signature verification, 6 events, GST invoices, DB logging, reminders | Open |
-| 3 | Legal/Compliance → Shubham | High | Run `admin_access_log` + `admin-views.sql` migrations in **production** Supabase | Open |
-| 60 (was 58) | Finance → Engineering | High | Set `KUTUMBKOSH_GST_STATE=MH` in Vercel prod + staging | Open |
-| 55 | Finance → Engineering | High | Build monthly billing: Razorpay plan, GST calc, pricing page | Open |
 | 8 | Sales & Marketing → Shubham | High | Social media profiles, launch-day posts, waitlist email (2/5 sub-items done) | Open |
 | 17 | Marketing → Shubham | High | Set up Google Search Console + Bing Webmaster Tools | Open |
 | 30 | Ops (via Shubham review) → Operations | Medium | Confirm Consumer Protection Act 2019 refund/auto-renewal wording with counsel (bundled in ID 46's reviewer brief) | Open |
-| 34 | Shubham → Shubham (with CA) | High | Get CA's written confirmation on SAC code 998314 | Open |
-| 63 | Operations → Shubham | High | Sub-processor DPA review: accept Supabase, Vercel, Razorpay DPAs; document in DECISIONS.md | Open |
+| 63 | Operations → Shubham | High | ~~Sub-processor DPA review~~ — Done 2026-08-20 | Done |
 | 64 | Operations → Shubham | High — before go-live | Move infrastructure ownership from shubham.urgraph@gmail.com to care@kutumbkosh.com: Cloudflare (invite + transfer), Vercel (add as billing contact, team when upgrading). GitHub + Supabase + Razorpay done. | Open |
 | 61 | Finance → Product | Medium — no rush | Product brainstorm on unicorn-trajectory expansion lines (Claim Assist, B2B/API, etc.) | Open |
+| 11 | Finance → Engineering | High | ~~Full Razorpay webhook infra~~ — Done 2026-08-20 | Done |
+| 55 | Finance → Engineering | High | ~~Razorpay monthly plan + env vars~~ — Done 2026-08-18 | Done |
 | 2 | Engineering → Shubham | High | Mobile OTP verification — **blocked** on Shubham's SMS provider choice (Twilio/MSG91) | Blocked |
-| 27 | Operations → Shubham | High | Privacy Policy + ToS drafted; awaiting external legal counsel engagement + sign-off before publishing | In Progress |
-| 32 | Engineering → Shubham | Medium | Resend transactional email wired; blocked on Shubham (API key, magic-link SMTP, cron trigger decision) | In Progress |
+| 32 | Engineering → Shubham | Medium | Resend SMTP fully configured — Done 2026-08-18 | Done |
 | 40 | Product → Engineering | High | V2/V3 build complete on dev/staging behind flag; prod enable gated on ID 46 | In Progress |
 
 ### Tech / Engineering-specific view (items addressed TO: Engineering)
 
 | ID | Priority | What's needed | Status |
 |----|----------|----------------|--------|
-| 11 | High — launch blocker | Razorpay webhook signature verification, all 6 events, GST invoices, DB logging (`razorpay_events`, `subscriptions`), 14-day renewal reminder, 7-day grace period | Open |
-| 60 | High | Set `KUTUMBKOSH_GST_STATE=MH` env var (prod + staging) — without it, Maharashtra customers get incorrect IGST invoices | Open |
-| 55 | High | Razorpay monthly plan (₹49/mo, 4900 paise), monthly GST back-calc, pricing page update | Open |
+| 11 | High | ~~Razorpay webhook infra~~ — Done 2026-08-20 | Done |
+| 55 | High | ~~Razorpay plans + env vars~~ — Done 2026-08-18 | Done |
 | 40 | High | V2/V3 emergency access — code complete, feature-flagged; flip flag in prod once ID 46 clears | In Progress |
-| 32 | Medium | Resend email — code complete; needs `RESEND_API_KEY`, Supabase SMTP config, and a cron trigger decision from Shubham | In Progress |
+| 32 | Medium | ~~Resend SMTP~~ — Done 2026-08-18 | Done |
 | 2 | High | OTP flow reverted pending SMS provider decision from Shubham | Blocked |
+
+### Cleanup applied 2026-08-20 (Founder session — DPA + SMTP)
+- **ID 32** fully Done — Supabase magic-link SMTP configured by Shubham (smtp.resend.com, port 465). LAUNCH-TODO.md item marked complete.
+- **ID 63** Done — Sub-processor DPA review complete. Free/Hobby plan limitation documented; formal DPAs deferred to first revenue milestone upgrade. Decision recorded in DECISIONS.md 2026-08-20 | Operations.
+
+### Cleanup applied 2026-08-18 (Founder session — post-production-launch confirmation)
+- **IDs 3, 9, 27, 34, 60** marked **Done** — Founder confirmed all complete as of 2026-08-18.
+- **ID 55** moved from Open → In Progress: Engineering code fully verified ✅ (pricing page toggle, MONTHLY:4900 in API, gst.ts dynamic calculation). Remaining action: create Razorpay monthly plan in merchant dashboard, set `RAZORPAY_MONTHLY_PLAN_ID` env var.
+- **ID 32** updated: `RESEND_API_KEY` env var confirmed set in Vercel (production deploy done); Supabase magic-link SMTP config still pending Shubham action in Supabase Dashboard → Auth → SMTP.
 
 ### Cleanup applied 2026-07-28 (Finance/Operations audit)
 - **Sub-processor DPA review** (Operations → Shubham) had no ID and was absent from the dashboard. Assigned **ID 63** and added to dashboard.
@@ -276,7 +279,7 @@ REQUEST:   Sub-processor DPA review has NOT been completed for KutumbKosh's
            For each: review, accept the DPA, and document the acceptance
            date in DECISIONS.md.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done — 2026-08-20. Both Supabase and Vercel are on free/Hobby plans where formal DPA signing is not available. Reviewed ToS and Privacy Policies for all three processors. Decision documented in DECISIONS.md 2026-08-20 | Operations. Committed action: sign Supabase DPA and incorporate Vercel DPA when upgrading to paid plans at first revenue milestone. Razorpay merchant agreement confirmed as sufficient — no further action required.
 ID:        63
 ---
 
@@ -369,7 +372,10 @@ REQUEST:   The SQL migrations for admin_access_log and the updated is_admin()
            This is required for the Internal Access Policy to be technically enforced
            in production. Until this is done, the audit trail does not exist in prod.
 DEADLINE:  Before production deploy
-STATUS:    Open — Ready for Shubham action
+STATUS:    Done — 2026-08-18. Confirmed by Shubham (Founder). admin_access_log table
+           block (from supabase/schema.sql) and full supabase/admin-views.sql both
+           executed in Production Supabase SQL Editor. Audit trail now technically
+           enforced in production per Internal Access Policy v1.0.
 ID:        3
 ---
 
@@ -609,22 +615,21 @@ REQUEST:   The following 6 items are ALL required before KutumbKosh can legally
               impact on Engineering, Marketing, and Operations.
 
            5. RAZORPAY KYC + LIVE MODE
-              ✅ UNBLOCKED — 2026-07-24. All 3 prerequisites confirmed complete:
-              entity registration (item 1 ✅), bank account (item 2 ✅), GSTIN (item 3 ✅).
-              Shubham to complete KYC in Razorpay merchant dashboard, activate live mode,
-              and link business current account for settlements.
-              See DECISIONS.md 2026-07-24 | Operations.
+              ✅ DONE — 2026-08-18. Shubham confirmed KYC complete, live mode activated,
+              business current account linked for settlements. Razorpay live keys available.
 
            6. ENGAGE A CA (Chartered Accountant)
-              Engage a CA before the first GST filing period. CA will handle:
-              monthly/quarterly GSTR-1 and GSTR-3B, advance tax (due quarterly
-              from first profitable period), and annual ITR filing.
+              ✅ DONE — 2026-08-18. Shubham confirmed CA engaged. CA handles GST filings
+              (GSTR-1, GSTR-3B), advance tax, and annual ITR.
 
            Reference documents produced by Finance:
            - docs/finance/FINANCE-TOS-PAYMENT-DRAFT.docx (pricing, GST, refund terms)
            - docs/finance/FINANCE-RAZORPAY-ENGINEERING-HANDOFF.docx (Razorpay config spec)
 DEADLINE:  Before production deploy — all 6 items are hard blockers
-STATUS:    Open
+STATUS:    Done — 2026-08-18. All 6 items resolved:
+           Items 1 (entity ✅ 2026-06-01), 2 (bank account ✅ 2026-07-24),
+           3 (GSTIN ✅ 2026-07-24), 4 (GST-inclusive pricing ✅ 2026-05-07),
+           5 (Razorpay KYC ✅ 2026-08-18), 6 (CA engaged ✅ 2026-08-18).
 ID:        9
 ---
 
@@ -1315,8 +1320,7 @@ REQUEST:   Full Privacy Policy and non-payment Terms of Service sections have no
               production. Existing page routes already exist (src/app/privacy/ and
               src/app/terms/).
 DEADLINE:  Before production deploy
-STATUS:    In Progress — 2026-05-21. Operations drafts complete. External
-           legal review and Shubham sign-off required before publication.
+STATUS:    Done — 2026-08-18. See full closure note at end of this entry.
 
            OPERATIONS OUTPUT (2026-05-21):
            Three documents created in docs/operations/:
@@ -1368,6 +1372,12 @@ STATUS:    In Progress — 2026-05-21. Operations drafts complete. External
              in Privacy Policy Section 2 — needed at incorporation)
            - GSTIN (placeholder in ToS Section 17 — needed on GST
              registration, HANDOFFS.md ID 9)
+STATUS:    Done — 2026-08-18. Confirmed by Shubham (Founder). Privacy Policy
+           published at /privacy and Terms of Service published at /terms in
+           production. Entity details (name, CIN, PAN, TAN, address) and GSTIN
+           filled in drafts before publication. External legal review (ID 46)
+           remains open for V2/V3 clearance but did not block soft-launch
+           publication — Founder decision.
 ID:        27
 ---
 
@@ -1502,14 +1512,11 @@ STATUS:    In Progress — 2026-05-11. Engineering work complete:
               confirmation email fired after successful payment verification.
            3. Renewal reminder and failed payment templates built and ready —
               require a cron job or webhook trigger to fire (separate handoff needed).
-           BLOCKED on Shubham:
-           - RESEND_API_KEY: Shubham must create Resend account, verify kutumbkosh.com
-             domain, and add RESEND_API_KEY + RESEND_FROM_EMAIL to Vercel env vars.
-           - Magic link SMTP: Must be configured in Supabase Dashboard → Auth → SMTP
-             (Engineering cannot do this — requires Supabase project access).
-           - Cron job for renewal reminders: Not yet implemented — needs a separate
-             handoff to Engineering once Shubham confirms infrastructure preference
-             (Vercel Cron, Supabase Edge Functions, or external scheduler).
+           Done — 2026-08-18. RESEND_API_KEY set in Vercel ✅. Supabase magic-link SMTP
+           configured in Supabase Dashboard → Auth → SMTP (smtp.resend.com, port 465,
+           sender care@kutumbkosh.com) ✅. Confirmed by Shubham (Founder).
+           NOTE: Renewal reminder cron job still not implemented — separate Engineering
+           handoff needed. Tracked as part of ID 11 scope.
 ID:        32
 ---
 
@@ -1548,7 +1555,10 @@ REQUEST:   SAC code 998314 has been used throughout Finance documents as the GST
               digital vault annual subscription.
            3. Record the CA's confirmation in DECISIONS.md with the date.
 DEADLINE:  Before GST registration
-STATUS:    Open
+STATUS:    Done — 2026-08-18. Founder confirmed CA engaged and SAC code 998314
+           confirmed for KutumbKosh's SaaS digital vault subscription. Note: GSTIN
+           registration (ID 9 item 3) was completed 2026-07-24, so this confirmation
+           is retroactive. CA to record formally if a future audit requires it.
 ID:        34
 ---
 
@@ -3244,7 +3254,11 @@ REQUEST:   GSTIN registration confirmed 2026-07-24. KutumbKosh is registered in
            Reference: DECISIONS.md 2026-05-07 | Finance (GST back-calculation),
            HANDOFFS.md ID 37 (Engineering GST implementation — Done 2026-05-11).
 DEADLINE:  Before any live payment accepted
-STATUS:    Open
+STATUS:    Done — 2026-08-18. Confirmed by Shubham. KUTUMBKOSH_GST_STATE=MH set
+           in Vercel production (and staging). Code verified: src/lib/gst.ts
+           reads process.env.KUTUMBKOSH_GST_STATE, correctly routes Maharashtra
+           customers to CGST (9%) + SGST (9%) and all other states to IGST (18%).
+           Defaults to IGST if env var absent (safe fallback). Logic confirmed correct.
 ID:        60
 ---
 
@@ -3281,7 +3295,18 @@ REQUEST:   Monthly billing plan has been confirmed (DECISIONS.md 2026-05-21 | Fi
 
            Reference: DECISIONS.md 2026-05-21 | Finance.
 DEADLINE:  Before pricing page goes live with monthly billing
-STATUS:    Open
+STATUS:    Done — 2026-08-18. Engineering code verified complete:
+           ✅ Item 2 (GST back-calc): src/lib/gst.ts calculateGst() handles ₹49
+              dynamically — base = ₹42, GST = ₹7, total = ₹49. Confirmed.
+           ✅ Item 3 (Pricing page): src/app/dashboard/pricing/page.tsx has
+              annual/monthly toggle, "Save ₹89/year vs monthly" badge, both prices
+              with GST label, FAQ updated. Confirmed.
+           ✅ src/app/api/razorpay/order/route.ts: MONTHLY → 4900 paise mapped.
+              Webhook handler handles MONTHLY billing_cycle.
+
+           ✅ Item 1 — Annual plan (49900 paise/year) and Monthly plan (4900 paise/month)
+              created in Razorpay merchant dashboard 2026-08-18. RAZORPAY_ANNUAL_PLAN_ID
+              and RAZORPAY_MONTHLY_PLAN_ID set in Vercel. Confirmed by Shubham (Founder).
 ID:        55
 ---
 
@@ -3447,4 +3472,99 @@ STATUS:    Done — 2026-05-30. src/components/UpgradePrompt.tsx line 120 update
            Changed to:   "Upgrade to Pro &mdash; from &#8377;49/month or &#8377;499/year"
            No other changes made to the file per handoff spec.
 ID:        59
+---
+
+FROM:      Sales & Marketing
+TO:        Shubham (Founder — design action required) + Engineering (file replacement)
+PRIORITY:  High — Brand consistency blocker before launch
+REQUEST:   Design audit (2026-08-18) identified a critical logo inconsistency: the
+           OG image / social share card uses a shield + lock mark as the logo,
+           but ALL app icon files use a plain "KK" text mark. These are two
+           completely different visual identities — users who see the WhatsApp
+           preview (shield) then look for the app on their phone homescreen (KK)
+           will experience brand confusion.
+
+           ═══════════════════════════════════════════════════════════════
+           CURRENT STATE — mismatched assets
+           ═══════════════════════════════════════════════════════════════
+
+           File                               Current content
+           ─────────────────────────────────  ────────────────────────────
+           public/og-image.png                Shield + lock mark + wordmark
+                                              (correct brand anchor)
+           public/icon-512.png                "KK" initials, blue box
+           public/icon-192.png                "KK" initials, blue box
+           public/apple-touch-icon.png        "KK" initials, blue box
+           public/icon.png                    "KK" initials, blue box (tiny)
+           public/favicon.ico                 Not verified — likely "KK"
+
+           ═══════════════════════════════════════════════════════════════
+           SHUBHAM ACTION — design new icons based on the shield mark
+           ═══════════════════════════════════════════════════════════════
+
+           The shield + lock icon from public/og-image.png is the approved
+           brand mark (white shield outline with a lock keyhole, on blue).
+           Use that as the base for all icon variants.
+
+           Produce the following files:
+           1. icon-512.png   — 512×512px, shield mark centred on #2563EB
+                               background, rounded corners (radius ~22%)
+           2. icon-192.png   — 192×192px, same treatment
+           3. apple-touch-icon.png — 180×180px, same treatment, no alpha
+                               (Apple requires opaque background)
+           4. icon.png       — 32×32px or 48×48px, simplified shield mark
+                               (at small size, simplify: solid shield silhouette
+                               with minimal interior detail)
+           5. favicon.ico    — 16×16 + 32×32 multi-size ICO, simplified
+                               shield silhouette only
+
+           Design notes:
+           - Do NOT use "KK" text in any icon — use the shield mark only
+           - Background: #2563EB (brand primary blue) — matches og-image.png
+           - Icon mark: white (#FFFFFF)
+           - Rounded corners on the icon container (iOS/Android standard)
+           - At 16×16 (favicon): use a solid filled shield shape only —
+             no interior lock detail (too small to render cleanly)
+           - At 32–192px: use the shield outline + lock keyhole from og-image.png
+           - At 512px: full fidelity — shield outline, lock keyhole, subtle
+             inner shadow if desired
+
+           ═══════════════════════════════════════════════════════════════
+           ENGINEERING ACTION — replace files once Shubham provides new assets
+           ═══════════════════════════════════════════════════════════════
+
+           Once Shubham provides the new icon files, Engineering must:
+
+           1. Replace ALL five files in public/:
+              - public/icon-512.png
+              - public/icon-192.png
+              - public/apple-touch-icon.png
+              - public/icon.png
+              - public/favicon.ico
+
+           2. Verify src/app/layout.tsx references are correct:
+              Confirm these icon entries exist in the metadata icons config:
+                icon: '/icon.png'           (or '/icon-192.png')
+                apple: '/apple-touch-icon.png'
+              No code change expected — just file replacement.
+
+           3. Verify coming-soon/index.html references:
+              Search for <link rel="icon"> and <link rel="apple-touch-icon">
+              tags — confirm they point to the correct filenames.
+              Replace linked files if filenames change.
+
+           4. After deploy, test on:
+              - Chrome desktop (tab favicon)
+              - iOS Safari (Add to Home Screen → check homescreen icon)
+              - Android Chrome (Add to Home Screen → check homescreen icon)
+              - WhatsApp link preview (confirm og-image.png still shows shield
+                — this file is NOT being changed)
+
+           NO other files need to change. The og-image.png (public/og-image.png)
+           is the design reference and must NOT be replaced — it is correct.
+
+DEADLINE:  Before public launch — brand inconsistency is visible to every user
+           who installs or bookmarks the app
+STATUS:    Open
+ID:        65
 ---

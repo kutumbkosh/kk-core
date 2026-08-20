@@ -244,7 +244,7 @@ async function handlePaymentCaptured(payment: RazorpayPaymentEntity, supabase: S
 
   if (insertError) throw new Error(`Subscription insert failed: ${insertError.message}`);
 
-  // Send GST invoice email (fire-and-forget)
+  // Send GST invoice + confirmation emails — awaited so Vercel doesn't kill them before they fire
   const { data: profile } = await supabase
     .from("profiles")
     .select("email, full_name")
@@ -256,7 +256,7 @@ async function handlePaymentCaptured(payment: RazorpayPaymentEntity, supabase: S
     const gst = calculateGst(amountInr);
     const { data: invoiceNum } = await supabase.rpc("get_next_invoice_number");
 
-    sendEmail({
+    await sendEmail({
       to: userEmail,
       ...templates.invoiceConfirmation({
         invoiceNumber: invoiceNum ?? `KK-${new Date().getFullYear()}-XXXX`,
@@ -271,10 +271,9 @@ async function handlePaymentCaptured(payment: RazorpayPaymentEntity, supabase: S
         paymentId: payment.id,
         periodEnd: periodEnd.toISOString(),
       }),
-    }).catch(() => {});
+    });
 
-    // Also send confirmation email
-    sendEmail({
+    await sendEmail({
       to: userEmail,
       ...templates.subscriptionConfirmation({
         plan: "PRO",
@@ -282,7 +281,7 @@ async function handlePaymentCaptured(payment: RazorpayPaymentEntity, supabase: S
         amount: amountInr,
         periodEnd: periodEnd.toISOString(),
       }),
-    }).catch(() => {});
+    });
   }
 
   console.log(`[Webhook] payment.captured: Pro activated for user ${userId}, payment ${payment.id}`);
@@ -368,7 +367,7 @@ async function handleSubscriptionCharged(
 
   if (error) throw new Error(`subscription.charged update failed: ${error.message}`);
 
-  // Send GST invoice (fire-and-forget)
+  // Send GST invoice — awaited so Vercel doesn't kill it before it fires
   if (amountInr > 0 && payment?.id) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -380,7 +379,7 @@ async function handleSubscriptionCharged(
       const gst = calculateGst(amountInr);
       const { data: invoiceNum } = await supabase.rpc("get_next_invoice_number");
 
-      sendEmail({
+      await sendEmail({
         to: profile.email,
         ...templates.invoiceConfirmation({
           invoiceNumber: invoiceNum ?? `KK-${new Date().getFullYear()}-XXXX`,
@@ -395,7 +394,7 @@ async function handleSubscriptionCharged(
           paymentId: payment.id,
           periodEnd: periodEnd ?? now.toISOString(),
         }),
-      }).catch(() => {});
+      });
     }
   }
 
@@ -460,13 +459,13 @@ async function handlePaymentFailed(payment: RazorpayPaymentEntity, supabase: Ser
 
   const amountInr = Math.round(payment.amount / 100);
   if (profile?.email) {
-    sendEmail({
+    await sendEmail({
       to: profile.email,
       ...templates.failedPayment({
         amount: amountInr,
         orderId: payment.order_id,
       }),
-    }).catch(() => {});
+    });
   }
 
   console.log(`[Webhook] payment.failed: PAST_DUE set for user ${userId}, grace until ${graceEnds.toISOString()}`);
