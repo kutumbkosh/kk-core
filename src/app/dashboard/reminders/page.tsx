@@ -17,22 +17,7 @@ import {
   Clock,
   Calendar,
   FileText,
-  Landmark,
-  PiggyBank,
-  TrendingUp,
-  BarChart3,
-  Building2,
-  Wallet,
-  CreditCard,
-  Lock,
-  Home,
-  HandCoins,
 } from "lucide-react";
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Landmark, PiggyBank, TrendingUp, Shield, BarChart3,
-  Building2, Wallet, HandCoins, CreditCard, Lock, Home,
-};
 
 interface Reminder {
   id: string;

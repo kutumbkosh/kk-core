@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { isAdminEmail } from "@/lib/admin";
+import Link from "next/link";
 import {
   Shield,
   Plus,
@@ -31,6 +32,7 @@ import {
   HelpCircle,
   Copy,
   Check,
+  X,
 } from "lucide-react";
 import type { UserProfile, Asset, Nominee, TrustedContact } from "@/types/database";
 import { ASSET_TYPE_CONFIG } from "@/types/database";
@@ -60,6 +62,7 @@ export default function DashboardPage() {
   const [mappings, setMappings] = useState<Array<{ asset_id: string; nominee_id: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [kkIdCopied, setKkIdCopied] = useState(false);
+  const [dismissedWizardBanner, setDismissedWizardBanner] = useState(false);
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -70,13 +73,18 @@ export default function DashboardPage() {
       return;
     }
 
-    const [profileRes, assetsRes, nomineesRes, contactsRes, mappingsRes] = await Promise.all([
+    const [profileRes, assetsRes, nomineesRes, contactsRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).single(),
       supabase.from("assets").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("nominees").select("*").eq("user_id", user.id),
       supabase.from("trusted_contacts").select("*").eq("user_id", user.id).is("deleted_at", null),
-      supabase.from("asset_nominee_mappings").select("asset_id, nominee_id"),
     ]);
+
+    // Scope mappings to this user's assets only (defence-in-depth beyond RLS)
+    const userAssetIds = (assetsRes.data || []).map((a) => a.id);
+    const mappingsRes = userAssetIds.length > 0
+      ? await supabase.from("asset_nominee_mappings").select("asset_id, nominee_id").in("asset_id", userAssetIds)
+      : { data: [] };
 
     setProfile(profileRes.data);
     setAssets(assetsRes.data || []);
@@ -239,6 +247,34 @@ export default function DashboardPage() {
             </button>
           </div>
         )}
+
+        {/* Vault setup nudge — shown when user skipped wizard and has no assets */}
+        {!dismissedWizardBanner
+          && profile?.onboarding_wizard_status === "skipped"
+          && assets.length === 0
+          && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-amber-800">Your vault is empty</p>
+                <p className="text-xs text-amber-600 mt-0.5">Your family has no record of what you own.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/onboarding/vault-setup"
+                  className="text-xs font-medium text-amber-800 underline whitespace-nowrap"
+                >
+                  Set up now →
+                </Link>
+                <button
+                  onClick={() => setDismissedWizardBanner(true)}
+                  className="text-amber-500 hover:text-amber-700"
+                  aria-label="Dismiss"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">

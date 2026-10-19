@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import {
   ArrowLeft,
@@ -30,7 +30,7 @@ const features = [
   { name: "Priority support", free: false, pro: true, icon: Headphones },
 ];
 
-export default function PricingPage() {
+function PricingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { plan, isPro, loading } = useSubscription();
@@ -295,5 +295,19 @@ export default function PricingPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-gray-200 border-t-vault-accent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <PricingContent />
+    </Suspense>
   );
 }

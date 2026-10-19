@@ -424,7 +424,7 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 
 **Rationale:** Finance recommends Annual as the default at all times (DECISIONS.md 2026-05-21 | Finance). Pre-selecting Annual in the upgrade flow is consistent with that guidance, supports better unit economics, and ensures the savings message ("Save 15% vs monthly") is immediately visible to users arriving from an upgrade prompt. Monthly remains visible and selectable — it is not hidden.
 
-**Impact:** Engineering (add `?plan=annual` query param or equivalent pre-selection logic to the pricing page when navigating from UpgradePrompt — see HANDOFFS.md ID 60).
+**Impact:** Engineering (add `?plan=annual` query param or equivalent pre-selection logic to the pricing page when navigating from UpgradePrompt — see HANDOFFS.md ID 67).
 
 ---
 
@@ -522,6 +522,26 @@ No standalone /faq page at launch. Post-launch, once real support questions arri
 **Committed action:** On Supabase Pro upgrade → sign DPA at supabase.com/legal/dpa. On Vercel Pro upgrade → DPA auto-incorporates; email privacy@vercel.com to subscribe to subprocessor change notifications.
 
 **Impact:** ID 63 closed. No engineering changes required.
+
+---
+
+### 2026-10-19 | Product — Guided Vault Setup Wizard
+**Decision:** Implement a guided multi-step Vault Setup Wizard, inserted between profile setup and the main dashboard for first-time users with zero assets. Full implementation spec at HANDOFFS.md ID 61. Required before public launch.
+
+Six design choices locked in this decision:
+
+1. **Wizard is skippable at the welcome screen.** A "Skip for now" link is visible at Screen 0. Users who skip are flagged (`onboarding_wizard_status = 'skipped'`) and see a persistent "Complete your vault setup" banner on the dashboard instead.
+2. **Each individual asset step is skippable.** Every per-asset screen has an "Add this later →" link. Skipped steps produce no DB record. Partial completions count — the wizard is not all-or-nothing.
+3. **Wizard is bypassed entirely if the user already has assets.** On mount, the wizard page checks `assets.count`. If > 0, redirect to `/dashboard` without prompting.
+4. **Asset type selection is limited to 7 common types + escape hatch.** Types shown: Bank account, Life insurance, Fixed Deposit, Property, Mutual Funds/Stocks, PPF/NPS, Vehicle. "Something else" routes to the standard Add Asset form and is not handled inline.
+5. **Wizard is one-time only.** On completion, `onboarding_wizard_status = 'completed'`. Wizard does not appear again on subsequent logins. Users add further assets via the regular dashboard.
+6. **All wizard strings must be externalized to a constants object** (i18n-ready) to support Hindi translation in future with a config change only, not a code change.
+
+Additionally: The existing "Add Asset" form is simplified — advanced fields (account numbers, amounts, dates) collapsed behind "Add more details →" by default, visible fields are institution name + nominee name/relationship only.
+
+**Rationale:** Pre-launch user testing: 7 of 7 real users (all working professionals, all under 46) dropped off at the first asset-addition screen. Root cause: blank dashboard + multi-field form creates cognitive overload at the critical first-action moment. The wizard removes "where do I start?" friction and delivers an emotional payoff (vault summary on completion) that the current flow lacks entirely.
+
+**Impact:** Engineering (HANDOFFS.md ID 61 — new `/onboarding/vault-setup` route, Supabase migration, form simplification, dashboard banner). LAUNCH-TODO.md updated.
 
 ---
 

@@ -28,7 +28,7 @@ STATUS:    Open
 
 Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in the entry itself — search by ID below. Regenerate this block whenever handoffs change status.
 
-**Counts:** 7 Open · 4 In Progress / Blocked · 65 total handoffs raised (64 IDs issued — see cleanup note).
+**Counts:** 8 Open · 4 In Progress / Blocked · 66 total handoffs raised.
 
 ### All departments — Open / In Progress / Blocked
 
@@ -41,6 +41,7 @@ Snapshot of every non-Done, non-Cancelled item in this file. Full detail is in t
 | 63 | Operations → Shubham | High | ~~Sub-processor DPA review~~ — Done 2026-08-20 | Done |
 | 64 | Operations → Shubham | High — before go-live | Move infrastructure ownership from shubham.urgraph@gmail.com to care@kutumbkosh.com: Cloudflare (invite + transfer), Vercel (add as billing contact, team when upgrading). GitHub + Supabase + Razorpay done. | Open |
 | 61 | Finance → Product | Medium — no rush | Product brainstorm on unicorn-trajectory expansion lines (Claim Assist, B2B/API, etc.) | Open |
+| 66 | Tech → Operations | Medium — before launch | Determine if cookie consent banner is legally required under DPDPA 2023; confirm in DECISIONS.md or raise Engineering handoff with required wording | Open |
 | 11 | Finance → Engineering | High | ~~Full Razorpay webhook infra~~ — Done 2026-08-20 | Done |
 | 55 | Finance → Engineering | High | ~~Razorpay monthly plan + env vars~~ — Done 2026-08-18 | Done |
 | 2 | Engineering → Shubham | High | Mobile OTP verification — **blocked** on Shubham's SMS provider choice (Twilio/MSG91) | Blocked |
@@ -738,7 +739,24 @@ REQUEST:   Full Razorpay go-live configuration is required before any live payme
            Finance go-live clearance will be issued once Engineering confirms
            all Section 3 (webhooks) and Section 7 (testing) items are complete.
 DEADLINE:  Before production deploy
-STATUS:    Open
+STATUS:    Done
+COMPLETED: 2026-08-20
+NOTES:     All items confirmed complete:
+           1. HMAC-SHA256 webhook signature verification via crypto.timingSafeEqual() ✅
+              File: src/app/api/razorpay/webhook/route.ts
+           2. All 6 webhook events handled ✅
+              payment.captured, subscription.activated, subscription.charged,
+              subscription.cancelled, payment.failed, subscription.completed
+           3. GST invoice email on payment.captured + subscription.charged ✅
+              Uses templates.invoiceConfirmation() in src/lib/resend.ts
+           4. DB logging to razorpay_events (with idempotency via 23505 guard) ✅
+              and subscriptions table updates in each handler ✅
+           5. 14-day renewal reminder cron ✅
+              File: src/app/api/cron/renewal-reminder/route.ts
+              Scheduled: vercel.json cron at 0 9 * * *
+           6. 7-day grace period on payment.failed (PAST_DUE + grace_period_ends_at) ✅
+           Prod config: webhook registered in Razorpay dashboard,
+           RAZORPAY_WEBHOOK_SECRET set in Vercel. Committed to main + staging.
 ID:        11
 ---
 
@@ -3567,4 +3585,443 @@ DEADLINE:  Before public launch — brand inconsistency is visible to every user
            who installs or bookmarks the app
 STATUS:    Open
 ID:        65
+---
+
+FROM:      Tech
+TO:        Operations
+PRIORITY:  Medium — needed before launch, but not a day-1 blocker
+REQUEST:   Determine whether a cookie consent banner is legally required for KutumbKosh's
+           current stack under DPDPA 2023 and IT Act rules.
+
+           Current stack context for Operations to assess:
+           - Cloudflare Web Analytics: cookieless, no consent needed per Cloudflare docs
+           - Supabase auth: uses HttpOnly cookies for session management (functional, not tracking)
+           - No third-party ad trackers, no Google Analytics, no Facebook Pixel
+           - Sentry (pending DPDPA S.16 clearance): only active in production after clearance
+
+           If consent banner IS required: Engineering will implement. Raise a handoff back to Tech
+           with exact legal wording required for the banner and which cookies to disclose.
+           If NOT required: confirm in DECISIONS.md so Engineering does not build unnecessarily.
+
+DEADLINE:  Before launch
+STATUS:    Open
+ID:        66
+---
+
+FROM:      Product
+TO:        Engineering
+PRIORITY:  High — Pricing page is live (ID 55 Done); pre-selection must ship before next
+           user cohort is invited to upgrade
+REQUEST:   DECISION: DECISIONS.md 2026-05-30 | Product — Annual plan pre-selected by
+           default when a Free user arrives at the pricing page via an UpgradePrompt CTA.
+
+           BACKGROUND
+           The pricing page (/dashboard/pricing) now shows both Monthly (₹49/month) and
+           Annual (₹499/year) plans (ID 55 Done). Finance and Product have decided Annual
+           must be pre-selected and visually highlighted when a user arrives from an upgrade
+           prompt — Monthly is still visible and selectable, just not the default.
+
+           CHANGE 1 — src/components/UpgradePrompt.tsx
+           The upgrade CTA button / link currently navigates to /dashboard/pricing.
+           Change the navigation target to: /dashboard/pricing?plan=annual
+
+           Implementation note: if UpgradePrompt uses Next.js <Link> or router.push(),
+           append the query param there. If it constructs a URL string, append directly.
+           Confirm there is only one upgrade CTA path in this component — if there are
+           multiple (e.g. one per tier card), update all of them.
+
+           CHANGE 2 — src/app/dashboard/pricing/page.tsx
+           Read the ?plan= query param on mount using Next.js useSearchParams():
+             - plan=annual  → highlight Annual card (pre-selected)
+             - plan=monthly → highlight Monthly card
+             - param absent → default to Annual (Annual is the product default per Finance)
+
+           "Highlighted / pre-selected" visual treatment:
+             - Active plan card: ring-2 ring-blue-600 (or equivalent active state already
+               used in the file — match whatever active styling exists for the selected card)
+             - Inactive plan card: no ring / grey border (existing default)
+           The visual treatment must match whatever toggle/active-state pattern the page
+           already uses so there is no second active-state style in the file.
+
+           CHANGE 3 — useSearchParams() requires Suspense
+           Next.js 14 App Router: any component using useSearchParams() must be wrapped
+           in a <Suspense> boundary or be a Client Component exported from a separate file.
+           If pricing/page.tsx is currently a Server Component, extract the plan-selector
+           logic into a Client Component (e.g. PlanSelector.tsx in the same directory)
+           and wrap it: <Suspense fallback={<PlanSkeleton />}><PlanSelector /></Suspense>
+           This avoids the "useSearchParams() should be wrapped in a suspense boundary"
+           build error.
+
+           SCOPE BOUNDARY
+           No other changes. Do not change plan prices, plan features, copy, or any other
+           part of the pricing page.
+
+           TYPESCRIPT: 0 errors before marking Done.
+           COMMIT NOTE (for Shubham to commit — do not self-commit):
+           feat(pricing): pre-select Annual plan when arriving from upgrade prompt
+           - UpgradePrompt CTA → /dashboard/pricing?plan=annual
+           - Pricing page reads ?plan= via useSearchParams(), defaults to Annual
+           - Ref: HANDOFFS.md ID 67, DECISIONS.md 2026-05-30 | Product
+DEADLINE:  Before next user upgrade cohort is invited
+STATUS:    Open
+ID:        67
+---
+
+FROM:      Product
+TO:        Engineering
+PRIORITY:  High — Required before public launch (7/7 test users dropped off at first
+           asset-addition screen; first-run experience is broken)
+REQUEST:   DECISION: DECISIONS.md 2026-10-19 | Product — Guided Vault Setup Wizard
+           + Add Asset form simplification. Full spec below.
+
+           ════════════════════════════════════════════════════════════
+           OVERVIEW — TWO CHANGES
+           ════════════════════════════════════════════════════════════
+           Change A: New guided wizard route /onboarding/vault-setup
+                     Inserted between profile setup and dashboard for
+                     first-time users with zero assets.
+           Change B: Simplify existing Add Asset form — collapse
+                     advanced fields by default.
+
+           ════════════════════════════════════════════════════════════
+           CHANGE A — GUIDED WIZARD
+           ════════════════════════════════════════════════════════════
+
+           ─── DB MIGRATION ────────────────────────────────────────────
+           File: supabase/migrations/YYYYMMDD_onboarding_wizard_status.sql
+           (use today's date in the filename)
+
+           ALTER TABLE profiles
+             ADD COLUMN IF NOT EXISTS onboarding_wizard_status TEXT
+               DEFAULT 'pending'
+               CHECK (onboarding_wizard_status IN ('pending', 'completed', 'skipped'));
+
+           No RLS change needed — users already have UPDATE access to their
+           own profiles row.
+
+           ─── NEW FILE: src/app/onboarding/vault-setup/page.tsx ───────
+           Route: /onboarding/vault-setup (authenticated, no dashboard sidebar)
+           Layout: Standalone full-page layout matching existing
+                   src/app/onboarding/page.tsx — same clean white background,
+                   centred card, top progress bar. No sidebar, no dashboard nav.
+
+           ON MOUNT — guard logic (run before rendering any wizard UI):
+             1. Fetch: profile.onboarding_wizard_status + count of user's assets
+             2. If onboarding_wizard_status is 'completed' or 'skipped' → redirect('/dashboard')
+             3. If assets.count > 0 → redirect('/dashboard')
+             4. Otherwise → render the wizard
+
+           WIZARD STATE (local React state — no server round-trips until save):
+             type AssetType = 'bank' | 'insurance' | 'fd' | 'property' |
+                              'mf_stocks' | 'ppf_nps' | 'vehicle'
+
+             type AssetDraft = {
+               type: AssetType
+               institution_name: string   // or asset_name for property/vehicle
+               nominee_name: string
+               nominee_relationship: string
+               no_nominee: boolean        // checkbox "I haven't registered a nominee yet"
+               skipped: boolean
+             }
+
+             type WizardState = {
+               step: 'welcome' | 'asset-select' | 'asset-detail' |
+                     'trusted-contact' | 'complete'
+               assetDetailIndex: number          // which asset we are currently editing
+               selectedTypes: AssetType[]
+               assetDrafts: AssetDraft[]
+               trustedContact: {
+                 name: string; phone: string
+                 email: string; relationship: string
+               } | null
+               trustedContactSkipped: boolean
+             }
+
+           Extract ALL user-facing strings to a constants object at the top of
+           the file (i18n readiness — Hindi translation must be a config change,
+           not a code search-and-replace):
+
+             const WIZARD_COPY = {
+               welcome_heading: "Let's set up your vault",
+               welcome_subtext: "Help your family find what matters most if something happens to you.",
+               welcome_time_hint: "Takes about 3 minutes",
+               // ... all other strings
+             } as const
+
+           ─── SCREEN 0 — WELCOME ──────────────────────────────────────
+           Heading:  WIZARD_COPY.welcome_heading
+           Subtext:  WIZARD_COPY.welcome_subtext
+           Hint:     "Takes about 3 minutes"
+           CTA:      [Let's start →]
+           Skip:     "Skip for now"
+
+           On "Skip for now":
+             - PATCH profiles SET onboarding_wizard_status = 'skipped'
+             - redirect('/dashboard')
+
+           ─── SCREEN 1 — ASSET TYPE SELECTION ─────────────────────────
+           Heading: "What does your family have?"
+           Subtext: "Select everything that applies — you can add more later."
+
+           Multi-select tile grid (2 columns mobile / 4 columns desktop):
+             🏦  Bank account
+             🛡️  Life insurance
+             💰  Fixed Deposit
+             🏠  Property
+             📈  Mutual Funds / Stocks
+             🏛️  PPF / NPS
+             🚗  Vehicle
+             ➕  Something else
+
+           Selected tile style: ring-2 ring-blue-600 + blue-50 background
+           (match existing card-select patterns in the app).
+
+           Validation: At least 1 tile must be selected to enable [Continue].
+           Progress bar: Step 1 of (selectedTypes.length + 2)
+
+           Special case — "Something else":
+             - Selected alongside other types: process others through wizard;
+               after Complete screen show prompt to open /dashboard/assets/add.
+             - Selected alone: redirect directly to /dashboard/assets/add.
+               Do NOT build a custom "Something else" inline step.
+
+           Footer: [Continue →]   "Skip for now" link
+
+           ─── SCREENS 2–N — PER-ASSET DETAIL ──────────────────────────
+           One screen per selected asset type, iterated in selection order.
+           Progress bar: "Step [current] of [total]"
+           Heading: "Let's add your [friendly label]"
+
+           Friendly labels:
+             bank → "bank account"
+             insurance → "life insurance policy"
+             fd → "fixed deposit"
+             property → "property"
+             mf_stocks → "mutual funds & stocks"
+             ppf_nps → "PPF / NPS account"
+             vehicle → "vehicle"
+
+           INSTITUTION FIELD — varies by asset type:
+
+             bank account
+               Label: "Which bank?"
+               Type: dropdown
+               Options: SBI, HDFC Bank, ICICI Bank, Axis Bank, PNB,
+                        Bank of Baroda, Kotak Mahindra Bank, Canara Bank,
+                        Union Bank of India, IndusInd Bank, Yes Bank,
+                        IDFC First Bank, "Other (enter below)"
+               If "Other": show text input below dropdown
+
+             Life insurance
+               Label: "Which insurance company?"
+               Type: dropdown
+               Options: LIC, SBI Life, HDFC Life, ICICI Prudential Life,
+                        Max Life, Bajaj Allianz Life, Tata AIA Life,
+                        Kotak Life, "Other (enter below)"
+               If "Other": text input
+
+             Fixed Deposit
+               Label: "Which bank or institution?"
+               Type: dropdown (same as bank + add "Post Office")
+
+             Property
+               Label: "Describe this property briefly"
+               Type: text input
+               Placeholder: "e.g. 2BHK flat in Pune, Agricultural land in Nashik"
+
+             Mutual Funds / Stocks
+               Label: "Which platform or fund house?"
+               Type: dropdown
+               Options: Zerodha, Groww, Upstox, Angel One, HDFC Mutual Fund,
+                        SBI Mutual Fund, ICICI Prudential MF, Axis Mutual Fund,
+                        Mirae Asset, "Other (enter below)"
+               If "Other": text input
+
+             PPF / NPS
+               Label: "Where is your PPF / NPS held?"
+               Type: dropdown
+               Options: Post Office, SBI, HDFC Bank, ICICI Bank, Axis Bank,
+                        PNB, "Other (enter below)"
+               If "Other": text input
+
+             Vehicle
+               Label: "Describe this vehicle briefly"
+               Type: text input
+               Placeholder: "e.g. Maruti Swift 2020, Hero Splendor"
+
+           NOMINEE SECTION (same on every asset screen):
+             Section heading: "Who is the nominee for this [friendly label]?"
+
+             Checkbox: "I haven't registered a nominee yet"
+               If checked → hide name/relationship fields
+               Show note: "You can add a nominee later in the asset details"
+
+             If checkbox NOT checked:
+               Nominee name:         [text, placeholder: "e.g. Priya Sharma"]
+               Nominee relationship: [dropdown: Spouse, Child, Parent, Sibling,
+                                               Grandchild, Friend, Other]
+
+           Footer:
+             Skip link: "Add this later →"
+               Saves AssetDraft with skipped=true. No DB record. Move to next step.
+             CTA: [Continue →]
+               Validates institution field non-empty (if not skipping).
+               Saves draft to WizardState. Move to next step.
+               NO DB write yet — all inserts happen in bulk after the last asset step.
+
+           DATA SAVE POINT — after completing/skipping all asset detail screens,
+           before rendering Trusted Contact screen:
+
+             For each AssetDraft where skipped=false:
+               1. Insert asset using the same Supabase pattern as
+                  src/app/dashboard/assets/add/page.tsx
+                  Fields: asset_type (map wizard AssetType → existing DB enum),
+                          institution_name or asset_name (per type)
+               2. If nominee_name non-empty AND no_nominee is false:
+                  Insert nominee record, link to asset_id
+
+             Use Promise.all() — do not await in a loop.
+             On insert error: log to console, do not block wizard progress.
+             User can correct data via normal asset detail pages after wizard.
+
+           ─── SCREEN N+1 — TRUSTED CONTACT ────────────────────────────
+           Heading: "One last thing"
+           Subtext: "Who should help your family if they need to access this vault?"
+
+           Info card (reuse existing info/helper card pattern in the app):
+             "A trusted contact can see a summary of your vault in an emergency.
+              They cannot claim your assets — only help your family know what exists."
+
+           Fields:
+             Full name         [text, required if not skipping]
+             Mobile number     [text, 10-digit Indian mobile validation]
+             Email             [text, email format validation]
+             Relationship      [dropdown: Spouse, Child, Parent, Sibling, Friend, Other]
+
+           CTA:  [Add trusted contact →]
+             On submit: create trusted_contacts record using same pattern as
+                        src/app/onboarding/emergency-contact/page.tsx
+           Skip: "Skip — I'll add this later"
+             trustedContactSkipped = true, proceed to Complete screen
+
+           ─── SCREEN N+2 — COMPLETE ───────────────────────────────────
+           On reaching this screen:
+             PATCH profiles SET onboarding_wizard_status = 'completed'
+
+           Icon:    green checkmark (lucide-react <Check> in a green circle,
+                    or use any existing success icon from the app)
+           Heading: "Your vault is ready"
+
+           Summary card:
+             ✓ [N] asset[s] added        (count of AssetDrafts where skipped=false)
+             ✓ [M] nominee[s] linked     (count where nominee_name was provided)
+             ✓ Trusted contact: [Name]   OR  "None added — add from your dashboard"
+
+           Line: "If something happened today, your family would know exactly
+                  what you have and who to contact."
+
+           CTA: [Go to my vault →] → redirect('/dashboard')
+
+           ─── EXISTING FILE CHANGES ───────────────────────────────────
+
+           src/app/onboarding/page.tsx — post-save redirect:
+             CURRENT: redirect('/dashboard')
+             NEW:     redirect('/onboarding/vault-setup')
+           The wizard's on-mount guard handles all edge cases automatically.
+
+           src/app/dashboard/page.tsx — add skipped-user banner:
+             Condition: onboarding_wizard_status === 'skipped' AND assets.count === 0
+             Render below existing welcome area:
+               <div className="bg-amber-50 border border-amber-200 rounded-lg
+                               p-4 flex items-center justify-between mb-4">
+                 <div>
+                   <p className="text-sm font-medium text-amber-800">
+                     Your vault is empty
+                   </p>
+                   <p className="text-xs text-amber-600 mt-0.5">
+                     Your family has no record of what you own.
+                   </p>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <Link href="/onboarding/vault-setup"
+                         className="text-xs font-medium text-amber-800 underline whitespace-nowrap">
+                     Set up now →
+                   </Link>
+                   <button onClick={() => setDismissed(true)}
+                           className="text-amber-500 hover:text-amber-700">
+                     <X size={16} />
+                   </button>
+                 </div>
+               </div>
+
+             Dismiss = local useState only. Banner reappears on next page load
+             until wizard is completed or at least one asset exists.
+
+           ════════════════════════════════════════════════════════════
+           CHANGE B — SIMPLIFIED ADD ASSET FORM
+           ════════════════════════════════════════════════════════════
+           File: src/app/dashboard/assets/add/page.tsx
+           (and any shared form component it delegates to)
+
+           ALWAYS VISIBLE:
+             - Asset type (existing)
+             - Institution name / asset name
+             - Nominee name + nominee relationship (these two fields only)
+
+           COLLAPSE BEHIND "Add more details (optional) →":
+             - Account number / policy number
+             - Amount / value
+             - Interest rate / premium amount
+             - Maturity date / policy end date
+             - Any other asset-type-specific numeric or date fields
+             - Additional nominee fields beyond name + relationship (DOB, address, etc.)
+
+           Implementation — controlled accordion (no new dependency):
+             const [showAdvanced, setShowAdvanced] = useState(false)
+
+             <button type="button"
+               onClick={() => setShowAdvanced(v => !v)}
+               className="text-sm text-blue-600 flex items-center gap-1 mt-2">
+               <ChevronDown size={16}
+                 className={showAdvanced
+                   ? 'rotate-180 transition-transform'
+                   : 'transition-transform'} />
+               {showAdvanced ? 'Hide details' : 'Add more details (optional)'}
+             </button>
+             {showAdvanced && (
+               <div className="mt-3 space-y-4">
+                 {/* advanced fields here */}
+               </div>
+             )}
+
+           No fields are removed. Form submit is unchanged. Collapsed fields
+           submit with whatever value they had (empty by default = fine, same
+           as today — these fields were already optional).
+
+           ════════════════════════════════════════════════════════════
+           CONSTRAINTS
+           ════════════════════════════════════════════════════════════
+           - TypeScript: 0 errors before marking Done
+           - Do not self-commit — provide commit note for Shubham
+           - Do not over-engineer — wizard is one new file + edits to 3 existing files
+             + 1 migration
+           - All new UI: mobile-first, same Tailwind conventions as rest of app
+           - No new npm dependencies (lucide-react already installed)
+           - DPDPA: no new data types collected — wizard collects only what existing
+             asset and nominee forms already collect
+
+           COMMIT NOTE (for Shubham to commit):
+           feat(onboarding): guided vault setup wizard + add-asset form simplification
+           - New /onboarding/vault-setup route: multi-step wizard for first-time users
+           - 7 asset types with institution dropdowns + nominee capture per step
+           - Trusted contact step + completion screen with vault summary
+           - Profile onboarding now redirects to wizard instead of dashboard
+           - Dashboard banner for skipped users with zero assets
+           - Add Asset form: advanced fields collapsed behind "Add more details"
+           - Supabase migration: onboarding_wizard_status column on profiles table
+           - i18n-ready: all wizard strings in WIZARD_COPY constants object
+           - Ref: HANDOFFS.md ID 68, DECISIONS.md 2026-10-19 | Product
+DEADLINE:  Before public launch
+STATUS:    Open
+ID:        68
 ---

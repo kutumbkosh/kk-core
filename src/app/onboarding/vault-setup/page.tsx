@@ -201,23 +201,31 @@ export default function VaultSetupWizard() {
 
   // Guard: redirect if wizard already done or user has assets
   const runGuard = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/"); return; }
+    try {
+      const supabase = createClient();
+      const { data: { user }, error: authErr } = await supabase.auth.getUser();
+      console.log("[vault-setup] auth:", user?.id ?? null, authErr);
+      if (!user) { router.push("/"); return; }
 
-    const [profileRes, assetCountRes] = await Promise.all([
-      supabase.from("profiles").select("onboarding_wizard_status").eq("id", user.id).single(),
-      supabase.from("assets").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    ]);
+      const [profileRes, assetCountRes] = await Promise.all([
+        supabase.from("profiles").select("onboarding_wizard_status").eq("id", user.id).single(),
+        supabase.from("assets").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+      ]);
 
-    const status = profileRes.data?.onboarding_wizard_status;
-    const count = assetCountRes.count ?? 0;
+      const status = profileRes.data?.onboarding_wizard_status;
+      const count = assetCountRes.count ?? 0;
+      console.log("[vault-setup] profileErr:", profileRes.error, "status:", status, "assetErr:", assetCountRes.error, "count:", count);
 
-    if (status === "completed" || status === "skipped" || count > 0) {
-      router.push("/dashboard");
-      return;
+      if (status === "completed" || status === "skipped" || count > 0) {
+        console.log("[vault-setup] guard → dashboard (status:", status, "count:", count, ")");
+        router.push("/dashboard");
+        return;
+      }
+      setGuardLoading(false);
+    } catch (e) {
+      console.error("[vault-setup] guard exception:", e);
+      setGuardLoading(false); // show wizard rather than hang
     }
-    setGuardLoading(false);
   }, [router]);
 
   useEffect(() => { runGuard(); }, [runGuard]);

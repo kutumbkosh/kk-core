@@ -51,6 +51,7 @@ export interface UserProfile {
   kutumb_id: string | null;
   pan_number: string | null;
   onboarding_completed: boolean;
+  onboarding_wizard_status: "pending" | "completed" | "skipped" | null;
   created_at: string;
   updated_at: string;
 }

@@ -17,6 +17,7 @@ import { parseFormError } from "@/lib/errors";
 import FieldError from "@/components/FieldError";
 import {
   ArrowLeft,
+  ChevronDown,
   ChevronRight,
   Search,
   Landmark,
@@ -74,6 +75,9 @@ export default function AddAssetPage() {
   const [valueBand, setValueBand] = useState<ValueBand | "">("");
   const [notes, setNotes] = useState("");
   const [metadata, setMetadata] = useState<Record<string, string>>({});
+  const [nomineeName, setNomineeName] = useState("");
+  const [nomineeRelationship, setNomineeRelationship] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveAsDraft, setSaveAsDraft] = useState(false);
   const [savedAssetName, setSavedAssetName] = useState("");
@@ -106,6 +110,9 @@ export default function AddAssetPage() {
     setAccountIdentifier("");
     setValueBand("");
     setNotes("");
+    setNomineeName("");
+    setNomineeRelationship("");
+    setShowAdvanced(false);
   };
 
   const validateField = (field: string, value: string) => {
@@ -200,7 +207,7 @@ export default function AddAssetPage() {
       const trimmedMeta: Record<string, string> = {};
       Object.entries(metadata).forEach(([k, v]) => { if (v.trim()) trimmedMeta[k] = v.trim(); });
 
-      const { error } = await supabase.from("assets").insert({
+      const { data: assetData, error } = await supabase.from("assets").insert({
         user_id: user.id,
         asset_type: selectedType,
         institution_name: institutionName.trim(),
@@ -209,9 +216,28 @@ export default function AddAssetPage() {
         approx_value_band: valueBand || null,
         notes: notes.trim() || null,
         is_draft: draft,
-      });
+      }).select("id").single();
 
       if (error) throw error;
+
+      // Save nominee and link to asset if provided — non-critical, silently ignore errors
+      if (assetData?.id && nomineeName.trim() && nomineeRelationship) {
+        try {
+          const { data: nomineeData } = await supabase.from("nominees").insert({
+            user_id: user.id,
+            full_name: nomineeName.trim(),
+            relation: nomineeRelationship,
+          }).select("id").single();
+          if (nomineeData?.id) {
+            await supabase.from("asset_nominee_mappings").insert({
+              asset_id: assetData.id,
+              nominee_id: nomineeData.id,
+            });
+          }
+        } catch {
+          console.warn("Nominee save failed — asset was saved successfully");
+        }
+      }
 
       setSavedAssetName(institutionName.trim());
       setStep("success");
@@ -427,131 +453,182 @@ export default function AddAssetPage() {
             <FieldError error={touched.institutionName ? errors.institutionName ?? null : null} />
           </div>
 
-          {/* Account Identifier */}
-          <div>
-            <label className="label">
-              {getIdentifierLabel(selectedType!)}
-            </label>
-            <input
-              type="text"
-              value={accountIdentifier}
-              onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 4); setAccountIdentifier(v); if (touched.accountIdentifier) validateField("accountIdentifier", v); }}
-              onBlur={() => handleBlur("accountIdentifier", accountIdentifier)}
-              placeholder="Last 4 digits only"
-              maxLength={4}
-              className={`input-field ${touched.accountIdentifier && errors.accountIdentifier ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
-            />
-            <FieldError error={touched.accountIdentifier ? errors.accountIdentifier ?? null : null} />
-            {!errors.accountIdentifier && <p className="text-xs text-gray-400 mt-1">
-              We only store the last 4 digits for identification — never the full number.
-            </p>}
-          </div>
-
-          {/* Type-specific fields */}
-          {typeFields.length > 0 && (
-            <div className="border-t border-gray-100 pt-6">
-              <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">
-                Details
-              </h3>
-              <div className="space-y-4">
-                {typeFields.map((field) => {
-                  const metaKey = `meta_${field.name}`;
-                  const metaErr = touched[metaKey] ? errors[metaKey] ?? null : null;
-                  const errClass = metaErr ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "";
-                  return (
-                  <div key={field.name}>
-                    <label className="label">
-                      {field.label}
-                      {field.required && <span className="text-red-500 ml-0.5">*</span>}
-                    </label>
-                    {field.type === "select" ? (
-                      <select
-                        value={metadata[field.name] || ""}
-                        onChange={(e) => handleMetadataChange(field.name, e.target.value)}
-                        onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
-                        className={`input-field ${errClass}`}
-                      >
-                        <option value="">Select...</option>
-                        {field.options?.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : field.type === "textarea" ? (
-                      <textarea
-                        value={metadata[field.name] || ""}
-                        onChange={(e) => handleMetadataChange(field.name, e.target.value)}
-                        onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
-                        placeholder={field.placeholder}
-                        rows={3}
-                        maxLength={1000}
-                        className={`input-field resize-none ${errClass}`}
-                      />
-                    ) : (
-                      <input
-                        type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"}
-                        value={metadata[field.name] || ""}
-                        onChange={(e) => handleMetadataChange(field.name, e.target.value)}
-                        onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
-                        placeholder={field.placeholder}
-                        maxLength={field.type === "date" || field.type === "number" ? undefined : 500}
-                        min={field.type === "number" ? "0" : undefined}
-                        step={field.type === "number" ? "any" : undefined}
-                        className={`input-field ${errClass}`}
-                      />
-                    )}
-                    <FieldError error={metaErr} />
-                    {field.helpText && !metaErr && (
-                      <p className="text-xs text-gray-400 mt-1 flex items-start gap-1">
-                        <HelpCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                        {field.helpText}
-                      </p>
-                    )}
-                  </div>
-                  );
-                })}
+          {/* Nominee (always visible — most important for family discovery) */}
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Nominee</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Nominee Name</label>
+                <input
+                  type="text"
+                  value={nomineeName}
+                  onChange={(e) => setNomineeName(e.target.value)}
+                  placeholder="e.g. Priya Sharma"
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="label">Relationship</label>
+                <select
+                  value={nomineeRelationship}
+                  onChange={(e) => setNomineeRelationship(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="">Select relationship</option>
+                  <option value="spouse">Spouse</option>
+                  <option value="child">Child</option>
+                  <option value="parent">Parent</option>
+                  <option value="sibling">Sibling</option>
+                  <option value="grandchild">Grandchild</option>
+                  <option value="friend">Friend</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
             </div>
-          )}
-
-          {/* Value Band */}
-          <div className="border-t border-gray-100 pt-6">
-            <label className="label">Approximate Value</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {VALUE_BAND_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setValueBand(valueBand === opt.value ? "" : opt.value as ValueBand)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
-                    valueBand === opt.value
-                      ? "border-vault-dark bg-blue-50 text-vault-dark"
-                      : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-gray-400 mt-2">
-              We use ranges instead of exact amounts — just a rough idea helps your family understand the scale.
-            </p>
           </div>
 
-          {/* Notes */}
-          <div>
-            <label className="label">Notes (optional)</label>
-            <textarea
-              value={notes}
-              onChange={(e) => { setNotes(e.target.value); if (touched.notes) validateField("notes", e.target.value); }}
-              onBlur={() => handleBlur("notes", notes)}
-              placeholder="Any extra details your family should know about this asset..."
-              rows={3}
-              className={`input-field resize-none ${touched.notes && errors.notes ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
-            />
-            <FieldError error={touched.notes ? errors.notes ?? null : null} />
-            {!errors.notes && <p className="text-xs text-gray-400 mt-1">{notes.length}/1000 characters</p>}
+          {/* Advanced fields accordion */}
+          <div className="border-t border-gray-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="text-sm text-blue-600 flex items-center gap-1"
+            >
+              <ChevronDown
+                size={16}
+                className={showAdvanced ? "rotate-180 transition-transform" : "transition-transform"}
+              />
+              {showAdvanced ? "Hide details" : "Add more details (optional)"}
+            </button>
+
+            {showAdvanced && (
+              <div className="mt-4 space-y-6">
+                {/* Account Identifier */}
+                <div>
+                  <label className="label">
+                    {getIdentifierLabel(selectedType!)}
+                  </label>
+                  <input
+                    type="text"
+                    value={accountIdentifier}
+                    onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 4); setAccountIdentifier(v); if (touched.accountIdentifier) validateField("accountIdentifier", v); }}
+                    onBlur={() => handleBlur("accountIdentifier", accountIdentifier)}
+                    placeholder="Last 4 digits only"
+                    maxLength={4}
+                    className={`input-field ${touched.accountIdentifier && errors.accountIdentifier ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                  />
+                  <FieldError error={touched.accountIdentifier ? errors.accountIdentifier ?? null : null} />
+                  {!errors.accountIdentifier && <p className="text-xs text-gray-400 mt-1">
+                    We only store the last 4 digits for identification — never the full number.
+                  </p>}
+                </div>
+
+                {/* Type-specific fields */}
+                {typeFields.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Details</h3>
+                    <div className="space-y-4">
+                      {typeFields.map((field) => {
+                        const metaKey = `meta_${field.name}`;
+                        const metaErr = touched[metaKey] ? errors[metaKey] ?? null : null;
+                        const errClass = metaErr ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "";
+                        return (
+                          <div key={field.name}>
+                            <label className="label">
+                              {field.label}
+                              {field.required && <span className="text-red-500 ml-0.5">*</span>}
+                            </label>
+                            {field.type === "select" ? (
+                              <select
+                                value={metadata[field.name] || ""}
+                                onChange={(e) => handleMetadataChange(field.name, e.target.value)}
+                                onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
+                                className={`input-field ${errClass}`}
+                              >
+                                <option value="">Select...</option>
+                                {field.options?.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : field.type === "textarea" ? (
+                              <textarea
+                                value={metadata[field.name] || ""}
+                                onChange={(e) => handleMetadataChange(field.name, e.target.value)}
+                                onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
+                                placeholder={field.placeholder}
+                                rows={3}
+                                maxLength={1000}
+                                className={`input-field resize-none ${errClass}`}
+                              />
+                            ) : (
+                              <input
+                                type={field.type === "date" ? "date" : field.type === "number" ? "number" : "text"}
+                                value={metadata[field.name] || ""}
+                                onChange={(e) => handleMetadataChange(field.name, e.target.value)}
+                                onBlur={() => handleMetaBlur(field.name, metadata[field.name] || "")}
+                                placeholder={field.placeholder}
+                                maxLength={field.type === "date" || field.type === "number" ? undefined : 500}
+                                min={field.type === "number" ? "0" : undefined}
+                                step={field.type === "number" ? "any" : undefined}
+                                className={`input-field ${errClass}`}
+                              />
+                            )}
+                            <FieldError error={metaErr} />
+                            {field.helpText && !metaErr && (
+                              <p className="text-xs text-gray-400 mt-1 flex items-start gap-1">
+                                <HelpCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                {field.helpText}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Value Band */}
+                <div>
+                  <label className="label">Approximate Value</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {VALUE_BAND_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setValueBand(valueBand === opt.value ? "" : opt.value as ValueBand)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
+                          valueBand === opt.value
+                            ? "border-vault-dark bg-blue-50 text-vault-dark"
+                            : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">
+                    We use ranges instead of exact amounts — just a rough idea helps your family understand the scale.
+                  </p>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="label">Notes (optional)</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => { setNotes(e.target.value); if (touched.notes) validateField("notes", e.target.value); }}
+                    onBlur={() => handleBlur("notes", notes)}
+                    placeholder="Any extra details your family should know about this asset..."
+                    rows={3}
+                    className={`input-field resize-none ${touched.notes && errors.notes ? "border-red-300 focus:ring-red-500 focus:border-red-500" : ""}`}
+                  />
+                  <FieldError error={touched.notes ? errors.notes ?? null : null} />
+                  {!errors.notes && <p className="text-xs text-gray-400 mt-1">{notes.length}/1000 characters</p>}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

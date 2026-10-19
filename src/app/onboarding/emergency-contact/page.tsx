@@ -110,9 +110,9 @@ export default function EmergencyContactPage() {
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       }).eq("id", user.id);
-      router.push("/dashboard");
+      router.push("/onboarding/vault-setup");
     } catch {
-      router.push("/dashboard");
+      router.push("/onboarding/vault-setup");
     }
   };
 
@@ -185,7 +185,7 @@ export default function EmergencyContactPage() {
         updated_at: new Date().toISOString(),
       }).eq("id", user.id);
 
-      router.push("/dashboard");
+      router.push("/onboarding/vault-setup");
     } catch (err: unknown) {
       setError(parseFormError(err));
     } finally {
