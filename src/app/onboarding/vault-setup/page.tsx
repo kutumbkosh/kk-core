@@ -203,8 +203,7 @@ export default function VaultSetupWizard() {
   const runGuard = useCallback(async () => {
     try {
       const supabase = createClient();
-      const { data: { user }, error: authErr } = await supabase.auth.getUser();
-      console.log("[vault-setup] auth:", user?.id ?? null, authErr);
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/"); return; }
 
       const [profileRes, assetCountRes] = await Promise.all([
@@ -214,16 +213,14 @@ export default function VaultSetupWizard() {
 
       const status = profileRes.data?.onboarding_wizard_status;
       const count = assetCountRes.count ?? 0;
-      console.log("[vault-setup] profileErr:", profileRes.error, "status:", status, "assetErr:", assetCountRes.error, "count:", count);
 
       if (status === "completed" || status === "skipped" || count > 0) {
-        console.log("[vault-setup] guard → dashboard (status:", status, "count:", count, ")");
         router.push("/dashboard");
         return;
       }
       setGuardLoading(false);
     } catch (e) {
-      console.error("[vault-setup] guard exception:", e);
+      console.error("[vault-setup] guard error:", e);
       setGuardLoading(false); // show wizard rather than hang
     }
   }, [router]);
